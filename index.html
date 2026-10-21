@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+<meta name="theme-color" content="#10191b" />
+<title>Seeker's Codex — World of Margerina | 3D RPG Atlas v0.2</title>
+<style>
+:root { --ink:#e8ead9;--gold:#e6c68b;--muted:#9daaa3;--glass:rgba(10,22,24,.78);--line:rgba(217,208,168,.25) }
+* { box-sizing:border-box; -webkit-tap-highlight-color:transparent }
+html,body { width:100%;height:100%;margin:0;overflow:hidden;background:#121e23;color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,sans-serif;touch-action:none;user-select:none }
+canvas#world { width:100%;height:100%;display:block;outline:0 }
+#overlay { position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 43%,transparent 42%,rgba(8,14,20,.34) 100%); }
+#hud {position:absolute;inset:0;pointer-events:none}
+.top {position:absolute;top:max(14px,env(safe-area-inset-top));left:max(16px,env(safe-area-inset-left));right:max(16px,env(safe-area-inset-right));display:flex;gap:16px;align-items:flex-start;justify-content:space-between}
+.brand {font-family:Georgia,serif;font-size:14px;letter-spacing:.25em;color:#f1d8a1;text-shadow:0 2px 10px #091414;font-weight:bold}
+.brand small {font-family:system-ui;display:block;letter-spacing:.19em;font-size:9px;margin-top:5px;color:#cfddd2;font-weight:500}
+.bars {width:min(330px,37vw);margin:11px auto 0 12px;display:grid;gap:7px}
+.bar {height:8px;background:#071316b9;border:1px solid #e5e2bd48;overflow:hidden;border-radius:4px;position:relative}
+.fill {width:100%;height:100%;transition:width .12s linear}
+#hpfill{background:linear-gradient(90deg,#872f34,#e36a52)}#aurafill{background:linear-gradient(90deg,#276b98,#5dcbe4)}#stfill{background:linear-gradient(90deg,#748448,#d4c56d)}
+.stats-label {color:#d8e1d9;font-size:10px;letter-spacing:.09em;display:flex;justify-content:space-between;margin-bottom:2px}
+.resource {display:flex;align-items:center;gap:8px}
+.resource > span:first-child{font-size:9px;width:48px;color:#d5d8cd}
+.resource .bar{flex:1}
+#mapWrap {width:170px;flex:0 0 170px;text-align:center;margin-left:auto}
+#minimap {width:158px;height:158px;border-radius:50%;border:2px solid #d4c79d9c;background:#101d20e0;box-shadow:0 0 0 6px #101b1f66,0 8px 28px #0008}
+#region {font-family:Georgia,serif;color:#f2d7a1;font-size:12px;letter-spacing:.15em;margin-top:10px;text-shadow:0 2px 9px #000}
+#clock{margin-top:3px;font-size:10px;letter-spacing:.16em;color:#cbd2c6}
+#quest {position:absolute;left:max(18px,env(safe-area-inset-left));top:155px;width:min(300px,36vw);background:linear-gradient(125deg,rgba(8,23,26,.84),rgba(17,25,22,.54));border-left:2px solid #c6aa72;padding:16px 18px 16px 17px;box-shadow:0 9px 32px #0003;backdrop-filter:blur(8px)}
+#quest .kicker{font-size:9px;color:var(--gold);letter-spacing:.21em;text-transform:uppercase}
+#questName{font-family:Georgia,serif;font-size:18px;margin-top:7px;color:#efe5c9}
+#questText{font-size:12px;line-height:1.55;color:#d5dbd3;margin-top:8px}
+#progress{font-size:11px;letter-spacing:.05em;color:#e6c68b;margin-top:10px}
+#centerHint{position:absolute;bottom:115px;left:50%;transform:translateX(-50%);font-size:12px;color:#e8e1cb;background:#0b1a1baa;border:1px solid #acaa8a52;border-radius:15px;padding:8px 16px;text-align:center;max-width:80vw;opacity:0;transition:opacity .25s}
+#message{position:absolute;top:26%;left:50%;transform:translateX(-50%);width:min(500px,88vw);text-align:center;font-size:16px;letter-spacing:.06em;color:#f5e2b6;text-shadow:0 2px 14px #000,0 2px 4px #000;opacity:0;transition:opacity .4s}
+#message strong{display:block;font:26px Georgia,serif;letter-spacing:.11em;margin-bottom:8px}
+#coords {position:absolute;bottom:16px;left:16px;color:#d5daccad;font-size:10px;letter-spacing:.06em}
+#controls {position:absolute;right:17px;bottom:16px;color:#d8dbc7b3;font-size:10px;text-align:right;max-width:60vw;line-height:1.6}
+#buttons {position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px;pointer-events:auto}
+.ability{width:59px;height:58px;background:linear-gradient(145deg,#183137eb,#071619eb);border:1px solid #c7a97564;color:#e6d5ad;border-radius:8px;font-family:Georgia,serif;font-size:19px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;position:relative;cursor:pointer;box-shadow:0 6px 16px #0005;overflow:hidden}
+.ability span{font:9px system-ui;letter-spacing:.04em;color:#d4d5c3}
+.ability .cool{position:absolute;inset:0;background:#071115af;transform-origin:bottom;transform:scaleY(0);pointer-events:none}
+.ability .hotkey{position:absolute;top:2px;right:5px;font:9px system-ui;color:#d1c6a5aa}
+.ability.active{border-color:#f7d087;box-shadow:0 0 15px #dfb65b70}
+#interact {position:absolute;left:50%;bottom:94px;transform:translateX(-50%);pointer-events:auto;display:none;font-size:12px;letter-spacing:.04em;border-radius:20px;border:1px solid #d7c6a383;padding:9px 22px;background:#122b2bd9;color:#fff1cd;cursor:pointer}
+#mobile {display:none;position:absolute;inset:0;pointer-events:none}
+#joystick {position:absolute;bottom:36px;left:30px;width:120px;height:120px;border-radius:60px;border:2px solid #e8dac159;background:#101e2590;pointer-events:auto;touch-action:none}
+#stick {position:absolute;left:37px;top:37px;width:42px;height:42px;border-radius:50%;border:1px solid #f5e0b0aa;background:radial-gradient(#c5af86c4,#314e4d9e);box-shadow:0 3px 10px #0007;pointer-events:none}
+#mobileActions {position:absolute;right:12px;bottom:25px;display:grid;grid-template-columns:repeat(3,48px);gap:8px;pointer-events:auto}
+.mobilebtn {height:48px;width:48px;border:1px solid #e5d8b17b;border-radius:50%;color:#fff5db;background:#152a32da;font-size:15px;font-weight:bold;touch-action:manipulation}
+.mobilebtn.big {grid-column:3;grid-row:1 / span 2;height:103px;border-radius:35px;background:#65503fc9}
+#menuBtn{position:absolute;right:20px;top:210px;pointer-events:auto;background:#0c2025d6;border:1px solid #cec4a761;color:#e9d7aa;border-radius:9px;padding:8px 11px;font-size:12px;cursor:pointer}
+#helpBtn{position:absolute;right:20px;top:250px;pointer-events:auto;background:#0c2025d6;border:1px solid #cec4a761;color:#e9d7aa;border-radius:9px;padding:8px 11px;font-size:12px;cursor:pointer}
+#intro,#pause {position:absolute;inset:0;background:linear-gradient(105deg,#05141df0 0%,#0c2027e6 51%,#203633aa 100%);display:flex;justify-content:center;align-items:center;pointer-events:auto;z-index:5;padding:20px}
+#pause {display:none;background:#061418d4;backdrop-filter:blur(14px)}
+.introBox {width:min(660px,93vw);border-top:1px solid #c9a86b8a;border-bottom:1px solid #c9a86b63;padding:24px 16px 25px;text-align:center}
+.introEmblem {font-size:45px;color:#e7c98e;filter:drop-shadow(0 0 25px #e9bb5165)}
+.eyebrow {letter-spacing:.3em;font-size:11px;color:#c8b17b;margin:12px 0}
+h1 {font-family:Georgia,serif;font-weight:normal;letter-spacing:.12em;font-size:clamp(31px,5vw,60px);color:#f3e1b8;margin:12px 0 0;text-shadow:0 5px 20px #0008}
+h2 {font-family:Georgia,serif;font-weight:normal;font-size:23px;letter-spacing:.1em;color:#f0d7a1;margin:12px 0}
+.sub {font-family:Georgia,serif;font-style:italic;font-size:clamp(17px,3vw,25px);color:#d1e0ce;margin:7px 0 22px}
+.introCopy {font-size:13px;max-width:530px;margin:0 auto 20px;color:#b7c9c2;line-height:1.7}
+.cta {background:linear-gradient(#e7ca8b,#b89a5d);border:1px solid #f6e4b0;padding:14px 37px;color:#1a2826;letter-spacing:.17em;font-size:11px;font-weight:800;cursor:pointer;box-shadow:0 6px 21px #0005}
+.ghost {background:transparent;color:#e9d9b9;border:1px solid #bcad806e;padding:11px 18px;cursor:pointer;margin-left:8px}
+.tiny {font-size:10px;letter-spacing:.08em;color:#92a79f;margin-top:20px;line-height:1.7}
+#loading {position:absolute;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;background:#07191b;color:#e8d6ac;font:14px Georgia,serif;letter-spacing:.2em}
+.loading-panel{width:min(470px,100%);padding:20px;text-align:center}
+.loading-title{font:clamp(16px,4vw,23px)/1.5 Georgia,serif;letter-spacing:.14em}
+#loadingInfo{margin:18px auto 0;font:13px/1.7 system-ui;color:#d6dcd3;letter-spacing:normal}
+.loading-help{margin:36px auto 0;max-width:380px;font:12px/1.7 system-ui;color:#b6c6be;letter-spacing:normal}
+.loading-help b{color:#f0d29b}
+#rotate{display:none}
+@media(max-width:850px) {#buttons,#controls,#coords{display:none}#mobile{display:block}#quest{top:93px;left:10px;width:210px;padding:10px 12px}#questName{font-size:15px}#questText{font-size:11px}#progress{font-size:10px}#mapWrap{width:106px;flex:0 0 106px}#minimap{width:100px;height:100px}#region{font-size:9px}#clock{font-size:9px}#menuBtn{top:170px;right:12px}#helpBtn{top:210px;right:12px}#centerHint{bottom:150px}.top{left:10px;right:10px}.brand{font-size:11px}.bars{position:absolute;left:0;top:38px;width:188px;margin:0;gap:4px}.resource{gap:4px}.resource>span:first-child{width:40px;font-size:8px}.bar{height:6px}#interact{bottom:145px}}
+@media(max-width:850px) and (orientation:portrait){#rotate{display:block;position:absolute;z-index:4;bottom:4px;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:.08em;color:#f8e4bdc7;white-space:nowrap;pointer-events:none}}
+@media(max-height:460px) {#quest{top:85px}#menuBtn{top:12px;right:125px}#helpBtn{top:12px;right:60px}#mobileActions{bottom:8px}#joystick{bottom:9px}#region,#clock{display:none}}
+
+/* v0.2: full-world field atlas, usable with a touch screen or keyboard. */
+#atlasBtn {position:absolute;right:20px;top:291px;pointer-events:auto;background:linear-gradient(145deg,#866a3eec,#2d3e3cde);border:1px solid #e6cb90;color:#fff4d4;border-radius:9px;padding:10px 13px;font-size:12px;font-weight:750;letter-spacing:.08em;cursor:pointer;box-shadow:0 5px 16px #0005}
+#atlas {display:none;position:absolute;inset:0;background:#071315f2;z-index:6;pointer-events:auto;justify-content:center;align-items:center;padding:12px;backdrop-filter:blur(10px);overflow-y:auto;touch-action:pan-y}
+.atlas-shell {position:relative;width:min(1170px,100%);max-height:97%;overflow-y:auto;border:1px solid #b3a2797d;background:linear-gradient(130deg,#0b2025,#182b29 68%,#182522);box-shadow:0 18px 55px #000b;padding:17px 22px 20px;touch-action:pan-y}
+.atlas-head {display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.atlas-eyebrow {color:#dfc082;font-size:10px;letter-spacing:.27em}
+.atlas-heading {font:clamp(24px,3vw,38px) Georgia,serif;letter-spacing:.08em;margin:6px 0;color:#f0deaf}
+#atlasClose{background:#1e3436;color:#f7e6bb;border:1px solid #bba7788c;border-radius:6px;padding:9px 16px;cursor:pointer}
+.atlas-layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:16px}
+#atlasCanvas{width:100%;aspect-ratio:900/540;display:block;border:1px solid #6b756458;background:#183338;touch-action:manipulation;cursor:pointer}
+.atlas-legend{display:flex;justify-content:space-between;gap:12px;color:#c1c8bb;font-size:10px;letter-spacing:.055em;line-height:1.5;padding:8px 0 12px}
+#atlasList{display:grid;grid-template-columns:1fr;gap:5px;max-height:390px;overflow-y:auto;touch-action:pan-y}
+.atlas-item{color:#d8dfd2;background:#112b2ee8;border:1px solid #adad8e2a;display:flex;align-items:center;text-align:left;gap:9px;padding:8px 9px;cursor:pointer;min-height:45px}
+.atlas-item.here{border-color:#e6bd6e;background:#35504b}
+.atlas-item b{display:block;font-size:12px;font-weight:650}
+.atlas-item small{font-size:10px;color:#bac3b6}
+.atlas-symbol{color:#101c20;font-size:10px;border-radius:4px;width:28px;height:26px;display:grid;place-items:center;font-weight:800;flex-shrink:0}
+.atlas-chevron{margin-left:auto;color:#cfb483}
+.atlas-detail{background:#0c1d22;border:1px solid #b9ac8854;padding:14px 16px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:15px}
+.atlas-detail h3{font:22px Georgia,serif;color:#f1d49e;margin:2px 0 8px}
+.atlas-detail p{font-size:12px;line-height:1.5;color:#c3cdc4;margin:0;max-width:680px}
+#travelBtn{padding:13px 18px;background:#d6b575;border:1px solid #eed198;color:#152526;font-weight:800;letter-spacing:.06em;white-space:nowrap;cursor:pointer}
+.atlas-note{font-size:10px;color:#a0b7ac;line-height:1.5;margin:12px 0 0}
+@media(max-width:850px){#atlasBtn{top:250px;right:12px;font-size:10px;padding:8px 10px}.atlas-shell{padding:13px}.atlas-layout{grid-template-columns:minmax(0,1fr) 190px;gap:10px}.atlas-heading{font-size:23px}#atlasList{max-height:300px}.atlas-item{min-height:42px}.atlas-item b{font-size:10px}.atlas-item small{font-size:9px}.atlas-legend{font-size:9px}.atlas-detail{padding:10px}.atlas-detail h3{font-size:16px}.atlas-detail p{font-size:11px}#travelBtn{font-size:10px;white-space:normal}}
+@media(max-width:640px){.atlas-layout{grid-template-columns:1fr}.atlas-shell{max-height:calc(100dvh - 16px)}#atlasCanvas{max-height:200px}#atlasList{grid-template-columns:repeat(2,minmax(0,1fr));max-height:155px}.atlas-detail{flex-direction:column;align-items:stretch}#travelBtn{width:100%}.atlas-legend{padding:5px 0}}
+@media(max-height:460px){#atlasBtn{top:12px;right:190px}.atlas-shell{max-height:calc(100vh - 10px)}.atlas-layout{grid-template-columns:1fr 220px}#atlasCanvas{max-height:190px;aspect-ratio:auto}.atlas-detail{margin-top:5px;padding:7px}.atlas-note{margin:5px 0 0}}
+
+</style>
+</head>
+<body>
+<canvas id="world" aria-label="Three dimensional Seeker's Codex open-world game"></canvas>
+<div id="overlay"></div>
+<div id="loading"><div class="loading-panel"><div class="loading-title" id="loadingTitle">FORGING MARGERINA...</div><div id="loadingInfo">Preparing your 3D Seeker's Codex world.</div><div class="loading-help">If this remains on screen in iPhone Files or the ChatGPT file preview, that viewer may be blocking the graphics engine. Open the game from its <b>Safari website</b> instead. See START_HERE.txt inside the ZIP.</div></div></div>
+<div id="hud">
+  <div class="top"><div style="display:flex;gap:12px;align-items:flex-start"><div class="brand">SEEKER'S CODEX<small>KAI XANDER · OPEN WORLD SURVEY</small></div><div class="bars">
+    <div class="resource"><span>HEALTH</span><div class="bar"><div id="hpfill" class="fill"></div></div></div>
+    <div class="resource"><span>AURA</span><div class="bar"><div id="aurafill" class="fill"></div></div></div>
+    <div class="resource"><span>STAMINA</span><div class="bar"><div id="stfill" class="fill"></div></div></div>
+  </div></div><div id="mapWrap"><canvas id="minimap" width="200" height="200"></canvas><div id="region">BODHIRA WILDS</div><div id="clock">DAY 01 · DAWN</div></div></div>
+  <div id="quest"><div class="kicker">✦ MAIN QUEST · ACT I</div><div id="questName">The Fallen Echoes</div><div id="questText">Seek the village Keeper by the central fire.</div><div id="progress">OBJECTIVE · TALK TO THE KEEPER</div></div>
+  <div id="message"></div><div id="centerHint"></div><button id="interact">F · Speak</button>
+  <button id="menuBtn" title="Pause">Ⅱ PAUSE</button><button id="helpBtn" title="Help">? HELP</button><button id="atlasBtn" title="World Atlas (M)">◈ WORLD ATLAS</button>
+  <div id="buttons"><button class="ability" data-action="attack">⚔<span>STAFF</span><i class="hotkey">J</i><div class="cool"></div></button><button class="ability" data-action="fire">✺<span>AGNI</span><i class="hotkey">Q</i><div class="cool"></div></button><button class="ability" data-action="palm">✧<span>BODHI</span><i class="hotkey">E</i><div class="cool"></div></button><button class="ability" data-action="dash">↝<span>HANUMAN</span><i class="hotkey">R</i><div class="cool"></div></button></div>
+  <div id="coords"></div><div id="controls">WASD MOVE · MOUSE DRAG CAMERA · M WORLD ATLAS · SHIFT SPRINT · SPACE JUMP<br>J / CLICK ATTACK · Q AGNI MUDRA · E BODHI PALM · R HANUMAN STEP · F INTERACT</div>
+</div>
+<div id="mobile"><div id="joystick"><div id="stick"></div></div><div id="mobileActions"><button class="mobilebtn" data-action="fire">✺</button><button class="mobilebtn" data-action="palm">✧</button><button class="mobilebtn" data-action="dash">↝</button><button class="mobilebtn" data-action="jump">↑</button><button class="mobilebtn" data-action="interact">F</button><button class="mobilebtn big" data-action="attack">⚔</button></div></div>
+<div id="rotate">↻ LANDSCAPE MODE RECOMMENDED</div>
+<div id="intro"><div class="introBox"><div class="introEmblem">☼</div><div class="eyebrow">AN EXPANDING 3D WORLD · VERSION 0.3 · MOBILE COMPATIBLE</div><h1>SEEKER'S CODEX</h1><div class="sub">World of Margerina · The Great Survey</div><p class="introCopy">Begin in Bodhira as Kai Xander, fight with Muti, and open the WORLD ATLAS to survey twelve locations across a vast continental-scale coordinate grid. Walk through streamed wilderness, discover distinct climates, visit regional waypoints and return to finish the God Tree quest. All regional placements are PROVISIONAL design coordinates — not established Seeker’s Codex geography.</p><button class="cta" id="startBtn">ENTER MARGERINA →</button><button class="ghost" id="resetBtn">NEW JOURNEY</button><div class="tiny">FREE · OFFLINE · 12 SURVEY REGIONS · STREAMED 3D TERRAIN<br>DESKTOP KEYBOARD OR MOBILE TOUCH CONTROLS</div></div></div>
+<div id="pause"><div class="introBox"><div class="introEmblem">✥</div><h2>SEEKER'S JOURNAL</h2><div class="introCopy" id="pauseCopy">Your journey continues.</div><button class="cta" id="resumeBtn">RESUME JOURNEY</button><button class="ghost" id="saveBtn">SAVE GAME</button><div class="tiny">This world is a procedural proof of concept: distant cities are landmark proxies, not complete authored urban areas. Map placements are not canon.</div></div></div>
+<div id="atlas" role="dialog" aria-modal="true" aria-label="World Atlas">
+ <div class="atlas-shell">
+  <div class="atlas-head"><div><div class="atlas-eyebrow">THE FIELD SURVEY · 1500 A.S.</div><div class="atlas-heading">THE WORLD OF MARGERINA</div></div><button id="atlasClose">✕ CLOSE</button></div>
+  <div class="atlas-layout"><div><canvas id="atlasCanvas" width="900" height="540" aria-label="Map of survey waypoints"></canvas><div class="atlas-legend"><span>● Region waypoint · ◎ Current location</span><span>1,000 km × 720 km concept grid</span></div></div><div><div class="atlas-eyebrow" style="margin-bottom:8px">SELECT A DESTINATION</div><div id="atlasList"></div></div></div>
+  <div class="atlas-detail"><div><h3 id="atlasSelection">Bodhira Wilds</h3><p id="atlasInfo">Select a waypoint to begin your expedition.</p></div><button id="travelBtn">TRAVEL TO WAYPOINT →</button></div>
+  <p class="atlas-note">WORLD DESIGN NOTICE: The grid is an early large-scale engineering test, not an approved map of continents, actual distances, borders or travel routes. Most terrain is procedurally generated; major cities are temporary stylized outposts. Returning to Bodhira preserves its original quest.</p>
+ </div>
+</div>
+<script>
+/*
+ * SEEKER'S CODEX: THE BODHIRA WILDS — 3D interactive vertical slice
+ * Copyright (c) 2026 prototype creator. Built with native WebGL1 / WebGL2 and vanilla JS.
+ * No libraries, downloads, credentials, subscriptions, or remote servers.
+ * This non-canon fan/creator development prototype is not a commercial release.
+ */
+(() => {
+'use strict';
+const $=s=>document.querySelector(s);
+const loadEl=$('#loading');
+function fatal(message){
+  loadEl.classList.add('failed'); loadEl.style.display='flex';
+  const t=$('#loadingTitle');if(t)t.textContent='3D ENGINE CANNOT START';
+  const d=$('#loadingInfo');if(d)d.textContent=String(message).slice(0,240);
+}
+window.addEventListener('error',e=>fatal(e.message||'Game JavaScript error'));
+window.addEventListener('unhandledrejection',e=>fatal(e.reason?.message||'Game loading failed'));
+const mobileMode=window.matchMedia('(pointer:coarse)').matches || window.innerWidth<850;
+const canvas=$('#world');
+const glOpts={antialias:!mobileMode,alpha:false,powerPreference:mobileMode?'low-power':'high-performance'};
+let gl=null,gl2=false;
+try{gl=canvas.getContext('webgl2',glOpts);gl2=!!gl;
+if(!gl)gl=canvas.getContext('webgl',glOpts)||canvas.getContext('experimental-webgl',glOpts);
+}catch(err){fatal('Graphics initialization failed: '+err.message);return;}
+if(!gl){fatal('3D graphics are blocked here. This happens in some iPhone file previews. Publish index.html as a webpage and open the website directly in Safari.');return;}
+canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();fatal('The device lost its graphics connection. Close other tabs and reload the Safari webpage.');});
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const mix=(a,b,t)=>a+(b-a)*t;
+const dist=(a,b,c,d)=>Math.hypot(a-c,b-d);
+const smooth=(a,b,v)=>{let t=clamp((v-a)/(b-a),0,1);return t*t*(3-2*t)};
+const TAU=Math.PI*2;
+let seed=160619;
+const rnd=()=>{seed=(1664525*seed+1013904223)>>>0;return seed/4294967296};
+const rand=(a,b)=>a+(b-a)*rnd();
+const C={
+ trunk:[.24,.22,.19],needle:[.15,.35,.29],needle2:[.19,.44,.33],canopy:[.35,.49,.30],
+ soil:[.24,.32,.23],dark:[.13,.21,.22],light:[.91,.75,.48],stone:[.48,.54,.50],
+ stone2:[.35,.43,.43],ivory:[.82,.79,.64],wood:[.31,.25,.20],roof:[.27,.34,.37],
+ gold:[.97,.71,.35],fire:[1,.43,.18],blue:[.32,.85,.98],shade:[.13,.15,.21],
+ magenta:[.64,.35,.85],grass:[.31,.47,.28],pale:[.68,.76,.67]
+};
+const css=(id,text)=>{ const el=$(id);if(el)el.textContent=text;};
+const vs=`${gl2?'#version 300 es\n':''}precision highp float;
+${gl2?'in':'attribute'} vec3 aPos;${gl2?'in':'attribute'} vec3 aColor;${gl2?'in':'attribute'} vec3 aNormal;
+uniform mat4 uVP; uniform vec3 uSun; uniform vec3 uCam;uniform float uDay;
+${gl2?'out':'varying'} vec3 vCol;${gl2?'out':'varying'} float vFog;
+void main(){
+  vec3 norm=normalize(aNormal);
+  float sunlight=max(dot(norm,normalize(uSun)),0.0);
+  float lighting=(0.43+0.57*sunlight)*(0.38+0.62*uDay);
+  vec3 col=aColor*lighting;
+  col+=aColor*vec3(0.09,0.12,0.15)*(1.0-uDay);
+  vCol=pow(max(col,vec3(0.0)),vec3(0.89));
+  float d=distance(aPos,uCam);
+  vFog=smoothstep(92.0,315.0,d);
+  gl_Position=uVP*vec4(aPos,1.0);
+}`;
+const fs=`${gl2?'#version 300 es\n':''}precision mediump float;
+${gl2?'in':'varying'} vec3 vCol;${gl2?'in':'varying'} float vFog;uniform vec3 uFogColor;${gl2?'out vec4 o;':''}
+void main(){${gl2?'o':'gl_FragColor'}=vec4(mix(vCol,uFogColor,vFog),1.0);}`;
+function shader(type,src){let s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}
+let program;
+try {program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));}
+catch(e){fatal('Graphics shader error: '+e.message);return}
+gl.useProgram(program);
+const attr={pos:gl.getAttribLocation(program,'aPos'),color:gl.getAttribLocation(program,'aColor'),normal:gl.getAttribLocation(program,'aNormal')};
+const uni={vp:gl.getUniformLocation(program,'uVP'),sun:gl.getUniformLocation(program,'uSun'),cam:gl.getUniformLocation(program,'uCam'),day:gl.getUniformLocation(program,'uDay'),fog:gl.getUniformLocation(program,'uFogColor')};
+gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);
+const skyBase=[.57,.72,.75];
+// 9 floats per vertex: 3 position, 3 color, 3 normal. World mesh uses one draw call.
+class Mesh {
+ constructor(){this.a=[]}
+ v(p,c,n){this.a.push(...p,...c,...n)}
+ tri(a,b,c,col){const u=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],v=[c[0]-a[0],c[1]-a[1],c[2]-a[2]];let n=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]];let d=Math.hypot(...n)||1;n=n.map(t=>t/d);this.v(a,col,n);this.v(b,col,n);this.v(c,col,n)}
+ quad(a,b,c,d,col){this.tri(a,b,c,col);this.tri(a,c,d,col)}
+ box(x,y,z,w,h,d,col,r=0){const cx=Math.cos(r),sx=Math.sin(r),p=(X,Y,Z)=>[x+X*cx+Z*sx,y+Y,z-X*sx+Z*cx];let q=[p(-w/2,-h/2,-d/2),p(w/2,-h/2,-d/2),p(w/2,h/2,-d/2),p(-w/2,h/2,-d/2),p(-w/2,-h/2,d/2),p(w/2,-h/2,d/2),p(w/2,h/2,d/2),p(-w/2,h/2,d/2)];const shade=(m)=>col.map(v=>clamp(v*m,0,1));this.quad(q[4],q[5],q[6],q[7],shade(1.05));this.quad(q[1],q[0],q[3],q[2],shade(.78));this.quad(q[0],q[4],q[7],q[3],shade(.9));this.quad(q[5],q[1],q[2],q[6],shade(.93));this.quad(q[3],q[7],q[6],q[2],shade(1.13));this.quad(q[0],q[1],q[5],q[4],shade(.63))}
+ cone(x,y,z,r,h,col,segments=7,rTop=0){let a=[],b=[];for(let i=0;i<segments;i++){let t=i/segments*TAU;a.push([x+Math.cos(t)*r,y,z+Math.sin(t)*r]);b.push([x+Math.cos(t)*rTop,y+h,z+Math.sin(t)*rTop])}for(let i=0;i<segments;i++){let j=(i+1)%segments,m=1+Math.sin(i*7.2)*.08,c=col.map(v=>clamp(v*m,0,1));this.quad(a[j],a[i],b[i],b[j],c)}}
+ sphere(x,y,z,rx,ry,rz,col,slices=9,rings=5){for(let j=0;j<rings;j++){const p=j/rings*Math.PI,q=(j+1)/rings*Math.PI;for(let i=0;i<slices;i++){let s=i/slices*TAU,t=(i+1)/slices*TAU;let v=(a,b)=>[x+Math.sin(a)*Math.cos(b)*rx,y+Math.cos(a)*ry,z+Math.sin(a)*Math.sin(b)*rz];this.quad(v(p,t),v(q,t),v(q,s),v(p,s),col)}}}
+ ring(x,y,z,r,col,w=.14,segments=24){for(let i=0;i<segments;i++){const a=i*TAU/segments,b=(i+1)*TAU/segments;let v=(rr,t)=>[x+Math.cos(t)*rr,y,z+Math.sin(t)*rr];this.quad(v(r-w,a),v(r-w,b),v(r+w,b),v(r+w,a),col)}}
+ path(points,width,color){for(let i=0;i<points.length-1;i++){let a=points[i],b=points[i+1];let dx=b[0]-a[0],dz=b[1]-a[1],len=Math.hypot(dx,dz)||1,nx=-dz/len*width/2,nz=dx/len*width/2;let q=(x,z)=>[x,terrain(x,z)+.10,z];this.quad(q(a[0]+nx,a[1]+nz),q(b[0]+nx,b[1]+nz),q(b[0]-nx,b[1]-nz),q(a[0]-nx,a[1]-nz),color)}}
+ buffer(){let data=new Float32Array(this.a),b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);return {buffer:b,count:data.length/9}}
+}
+function drawBuffer(buf){gl.bindBuffer(gl.ARRAY_BUFFER,buf.buffer);const stride=9*4;gl.enableVertexAttribArray(attr.pos);gl.vertexAttribPointer(attr.pos,3,gl.FLOAT,false,stride,0);gl.enableVertexAttribArray(attr.color);gl.vertexAttribPointer(attr.color,3,gl.FLOAT,false,stride,12);gl.enableVertexAttribArray(attr.normal);gl.vertexAttribPointer(attr.normal,3,gl.FLOAT,false,stride,24);gl.drawArrays(gl.TRIANGLES,0,buf.count)}
+const v3=(x,y,z)=>[x,y,z];
+function legacyTerrain(x,z){
+ let h=1.4*Math.sin(x*.033+Math.sin(z*.018))*Math.cos(z*.027)+.75*Math.sin((x+z)*.079)+1.5*Math.cos(z*.025);
+ const range=Math.hypot(x*.96,z*1.06);
+ h+=Math.pow(Math.max(0,range-58),1.20)*.018;
+ const peaks=[[148,-154,17,60],[-162,-130,19,56],[-120,162,14,68],[178,155,16,60]];
+ for(let p of peaks){let d=dist(x,z,p[0],p[1]);h+=p[2]*Math.exp(-d*d/(p[3]*p[3]));}
+ const flat=smooth(14,29,Math.hypot(x,z));h=mix(.6,h,flat);
+ const lake=Math.hypot((x+75)*1.02,(z-66)*1.32);h-=5*(1-smooth(20,39,lake));
+ return h;
+}
+
+// WORLD ATLAS v0.2: provisional developer layout. All coordinates are illustrative,
+// never canonical inter-city distances or nation boundaries.
+const WORLD_X=500000,WORLD_Z=360000;
+const REGIONS=[
+ {id:'bodhira', name:'Bodhira Wilds', land:'Bodhira', x:0,z:0,kind:'forest',color:'#75b48b',blurb:'Kai’s beginning. Ancient woods, a village and the God Tree echoes.',feature:'The First Ember'},
+ {id:'rehli', name:'New Rehli Approach',land:'Rajistan',x:82000,z:-45000,kind:'savanna',color:'#d8b97e',blurb:'Caravan paths and windswept settlements on the road toward Rajir.',feature:'Caravan Roads'},
+ {id:'rajir', name:'Rajir Frontier',land:'Rajistan',x:148000,z:-102000,kind:'dunes',color:'#d5a765',blurb:'A sun-baked gateway to the arena traditions of Rajir.',feature:'King in the Lair'},
+ {id:'zhushen',name:'Zhushen Wildlands',land:'Chun',x:285000,z:110000,kind:'bamboo',color:'#5cb991',blurb:'Mountain forests and old paths near the Seeker examinations.',feature:'Black Forest Passage'},
+ {id:'guan',name:'Guan Diego Reach',land:'Eastern Territories',x:363000,z:-36000,kind:'highland',color:'#83abaf',blurb:'A major story landmark represented by a survey outpost in this prototype.',feature:'Guan Diego'},
+ {id:'janoah',name:'Janoah Heartlands',land:'Janoah',x:23000,z:292000,kind:'river',color:'#70b9b0',blurb:'Green river valleys, the roads of Seekers and the Flama Guild.',feature:'Flama Guild'},
+ {id:'magnara',name:'Magnara Outer Rings',land:'Magnara',x:-144000,z:247000,kind:'city',color:'#d0aa8c',blurb:'The great city’s outskirts, toward the Crescent Halo and Seeker Citadel.',feature:'Seven Rings'},
+ {id:'vinlan',name:'Vinlan North',land:'Vinlan',x:-347000,z:273000,kind:'tundra',color:'#b2d6de',blurb:'A frozen frontier shaped by winds, ice and Flamehart legends.',feature:'Ice King Country'},
+ {id:'britannia',name:'Britannian Marches',land:'Britannia',x:-408000,z:48000,kind:'moors',color:'#93a58d',blurb:'Old stone roads, misty fields and distant royal holdings.',feature:'Lockhart Legacy'},
+ {id:'germania',name:'Germanian Highlands',land:'Germania',x:-279000,z:-178000,kind:'mountain',color:'#b1b0a0',blurb:'Stone ridges and forbidding approaches to Avoider territory.',feature:'Avoider Frontier'},
+ {id:'americana',name:'Americana Expanse',land:'Americana',x:55000,z:-289000,kind:'prairie',color:'#a9bc83',blurb:'Great open grasslands and scattered frontier settlements.',feature:'Open Frontier'},
+ {id:'golden',name:'Golden City March',land:'Golden City',x:290000,z:-238000,kind:'dunes',color:'#e4bd6e',blurb:'A distant desert road toward the city transformed after the Dune conflict.',feature:'Golden City'}
+];
+const WORLD_BY_ID=Object.fromEntries(REGIONS.map(r=>[r.id,r]));
+function closestRegion(x,z){let best=REGIONS[0],bd=Infinity;for(const r of REGIONS){let d=(x-r.x)**2+(z-r.z)**2;if(d<bd){best=r;bd=d}}return best}
+function mixColor(a,b,t){return a.map((v,i)=>mix(v,b[i],t))}
+function nHash(x,z){let a=Math.sin(x*127.1+z*311.7+18.7)*43758.5453;return a-Math.floor(a)}
+function noise(x,z){let ix=Math.floor(x),iz=Math.floor(z),fx=x-ix,fz=z-iz;
+ fx=fx*fx*(3-2*fx);fz=fz*fz*(3-2*fz);
+ return mix(mix(nHash(ix,iz),nHash(ix+1,iz),fx),mix(nHash(ix,iz+1),nHash(ix+1,iz+1),fx),fz)*2-1}
+function worldTerrain(x,z){let r=closestRegion(x,z),n=noise(x/80,z/80),large=noise(x/650,z/650),hill=noise(x/245,z/245);
+ let rough=r.kind==='mountain'?3.8:r.kind==='highland'?2.3:r.kind==='tundra'?1.8:r.kind==='moors'?1.45:r.kind==='city'?.24:1.05;
+ let relief=3.6*n*rough+9.0*hill*rough+17.0*large*rough;
+ let dunes=r.kind==='dunes'?4.5*Math.sin(x*.011+Math.sin(z*.006))*Math.cos(z*.009):0;
+ let valley=r.kind==='river'?-5*Math.exp(-Math.pow((x-r.x-460*Math.sin((z-r.z)*.002))/38,2)):0;
+ // Flatten a small settlement center for navigable waypoint spawn points.
+ let near=Math.hypot(x-r.x,z-r.z);
+ return mix(1.7,relief+dunes+valley,smooth(35,260,near));
+}
+function terrain(x,z){
+ let t=worldTerrain(x,z),edge=Math.max(Math.abs(x),Math.abs(z));
+ return mix(legacyTerrain(x,z),t,smooth(230,365,edge));
+}
+const TERRAIN_PALETTES={
+ forest:[[.29,.45,.31],[.44,.48,.34]], savanna:[[.59,.53,.33],[.65,.57,.39]], dunes:[[.74,.58,.35],[.86,.72,.48]],
+ bamboo:[[.24,.49,.33],[.39,.58,.39]], highland:[[.36,.48,.48],[.55,.55,.50]], river:[[.31,.52,.39],[.38,.54,.47]],
+ city:[[.50,.48,.40],[.65,.59,.49]],tundra:[[.55,.67,.70],[.80,.85,.83]],moors:[[.38,.46,.35],[.50,.50,.43]],
+ mountain:[[.44,.47,.46],[.60,.60,.56]],prairie:[[.48,.54,.32],[.65,.61,.42]]};
+const CHUNK_SIZE=128,GRID_STEP=mobileMode?16:8,STREAM_RADIUS=2;
+const chunks=new Map();let streamQueue=[],chunkCX=NaN,chunkCZ=NaN,drawCalls=0;
+function chunkKey(x,z){return x+':'+z}
+function chunkRandom(cx,cz){let seed=(((cx*73856093)^(cz*19349663)^0x94e2f761)>>>0)||1;return ()=>{seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;return (seed>>>0)/4294967296}}
+function terrainPalette(x,z){let r=closestRegion(x,z);return TERRAIN_PALETTES[r.kind]||TERRAIN_PALETTES.forest}
+function proceduralTree(mesh,x,z,scale,r){let y=terrain(x,z);const t=r.kind;
+ if(t==='dunes'){ // wind-shaped desert scrub
+   mesh.sphere(x,y+.4*scale,z,.9*scale,.6*scale,.8*scale,[.42,.47,.28],6,3);return;
+ }
+ if(t==='tundra'){mesh.cone(x,y,z,.36*scale,4.0*scale,[.30,.37,.40],6,.2*scale);mesh.cone(x,y+2*scale,z,2*scale,3.4*scale,[.41,.57,.58],7);return}
+ if(t==='bamboo'){for(let k=0;k<3;k++){let dx=(k-1)*.55*scale,dz=(k%2)*.45*scale;mesh.cone(x+dx,y,z+dz,.14*scale,6.0*scale,[.33,.51,.28],5,.09*scale);mesh.sphere(x+dx,y+5.4*scale,z+dz,1.1*scale,.65*scale,1.0*scale,[.23,.54,.31],6,3)}return}
+ if(t==='prairie'||t==='savanna'){mesh.cone(x,y,z,.35*scale,3.4*scale,C.trunk,6,.17*scale);mesh.sphere(x,y+3.6*scale,z,2.9*scale,1.2*scale,2.6*scale,[.38,.48,.27],7,3);return}
+ mesh.cone(x,y,z,.35*scale,4.1*scale,C.trunk,6,.25*scale);
+ for(let q=0;q<3;q++)mesh.cone(x,y+1.2*scale+q*1.25*scale,z,(2.2-q*.36)*scale,3.2*scale,t==='moors'?[.29,.40,.31]:[.19,.41,.32],7);
+}
+function buildChunk(cx,cz){let m=new Mesh(),rr=chunkRandom(cx,cz),baseX=cx*CHUNK_SIZE,baseZ=cz*CHUNK_SIZE;
+ for(let iz=0;iz<CHUNK_SIZE/GRID_STEP;iz++)for(let ix=0;ix<CHUNK_SIZE/GRID_STEP;ix++){
+  let x=baseX+ix*GRID_STEP,z=baseZ+iz*GRID_STEP,h=GRID_STEP;
+  // Original Bodhira mesh owns the central 460-metre playable district.
+  if(Math.abs(x+h/2)<230&&Math.abs(z+h/2)<230)continue;
+  let a=[x,terrain(x,z),z],b=[x,terrain(x,z+h),z+h],c=[x+h,terrain(x+h,z+h),z+h],d=[x+h,terrain(x+h,z),z];
+  let pal=terrainPalette(x+h/2,z+h/2),k=clamp(.50+(a[1]+b[1]+c[1]+d[1])/230,.12,.9),c0=mixColor(pal[0],pal[1],k);
+  let randShade=.87+nHash(ix+cx*16,iz+cz*16)*.22;
+  let slope=Math.abs(a[1]-c[1])+Math.abs(b[1]-d[1]);if(slope>16)c0=mixColor(c0,[.54,.55,.49],Math.min(.8,(slope-12)/60));
+  m.quad(a,b,c,d,c0.map(v=>clamp(v*randShade,0,1)));
+ }
+ let region=closestRegion(baseX+64,baseZ+64),nTree=region.kind==='city'?8:region.kind==='dunes'?12:region.kind==='prairie'?14:region.kind==='tundra'?16:25;
+ for(let i=0;i<(mobileMode?Math.floor(nTree*.65):nTree);i++){
+  let x=baseX+rr()*CHUNK_SIZE,z=baseZ+rr()*CHUNK_SIZE;
+  if(Math.abs(x)<225&&Math.abs(z)<225)continue;
+  if(Math.hypot(x-region.x,z-region.z)<42)continue;
+  let terrainSlope=Math.abs(terrain(x+3,z)-terrain(x-3,z))+Math.abs(terrain(x,z+3)-terrain(x,z-3));if(terrainSlope>15)continue;
+  if(rr()<.76)proceduralTree(m,x,z,.7+rr()*1.4,region);
+  else rockProp(m,x,z,.45+rr()*2.2,region);
+ }
+ let buf=m.buffer();m.a.length=0;return buf;
+}
+function rockProp(mesh,x,z,size,r){let y=terrain(x,z),c=r.kind==='dunes'?[.65,.52,.34]:r.kind==='tundra'?[.63,.71,.74]:[.42,.48,.45];mesh.sphere(x,y+.45*size,z,size,size*.7,size*.84,c,6,3)}
+function queueChunks(force=false){let cx=Math.floor(player.x/CHUNK_SIZE),cz=Math.floor(player.z/CHUNK_SIZE);if(!force&&cx===chunkCX&&cz===chunkCZ)return;
+ chunkCX=cx;chunkCZ=cz;const wanted=new Set();let positions=[];
+ for(let dz=-STREAM_RADIUS;dz<=STREAM_RADIUS;dz++)for(let dx=-STREAM_RADIUS;dx<=STREAM_RADIUS;dx++){
+  let x=cx+dx,z=cz+dz,key=chunkKey(x,z);wanted.add(key);if(!chunks.has(key))positions.push({x,z,key,p:dx*dx+dz*dz});
+ }
+ for(let [key,buffer] of chunks)if(!wanted.has(key)){gl.deleteBuffer(buffer.buffer);chunks.delete(key)}
+ positions.sort((a,b)=>a.p-b.p);streamQueue=positions;
+}
+function updateStreaming(){queueChunks();for(let i=0;i<Math.min(mobileMode?1:3,streamQueue.length);i++){
+ let a=streamQueue.shift();if(!chunks.has(a.key))chunks.set(a.key,buildChunk(a.x,a.z));
+}}
+function renderChunks(){for(let buf of chunks.values()){drawBuffer(buf);drawCalls++}}
+
+const sites={village:[0,0],keeper:[5,8],camp:[62,-37],ruins:[98,51],shrine:[153,120],lake:[-75,66],caravan:[68,119]};
+const m=new Mesh();
+// Landscape: shaded triangular geometry, wetland and footpaths.
+function makeTerrain(){const size=460,step=mobileMode?5:4;let N=size/step;for(let iz=0;iz<N;iz++){for(let ix=0;ix<N;ix++){
+ const x=-size/2+ix*step,z=-size/2+iz*step;
+ const a=[x,terrain(x,z),z],b=[x,terrain(x,z+step),z+step],c=[x+step,terrain(x+step,z+step),z+step],d=[x+step,terrain(x+step,z),z];
+ const h=(a[1]+b[1]+c[1]+d[1])/4;
+ const steep=Math.abs(c[1]-a[1])+Math.abs(d[1]-b[1]);
+ let k=.88+Math.sin(x*.2+z*.15)*.07+Math.cos(z*.33-x*.1)*.06;
+ let color=h>23||steep>7 ? [.48,.49,.43] : h>11?[.35,.43,.34]:[.30,.44,.30];
+ if(h<0)color=[.29,.43,.34];
+ if(Math.hypot(x+75,z-66)<40 && h<.6)color=[.37,.45,.38];
+ color=color.map(v=>clamp(v*k,0,1));
+ m.quad(a,b,c,d,color);
+ }}
+ // Water basin (surface over low-lying carved terrain).
+ const wx=-75,wz=66;for(let j=0;j<12;j++)for(let i=0;i<32;i++){
+   let t=i/32*TAU,u=(i+1)/32*TAU,ra=j/12,rb=(j+1)/12;
+   let p=(r,a)=>[wx+Math.cos(a)*26*r,-.47+Math.sin(a*4)*.03,wz+Math.sin(a)*20*r];
+   m.quad(p(ra,t),p(rb,t),p(rb,u),p(ra,u),[.21+ra*.03,.47+ra*.02,.52+ra*.03]);
+ }
+ const roads=[[[0,0],[16,2],[29,-11],[47,-25],[62,-37]],[[0,0],[18,15],[36,34],[61,45],[98,51],[122,82],[153,120]],[[9,9],[28,37],[40,69],[68,119]]];
+ for(let pts of roads){let smoothPath=[];for(let i=0;i<pts.length-1;i++){let a=pts[i],b=pts[i+1];for(let j=0;j<12;j++){let t=j/12;smoothPath.push([mix(a[0],b[0],t),mix(a[1],b[1],t)])}}smoothPath.push(pts[pts.length-1]);m.path(smoothPath,2.8,[.43,.39,.28]);}
+}
+function tree(x,z,scale,kind=0){let y=terrain(x,z),h=5.6*scale,r=.38*scale;
+ m.cone(x,y,z,r,h*.55,C.trunk,6,r*.75);if(kind===0){
+  for(let i=0;i<3;i++){let factor=1-i*.23;m.cone(x,y+h*(.25+i*.20),z,2.6*scale*factor,3.2*scale,C.needle2.map(v=>v*(.8+i*.1)),7)}
+ }else{m.sphere(x,y+h*.82,z,2.6*scale,2.7*scale,2.5*scale,C.canopy,7,4);m.sphere(x+1.0*scale,y+h*1.15,z,1.6*scale,1.5*scale,1.5*scale,C.grass,7,4)}
+}
+function rock(x,z,s,color=C.stone2){let y=terrain(x,z);m.sphere(x,y+s*.39,z,s*1.0,s*.67,s*.83,color,6,3)}
+function lantern(x,z){let y=terrain(x,z);m.box(x,y+2.1,z,.15,4.2,.15,C.wood);m.box(x,y+4.1,z,.7,.65,.7,C.gold);m.cone(x,y+4.42,z,.58,.6,C.roof,4)}
+function home(x,z,w=7,d=6,ry=0){let y=terrain(x,z);m.box(x,y+2.6,z,w,5.2,d,[.41,.37,.30],ry);m.box(x,y+5.55,z,w+1.3,.8,d+1.4,C.roof,ry);m.box(x,y+6.15,z,w-1,1,d+1,C.roof.map(v=>v*.8),ry);m.box(x,y+1.55,z+d*.5+.04,1.25,3.1,.10,C.dark,ry);m.box(x-w*.25,y+3.6,z+d*.5+.05,1,1.2,.10,C.gold,ry);m.box(x+w*.26,y+3.6,z+d*.5+.05,1,1.2,.10,C.gold,ry)}
+function shrine(x,z,scale=1){let y=terrain(x,z),col=[.58,.63,.58];m.box(x,y+1.3*scale,z,18*scale,2.6*scale,17*scale,C.stone2);m.box(x,y+2.2*scale,z,15*scale,.8*scale,14*scale,col);
+ for(let xx of [-6,6])for(let zz of [-5.5,5.5]){m.cone(x+xx*scale,y+2.2*scale,z+zz*scale,1.2*scale,10*scale,C.stone,8,.9*scale);m.cone(x+xx*scale,y+12.2*scale,z+zz*scale,1.6*scale,1.4*scale,C.ivory,7)}
+ m.box(x,y+13.3*scale,z,16*scale,1.1*scale,1.7*scale,col);
+ m.box(x,y+3.6*scale,z,3.4*scale,2.0*scale,3.2*scale,C.stone);m.cone(x,y+4.9*scale,z,2.0*scale,2.0*scale,[.77,.63,.30],8);
+}
+function village(){const a=[[9,-11,8,6,.3],[-11,-8,7,7,-.4],[-15,9,6,7,.5],[17,14,9,7,-.3],[-2,-20,7,6,0],[27,1,6,7,.4]];for(let h of a)home(...h);
+ for(let i=0;i<22;i++){let t=i*TAU/22;let r=26+Math.sin(i*2)*3;let x=Math.cos(t)*r,z=Math.sin(t)*r;if(Math.abs(z)<3&&x>0)continue;m.box(x,terrain(x,z)+1.2,z,1.15,2.4,.35,C.wood,-t)}
+ for(let [x,z] of [[-7,4],[6,-3],[19,6],[-18,-3],[3,18]])lantern(x,z);
+ // Village central fire: rings, logs and sculpted flame.
+ let y=terrain(0,0);m.ring(0,y+.15,0,2.4,[.45,.42,.34],.6,20);for(let a=0;a<5;a++){let t=a*TAU/5;m.box(Math.cos(t),y+.35,Math.sin(t),2.8,.32,.38,C.trunk,t)}
+ m.cone(0,y+.15,0,1.0,3.1,C.fire,7);m.cone(0,y+1.05,0,.5,2.9,[1,.80,.31],6);
+ // Village banner, wooden gate and stone well.
+ m.box(27,terrain(27,0)+3,1,.45,6,.45,C.wood);m.box(27,terrain(27,0)+3,-4,.45,6,.45,C.wood);m.box(27,terrain(27,0)+6,-1.5,.45,.7,5.7,C.wood);
+ m.box(-4,terrain(-4,18)+1,18,3.5,2,3.5,C.stone2);
+}
+function structures(){village();
+ // An abandoned merchant caravan on the eastern road.
+ let x=68,z=119,y=terrain(x,z);m.box(x,y+1.9,z,8,3.1,6,C.wood,.2);m.box(x,y+3.9,z,8.7,1,6.7,C.roof,.2);lantern(x+7,z+4);
+ for(let i=0;i<9;i++)rock(x+rand(-13,13),z+rand(-10,10),rand(1,3));
+ // Bandit camp, fractured pillars and the warden altar.
+ x=62;z=-37;y=terrain(x,z);for(let [dx,dz] of [[-7,-6],[6,0],[0,8]]){let v=terrain(x+dx,z+dz);m.cone(x+dx,v,z+dz,2.5,6,[.32,.25,.25],6)}
+ shrine(98,51,.68);shrine(153,120,1.0);
+ for(let i=0;i<9;i++){let a=i*TAU/9,x=163+Math.cos(a)*18,z=143+Math.sin(a)*18;m.cone(x,terrain(x,z),z,1.8,4.8,C.stone2,7,.8)}
+ // Watching tower among the cliffs.
+ x=-90;z=-58;y=terrain(x,z);m.box(x,y+8,z,5,16,5,C.stone);m.box(x,y+17,z,8,2,8,C.roof);m.cone(x,y+18,z,6,5,[.23,.34,.34],5);
+}
+function scatter(){for(let i=0;i<(mobileMode?240:410);i++){
+ const x=rand(-209,209),z=rand(-209,209);let d=dist(x,z,0,0),nearPath=Math.abs(z-.8*x)<5&&x>0;
+ if(d<32||nearPath||dist(x,z,98,51)<18||dist(x,z,153,120)<21||dist(x,z,163,143)<24||dist(x,z,62,-37)<16||dist(x,z,-75,66)<30)continue;
+ let s=rand(.65,1.8),type=rnd()>.76?1:0;tree(x,z,s,type);
+ }
+ for(let i=0;i<(mobileMode?100:170);i++){let x=rand(-210,210),z=rand(-210,210);if(dist(x,z,0,0)<20)continue;rock(x,z,rand(.4,3.2),rnd()>.6?C.stone:C.stone2)}
+ for(let i=0;i<(mobileMode?110:230);i++){let x=rand(-210,210),z=rand(-210,210);if(dist(x,z,0,0)<5||dist(x,z,-75,66)<20)continue;let y=terrain(x,z);let col=rnd()>.65?[.73,.58,.38]:[.45,.61,.37];m.cone(x,y,z,.12,rand(.35,.9),col,4)}
+}
+makeTerrain();structures();scatter();const staticBuffer=m.buffer();m.a.length=0;
+// Native 3D linear algebra (column-major matrices): self-contained offline engine.
+function persp(fovy,aspect,near,far){let f=1/Math.tan(fovy/2),o=new Float32Array(16);o[0]=f/aspect;o[5]=f;o[10]=(far+near)/(near-far);o[11]=-1;o[14]=2*far*near/(near-far);return o}
+function lookAt(eye,target){let z=[eye[0]-target[0],eye[1]-target[1],eye[2]-target[2]],len=Math.hypot(...z)||1;z=z.map(v=>v/len);let x=[z[2],0,-z[0]];len=Math.hypot(...x)||1;x=x.map(v=>v/len);let y=[z[1]*x[2]-z[2]*x[1],z[2]*x[0]-z[0]*x[2],z[0]*x[1]-z[1]*x[0]];
+let o=new Float32Array(16);o[0]=x[0];o[1]=y[0];o[2]=z[0];o[4]=x[1];o[5]=y[1];o[6]=z[1];o[8]=x[2];o[9]=y[2];o[10]=z[2];o[12]=-(x[0]*eye[0]+x[1]*eye[1]+x[2]*eye[2]);o[13]=-(y[0]*eye[0]+y[1]*eye[1]+y[2]*eye[2]);o[14]=-(z[0]*eye[0]+z[1]*eye[1]+z[2]*eye[2]);o[15]=1;return o}
+function mul(a,b){let o=new Float32Array(16);for(let col=0;col<4;col++)for(let row=0;row<4;row++)for(let k=0;k<4;k++)o[col*4+row]+=a[k*4+row]*b[col*4+k];return o}
+let player={x:0,z:12,ang:0,vy:0,jump:0,hp:100,aura:100,st:100,level:1,experience:0,defeats:0,echoes:0,stage:0,kills:0,invul:0,dash:0,combo:0,walk:0,clock:0,attackAnim:0};
+let cooldown={attack:0,fire:0,palm:0,dash:0};let paused=true,running=false,finished=false;
+const saveKey='seekers_codex_margerina_world_v02';
+let visited=new Set(['bodhira']);let currentRegion='bodhira';
+try{let s=JSON.parse(localStorage.getItem(saveKey)||localStorage.getItem('seekers_codex_bodhira_v01'));if(s&&s.player&&Number.isFinite(s.player.x)){
+ for(let k of ['x','z','ang','hp','aura','st','level','experience','defeats','echoes','stage','kills','clock'])if(Number.isFinite(s.player[k]))player[k]=s.player[k];
+ player.x=clamp(player.x,-WORLD_X+20,WORLD_X-20);player.z=clamp(player.z,-WORLD_Z+20,WORLD_Z-20);player.stage=clamp(player.stage,0,5);if(Array.isArray(s.visited))visited=new Set(s.visited.filter(id=>WORLD_BY_ID[id]));
+ }}catch{}
+const actorTypes={shade:{hp:76,damage:8,speed:2.9,range:2.4},brute:{hp:135,damage:14,speed:2.15,range:3.2},warden:{hp:470,damage:21,speed:2.0,range:5.0}};
+let enemies=[];function spawnEnemy(type,x,z){const base=actorTypes[type];enemies.push({type,x,z,homeX:x,homeZ:z,hp:base.hp,max:base.hp,angle:rand(0,TAU),cool:rand(0,.5),state:0,hitFlash:0,dead:false,dy:0,stagger:0,seed:rnd()*10})}
+for(let [x,z] of [[39,-14],[50,-27],[65,-39],[77,-12],[72,17],[102,40],[126,80],[140,102]])spawnEnemy('shade',x,z);
+for(let [x,z] of [[72,-44],[103,64]])spawnEnemy('brute',x,z);
+spawnEnemy('warden',165,144);
+function updateRegionEnemies(region){enemies=enemies.filter(e=>!e.worldGenerated);if(region.id==='bodhira')return;let rng=chunkRandom(Math.floor(region.x/128),Math.floor(region.z/128));for(let i=0;i<6;i++){let a=rng()*TAU,r=45+rng()*110,x=region.x+Math.sin(a)*r,z=region.z+Math.cos(a)*r;spawnEnemy(i%3===0?'brute':'shade',x,z);enemies[enemies.length-1].worldGenerated=true;}}
+let savedDefeats=clamp(player.defeats,0,10);
+if(savedDefeats)for(let e of enemies.filter(e=>e.type==='shade').slice(0,savedDefeats)){e.dead=true;e.hp=0}
+const echoes=[[95,-10],[116,48],[139,91]].map((p,i)=>({x:p[0],z:p[1],taken:player.echoes>i}));
+let particles=[],waves=[],time=0,msgUntil=0,shake=0,nearTarget=null;
+const activeQuest=[
+ ['THE FALLEN ECHOES','Seek the village Keeper beside the central fire.','SPEAK WITH THE KEEPER'],
+ ['THE FALLEN ECHOES','Shadows have crept into the southern forest. Defeat three to restore safety to the road.','DEFEAT SHADOWS'],
+ ['THE FALLEN ECHOES','Recover three God Tree echoes scattered along the eastern trail and ancient ruins.','RECOVER THE ECHOES'],
+ ['THE HOLLOW WARDEN','Follow the corrupted light to the old shrine. Defeat the creature guarding the breach.','DEFEAT THE WARDEN'],
+ ['THE LAST EMBER','The Warden has fallen. Return to the village Keeper and report what you discovered.','RETURN TO THE KEEPER'],
+ ['CHAPTER COMPLETE','The Wilds are safe for now. Keep exploring Margerina, or begin a new journey.','EXPLORE THE OPEN WORLD']
+];
+function waypoint(){switch(player.stage){case 0:case 4:return sites.keeper;case 1:{let live=enemies.filter(e=>e.type==='shade'&&!e.dead);if(!live.length)return sites.camp;live.sort((a,b)=>dist(a.x,a.z,player.x,player.z)-dist(b.x,b.z,player.x,player.z));return [live[0].x,live[0].z]}case 2:{let e=echoes.filter(e=>!e.taken);if(!e.length)return sites.ruins;e.sort((a,b)=>dist(a.x,a.z,player.x,player.z)-dist(b.x,b.z,player.x,player.z));return [e[0].x,e[0].z]}case 3:return [165,144];default:return null}}
+function addMessage(title,body='',duration=3.3){let t=$('#message');t.innerHTML='<strong>'+title+'</strong>'+body;msgUntil=time+duration;t.style.opacity='1'}
+function updateQuest(){if(currentRegion!=='bodhira'){let region=WORLD_BY_ID[currentRegion];css('#questName','THE GREAT SURVEY');css('#questText',region.blurb+' Explore this territory, or use the World Atlas to travel.');css('#progress','REGIONS SURVEYED · '+visited.size+' / '+REGIONS.length);return;}let [name,text,progress]=activeQuest[player.stage];css('#questName',name);css('#questText',text);let counter=player.stage===1?' · '+Math.min(3,player.defeats)+'/3':player.stage===2?' · '+player.echoes+'/3':'';
+ let wp=waypoint(),where=wp?' · '+Math.round(dist(player.x,player.z,...wp))+'m':'';css('#progress',progress+counter+where);}
+function saveGame(){try{localStorage.setItem(saveKey,JSON.stringify({visited:[...visited],player:Object.fromEntries(['x','z','ang','hp','aura','st','level','experience','defeats','echoes','stage','kills','clock'].map(k=>[k,player[k]]))}));}catch{}}
+function gainExp(v){player.experience+=v;if(player.experience>=player.level*100){player.experience=0;player.level++;player.hp=100;player.aura=100;addMessage('SEEKER ASCENDED','Level '+player.level+' · your aura grows stronger',4)}}
+function interact(){if(paused)return;
+ const region=closestRegion(player.x,player.z);if(region.id!=='bodhira'&&dist(player.x,player.z,region.x,region.z)<7){addMessage('SURVEY MONOLITH',region.land+' · '+region.blurb,5);gainExp(25);return;}
+ if(dist(player.x,player.z,...sites.keeper)<6&&(player.stage===0||player.stage===4)){
+ if(player.stage===0){player.stage=1;addMessage('KEEPER OF BODHIRA','“Go carefully, Kai. The God Tree does not tremble without cause.”',5)}
+ else{player.stage=5;finished=true;gainExp(150);addMessage('ACT I · COMPLETE','You restored the echoes. Margerina awaits beyond the Wilds.',8)}updateQuest();saveGame();return;
+ }
+ if(player.stage===2){let e=echoes.find(e=>!e.taken&&dist(player.x,player.z,e.x,e.z)<5);if(e){e.taken=true;player.echoes++;player.aura=clamp(player.aura+27,0,100);spawnBurst(e.x,terrain(e.x,e.z)+1,e.z,C.gold,24);addMessage('GOD TREE ECHO RECOVERED',player.echoes+' / 3 · The light answers your will');if(player.echoes>=3){player.stage=3;addMessage('A DISTANT ROAR','The Hollow Warden stirs at the mountain shrine.',5)}updateQuest();saveGame()}}
+ }
+function spawnBurst(x,y,z,color,n=14){for(let i=0;i<n;i++){let a=rnd()*TAU,p=rnd()*Math.PI;particles.push({x,y,z,vx:Math.cos(a)*rand(.8,6),vy:rand(.7,5.8),vz:Math.sin(a)*rand(.8,6),ttl:rand(.35,.95),life:1,c:color,size:rand(.07,.24)})}}
+function wave(x,z,color,r=1,speed=14){waves.push({x,z,r,speed,t:0,col:color})}
+function hitEnemy(e,power,kb=2){if(e.dead)return;e.hp-=power;e.hitFlash=.16;e.stagger=.15;e.x+=(e.x-player.x)/Math.max(1,dist(e.x,e.z,player.x,player.z))*kb;e.z+=(e.z-player.z)/Math.max(1,dist(e.x,e.z,player.x,player.z))*kb;
+ spawnBurst(e.x,terrain(e.x,e.z)+1.9,e.z,e.type==='warden'?C.magenta:C.blue,9);if(e.hp<=0){e.hp=0;e.dead=true;e.dy=0;player.kills++;gainExp(e.type==='warden'?140:e.type==='brute'?50:32);spawnBurst(e.x,terrain(e.x,e.z)+2,e.z,C.gold,28);
+ if(e.type==='shade'&&player.stage===1){player.defeats++;if(player.defeats>=3){player.stage=2;addMessage('ROAD RECLAIMED','Find the three lingering echoes of the God Tree.',5)}}
+ if(e.type==='warden'&&player.stage===3){player.stage=4;addMessage('HOLLOW WARDEN VANQUISHED','Return to Bodhira and report to the Keeper.',6)}updateQuest();saveGame()}}
+function nearestEnemy(max=8){let found=null,dd=max;for(let e of enemies){if(e.dead)continue;let d=dist(player.x,player.z,e.x,e.z);if(d<dd){dd=d;found=e}}return found}
+function action(type){if(paused||player.hp<=0)return;
+ if(type==='interact'){interact();return}
+ if(type==='jump'){if(player.jump<=.04){player.vy=7;player.st=Math.max(0,player.st-8)}return}
+ if(cooldown[type]>0)return;
+ if(type==='attack'){
+  player.combo=(player.combo+1)%3;cooldown.attack=.42;player.attackAnim=.35;let target=nearestEnemy(4.9),dmg=26+player.level*3;
+  if(target){let angle=Math.atan2(target.x-player.x,target.z-player.z);player.ang=angle;hitEnemy(target,dmg,1.2);shake=.13}
+  wave(player.x+Math.sin(player.ang)*2.1,player.z+Math.cos(player.ang)*2.1,C.ivory,1.0,9);
+  return;
+ }
+ if(type==='fire'&&player.aura>=23){player.aura-=23;cooldown.fire=4.0;player.attackAnim=.48;wave(player.x,player.z,C.fire,1.5,19);spawnBurst(player.x,terrain(player.x,player.z)+1.3,player.z,C.fire,28);for(let e of enemies){if(!e.dead&&dist(e.x,e.z,player.x,player.z)<8.5)hitEnemy(e,41+player.level*4,3)}addMessage('AGNI MUDRA','Elemental Muti · Fire',1.25);return}
+ if(type==='palm'&&player.aura>=17){player.aura-=17;cooldown.palm=3.3;player.attackAnim=.4;let x=player.x+Math.sin(player.ang)*4,z=player.z+Math.cos(player.ang)*4;wave(x,z,C.blue,1,20);spawnBurst(x,terrain(x,z)+1.4,z,C.blue,24);for(let e of enemies){if(!e.dead&&dist(e.x,e.z,x,z)<7.3)hitEnemy(e,49+player.level*3,5)}addMessage('BODHI PALM','Martial Muti · Shockwave',1.25);return}
+ if(type==='dash'&&player.st>=19){player.st-=19;cooldown.dash=2.4;player.dash=.37;player.invul=.45;spawnBurst(player.x,terrain(player.x,player.z)+1,player.z,C.gold,16);return}
+}
+const keys={};let pointerDrag=false,pointerX=0,pointerY=0,joyX=0,joyY=0,joyId=null;
+window.addEventListener('keydown',e=>{if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();keys[e.code]=true;
+ if(e.repeat)return;if(e.code==='Escape'||e.code==='KeyP'){setPaused(!paused);return}
+ if(e.code==='KeyM'){if(atlasOpen)closeAtlas();else openAtlas();return}
+ const hot={KeyJ:'attack',KeyQ:'fire',KeyE:'palm',KeyR:'dash',KeyF:'interact',Space:'jump'};
+ if(hot[e.code])action(hot[e.code]);
+});window.addEventListener('keyup',e=>keys[e.code]=false);
+canvas.addEventListener('pointerdown',e=>{if(paused)return;pointerDrag=true;pointerX=e.clientX;pointerY=e.clientY;canvas.setPointerCapture(e.pointerId);if(e.pointerType==='mouse'&&e.button===0)action('attack')});
+canvas.addEventListener('pointermove',e=>{if(!pointerDrag||paused)return;let dx=e.clientX-pointerX,dy=e.clientY-pointerY;pointerX=e.clientX;pointerY=e.clientY;cameraYaw-=dx*.005;cameraPitch=clamp(cameraPitch+dy*.004,.16,1.06)});
+canvas.addEventListener('pointerup',()=>{pointerDrag=false});canvas.addEventListener('pointercancel',()=>{pointerDrag=false});
+canvas.addEventListener('contextmenu',e=>e.preventDefault());canvas.addEventListener('wheel',e=>{cameraDist=clamp(cameraDist+Math.sign(e.deltaY)*1.1,7,22);e.preventDefault()},{passive:false});
+let joystick=$('#joystick');
+joystick.addEventListener('pointerdown',e=>{joyId=e.pointerId;joystick.setPointerCapture(e.pointerId);moveJoy(e)});
+joystick.addEventListener('pointermove',e=>{if(e.pointerId===joyId)moveJoy(e)});
+for(let event of ['pointerup','pointercancel'])joystick.addEventListener(event,e=>{if(e.pointerId===joyId){joyX=joyY=0;joyId=null;$('#stick').style.transform='translate(0px,0px)'}});
+function moveJoy(e){let r=joystick.getBoundingClientRect(),x=e.clientX-(r.left+r.width/2),y=e.clientY-(r.top+r.height/2),d=Math.max(1,Math.hypot(x,y)),k=Math.min(d,39)/d;joyX=x*k/39;joyY=-y*k/39;$('#stick').style.transform=`translate(${x*k}px,${y*k}px)`}
+for(let b of document.querySelectorAll('[data-action]')){b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();action(b.dataset.action)})}
+$('#interact').onclick=()=>action('interact');
+function setPaused(v){if(atlasOpen)closeAtlas();paused=v;$('#pause').style.display=v&&running?'flex':'none';if(v)saveGame()}
+$('#menuBtn').onclick=()=>setPaused(true);
+$('#helpBtn').onclick=()=>{setPaused(true);css('#pauseCopy','Explore as Kai Xander. WASD / joystick moves. Drag to rotate camera. Use staff and Muti. Press M or WORLD ATLAS to fast travel across the continental survey grid. F or INTERACT talks or surveys monuments. Original Bodhira quest remains available. Progress saves locally.')};
+$('#resumeBtn').onclick=()=>{setPaused(false);css('#pauseCopy','Your journey continues.')};
+$('#saveBtn').onclick=()=>{saveGame();css('#pauseCopy','Journey saved locally on this device. The God Tree remembers.')};
+$('#startBtn').onclick=()=>{running=true;$('#intro').style.display='none';setPaused(false);updateQuest();addMessage('WORLD OF MARGERINA','1500 A.S. · Open WORLD ATLAS to visit other regions',5)};
+$('#resetBtn').onclick=()=>{try{localStorage.removeItem(saveKey)}catch{}location.reload()};
+function hmodel(m,x,y,z,ang,enemy=false,walk=0,attack=0){
+ const local=(lx,ly,lz)=>[x+lx*Math.cos(ang)+lz*Math.sin(ang),y+ly,z-lx*Math.sin(ang)+lz*Math.cos(ang)];
+ const armor=enemy?[.18,.21,.25]:[.23,.30,.34],skin=enemy?[.42,.29,.49]:[.67,.47,.30];
+ let w=Math.sin(walk*9)*.36;
+ let parts=[
+ [0,2.30,0,.86,1.25,.50,armor],
+ [0,3.17,.06,.57,.63,.58,skin],
+ [0,3.61,-.12,.69,.24,.63,enemy?C.shade:[.14,.17,.20]],
+ [-.26,.97,w,.31,1.6,.36,armor], [.26,.97,-w,.31,1.6,.36,armor],
+ [-.59,2.31,-w*.52,.30,1.1,.34,skin], [.59,2.31,w*.52+attack,.30,1.1,.34,skin],
+ [0,1.84,0,.95,.21,.53,enemy?C.shade:C.gold]
+ ];
+ for(let [lx,ly,lz,sx,sy,sz,color] of parts){let p=local(lx,ly,lz);m.box(...p,sx,sy,sz,color,ang)}
+ let scarf=local(.05,2.68,-.30);m.box(...scarf,.90,.28,.22,enemy?C.magenta:[.85,.66,.35],ang);
+ if(!enemy){let hand=local(.8,2.08+attack*.4,.18+attack*.55);m.cone(hand[0],hand[1]-1.65,hand[2],.073,3.45,[.55,.39,.22],7,.05);m.sphere(hand[0],hand[1]+1.70,hand[2],.21,.24,.21,C.gold,7,4)}
+}
+function enemyModel(m,e,t){let y=terrain(e.x,e.z),b=Math.sin(t*2.8+e.seed)*.09,flash=e.hitFlash>0;
+ if(e.type==='warden'){
+  const c=flash?C.ivory:[.27,.24,.35];
+  m.cone(e.x,y,e.z,2.0,7.4,c,7,1.1);m.box(e.x,y+7.3,e.z,3.2,3,2.6,c,e.angle);
+  m.sphere(e.x,y+9.3,e.z,1.0,1.0,1.0,C.magenta,7,5);
+  for(let sign of [-1,1]){let bx=e.x+sign*1.8;m.cone(bx,y+3.6,e.z,.8,5.8,c,6,.46);m.cone(e.x+sign*2.5,y+8.8,e.z,.5,3.3,C.trunk,6,0);
+   let ex=e.x+sign*.44,ez=e.z+1.01;m.sphere(ex,y+9.35,ez,.21,.25,.15,C.fire,7,4)}
+  m.ring(e.x,y+.20,e.z,4.2,C.magenta,.20);
+ }else{
+  let scale=e.type==='brute'?1.43:1.0;
+  m.cone(e.x,y+.1,e.z,.94*scale,2.5*scale,flash?C.ivory:C.shade,7,.4*scale);
+  hmodel(m,e.x,y+(.15+b)*scale,e.z,e.angle,true,(t+e.seed)*.8,0);
+  let ec=e.hitFlash>0?C.ivory:C.magenta;
+  m.sphere(e.x-.22,y+3.28*scale,e.z+.40,.12,.12,.12,ec,6,3);
+  m.sphere(e.x+.22,y+3.28*scale,e.z+.40,.12,.12,.12,ec,6,3);
+ }
+ // Enemy health displayed in world during combat.
+ if(e.hp<e.max){let h=e.type==='warden'?11.8:e.type==='brute'?5.7:4.5;
+  m.box(e.x,y+h,e.z,2.6,.13,.10,C.dark);
+  let fill=2.6*clamp(e.hp/e.max,0,1);m.box(e.x-(2.6-fill)/2,y+h+.015,e.z+.08,fill,.11,.09,e.type==='warden'?C.magenta:C.fire)
+ }
+}
+let cameraYaw=.7,cameraPitch=.42,cameraDist=13,camX=0,camY=11,camZ=-10;
+
+// A low-poly architectural silhouette at each world waypoint; scale/detail are
+// prototype placeholders, not literal complete cities or a canonical city plan.
+let hubBuffer=null,hubId='';
+function createHubMesh(region){let mesh=new Mesh();if(region.id==='bodhira')return null;
+ let x=region.x,z=region.z,y=terrain(x,z),t=region.kind;
+ const pale=t==='tundra'?[.67,.76,.78]:t==='dunes'?[.67,.55,.36]:t==='city'?[.70,.67,.58]:[.52,.56,.50];
+ mesh.ring(x,y+.1,z,30,[.80,.68,.41],.32,32);
+ mesh.box(x,y+1.0,z,24,1.8,24,t==='city'?[.50,.48,.43]:C.stone2);
+ for(let j=0;j<4;j++){let a=j*TAU/4,px=x+Math.cos(a)*20,pz=z+Math.sin(a)*20,h=terrain(px,pz);
+   if(t==='dunes'||t==='savanna'){mesh.box(px,h+5,pz,8,10,8,pale);mesh.cone(px,h+10,pz,5,4,C.gold,9)}
+   else if(t==='city'){mesh.box(px,h+9,pz,6,18,6,pale);mesh.cone(px,h+18,pz,4.3,5,[.49,.39,.34],7)}
+   else if(t==='tundra'){mesh.cone(px,h,pz,4,19,pale,7,.38);mesh.cone(px,h+13,pz,2.3,9,[.82,.91,.95],6)}
+   else if(t==='bamboo'){mesh.box(px,h+8,pz,7,16,7,pale);for(let k=0;k<3;k++)mesh.box(px,h+5+k*5,pz,11-k,1.2,11-k,[.40,.25,.22])}
+   else{mesh.box(px,h+5,pz,9,10,8,pale);mesh.cone(px,h+10,pz,6,5,C.roof,6)}
+ }
+ // Survey monolith: a touchable marker distinct from lore-specific monuments.
+ mesh.box(x,y+5,z,2.5,10,2.5,[.34,.43,.45]);mesh.cone(x,y+10,z,2.5,4,C.gold,6);
+ mesh.ring(x,y+.18,z,6,C.gold,.24,22);
+ for(let i=0;i<13;i++){let a=i*TAU/13,px=x+Math.cos(a)*53,pz=z+Math.sin(a)*53,yy=terrain(px,pz);mesh.cone(px,yy,pz,.45,4.5,C.trunk,5,.15)}
+ return mesh.buffer();
+}
+function updateHub(region){if(region.id===hubId)return;
+ if(hubBuffer)gl.deleteBuffer(hubBuffer.buffer);hubBuffer=createHubMesh(region);hubId=region.id;
+}
+function applyRegion(announce=false){let r=closestRegion(player.x,player.z);if(r.id!==currentRegion||announce){
+ currentRegion=r.id;visited.add(r.id);updateRegionEnemies(r);updateHub(r);
+ css('#region',r.name.toUpperCase());if(announce)addMessage(r.name.toUpperCase(),r.land+' · '+r.feature,4.3);
+ saveGame();renderAtlas();
+ }}
+function travelTo(id){let region=WORLD_BY_ID[id];if(!region)return;
+ player.x=region.x+ (region.id==='bodhira'?0:18);player.z=region.z+(region.id==='bodhira'?12:26);
+ player.hp=Math.max(player.hp,65);player.aura=Math.max(player.aura,65);player.st=100;player.jump=player.vy=0;
+ // Camera and streaming reset around new absolute world coordinates.
+ cameraYaw=.8;camX=player.x;camZ=player.z;camY=terrain(player.x,player.z)+12;
+ currentRegion='';applyRegion(true);queueChunks(true);closeAtlas();saveGame();
+}
+function renderAtlas(){let ui=$('#atlasList');if(!ui)return;
+ ui.innerHTML=REGIONS.map((r,i)=>`<button class="atlas-item ${r.id===currentRegion?'here':''} ${visited.has(r.id)?'visited':''}" data-region="${r.id}"><span class="atlas-symbol" style="background:${r.color}">${String(i+1).padStart(2,'0')}</span><span><b>${r.name}</b><small>${r.land} · ${visited.has(r.id)?'Surveyed':'Unsurveyed'}</small></span><span class="atlas-chevron">↗</span></button>`).join('');
+ for(const b of ui.querySelectorAll('[data-region]'))b.addEventListener('click',()=>selectRegion(b.dataset.region));
+ renderAtlasCanvas();
+}
+let selectedRegion='bodhira',atlasOpen=false;
+function selectRegion(id){selectedRegion=id;const r=WORLD_BY_ID[id];if(!r)return;
+ css('#atlasSelection',r.name);css('#atlasInfo',r.blurb+'  ·  '+r.feature+'  ·  Prototype coordinates: '+Math.round(r.x/1000)+' km E / '+Math.round(r.z/1000)+' km N');
+ css('#travelBtn',r.id===currentRegion?'RETURN TO WAYPOINT →':'TRAVEL TO WAYPOINT →');renderAtlasCanvas();
+}
+function atlasProject(x,z,w,h){return [46+(x+WORLD_X)/(2*WORLD_X)*(w-92),42+(WORLD_Z-z)/(2*WORLD_Z)*(h-84)]}
+function renderAtlasCanvas(){const cv=$('#atlasCanvas');if(!cv)return;let g=cv.getContext('2d'),w=cv.width,h=cv.height;
+ g.fillStyle='#102429';g.fillRect(0,0,w,h);
+ // Decorative field-survey contours. Geography is intentionally not canon.
+ for(let j=0;j<36;j++)for(let i=0;i<60;i++){let px=i*w/59,pz=j*h/35,worldX=(px/w*2-1)*WORLD_X,worldZ=(1-pz/h*2)*WORLD_Z;
+  let height=noise(worldX/35000,worldZ/35000)+.4*noise(worldX/11000,worldZ/11000);
+  g.fillStyle=height>.15?'rgba(113,148,114,.17)':height<-.35?'rgba(41,100,116,.25)':'rgba(139,147,105,.09)';g.fillRect(px,pz,w/58+1,h/34+1);
+ }
+ g.lineWidth=1;g.strokeStyle='rgba(222,206,157,.13)';
+ for(let k=1;k<10;k++){let x=k*w/10;g.beginPath();g.moveTo(x,0);g.lineTo(x,h);g.stroke()}
+ for(let k=1;k<8;k++){let z=k*h/8;g.beginPath();g.moveTo(0,z);g.lineTo(w,z);g.stroke()}
+ g.lineWidth=2;g.setLineDash([4,7]);g.strokeStyle='rgba(224,205,152,.40)';
+ const links=[['bodhira','rehli'],['rehli','rajir'],['rajir','zhushen'],['zhushen','guan'],['bodhira','janoah'],['janoah','magnara'],['magnara','vinlan'],['magnara','britannia'],['britannia','germania'],['rajir','golden'],['rehli','americana']];
+ for(let [a,b] of links){let p=atlasProject(WORLD_BY_ID[a].x,WORLD_BY_ID[a].z,w,h),q=atlasProject(WORLD_BY_ID[b].x,WORLD_BY_ID[b].z,w,h);g.beginPath();g.moveTo(...p);g.lineTo(...q);g.stroke()}
+ g.setLineDash([]);
+ for(const r of REGIONS){let [x,z]=atlasProject(r.x,r.z,w,h);let active=r.id===selectedRegion,here=r.id===currentRegion;
+  g.fillStyle='rgba(0,0,0,.52)';g.beginPath();g.arc(x,z,active?14:9,0,TAU);g.fill();
+  g.fillStyle=r.color;g.beginPath();g.arc(x,z,active?8:5,0,TAU);g.fill();
+  g.strokeStyle=here?'#fff3b2':'rgba(244,216,166,.4)';g.lineWidth=here?3:1.5;g.beginPath();g.arc(x,z,active?13:9,0,TAU);g.stroke();
+  g.font=active?'bold 13px system-ui':'11px system-ui';g.textAlign='center';g.fillStyle=active?'#fff0c8':'#e5dfc8';g.shadowColor='#05151d';g.shadowBlur=5;g.fillText(r.name,x,z-15);g.shadowBlur=0;
+ }
+ const [px,pz]=atlasProject(player.x,player.z,w,h);g.strokeStyle='#fff';g.beginPath();g.arc(px,pz,3.5,0,TAU);g.stroke();
+ g.font='11px system-ui';g.fillStyle='#dac894';g.textAlign='left';g.fillText('MARGERINA · WORLD SURVEY / PROVISIONAL',16,20);
+}
+function openAtlas(){if(!running)return;atlasOpen=true;paused=true;$('#pause').style.display='none';$('#atlas').style.display='flex';selectRegion(currentRegion);renderAtlas()}
+function closeAtlas(){atlasOpen=false;$('#atlas').style.display='none';if(running)paused=false}
+$('#atlasBtn').addEventListener('click',openAtlas);
+$('#atlasClose').addEventListener('click',closeAtlas);
+$('#travelBtn').addEventListener('click',()=>travelTo(selectedRegion));
+$('#atlasCanvas').addEventListener('pointerdown',e=>{let r=e.currentTarget.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*e.currentTarget.width,z=(e.clientY-r.top)/r.height*e.currentTarget.height;
+ let best=null,bd=22;for(let region of REGIONS){let [xx,zz]=atlasProject(region.x,region.z,e.currentTarget.width,e.currentTarget.height);let d=Math.hypot(xx-x,zz-z);if(d<bd){best=region;bd=d}}if(best)selectRegion(best.id)});
+
+function update(dt){time+=dt;player.clock+=dt;updateStreaming();applyRegion(false);for(let k of Object.keys(cooldown))cooldown[k]=Math.max(0,cooldown[k]-dt);
+ player.attackAnim=Math.max(0,player.attackAnim-dt);player.invul=Math.max(0,player.invul-dt);player.dash=Math.max(0,player.dash-dt);player.hp=clamp(player.hp+.16*dt,0,100);player.aura=clamp(player.aura+5.0*dt,0,100);player.st=clamp(player.st+12.0*dt,0,100);
+ let forward=(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0)+joyY;
+ let strafe=(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0)+joyX;
+ let mag=Math.min(1,Math.hypot(forward,strafe));let a=mag>0?Math.atan2(strafe,forward)+cameraYaw:player.ang;
+ let sprint=(keys.ShiftLeft||keys.ShiftRight)&&player.st>4&&mag>0;let velocity=sprint?11.3:7.1;
+ if(sprint)player.st=Math.max(0,player.st-dt*12);
+ if(player.dash>0){velocity=31;mag=1;a=player.ang}else if(mag>0){player.ang=a}
+ if(mag>0){let nx=clamp(player.x+Math.sin(a)*velocity*dt*mag,-WORLD_X+20,WORLD_X-20),nz=clamp(player.z+Math.cos(a)*velocity*dt*mag,-WORLD_Z+20,WORLD_Z-20);
+ let slope=terrain(nx,nz)-terrain(player.x,player.z);if(slope<2.0||player.dash>0){player.x=nx;player.z=nz}player.walk+=dt*(sprint?1.6:1)}
+ if(player.jump>0||player.vy>0){player.jump+=player.vy*dt;player.vy-=18*dt;if(player.jump<0){player.jump=0;player.vy=0}}
+ if(player.hp<=0){player.hp=100;player.aura=75;player.x=WORLD_BY_ID[currentRegion].x;player.z=WORLD_BY_ID[currentRegion].z+12;player.st=100;addMessage('RETURNED BY THE FLAME','The nearest safe waypoint recalls you.',5)}
+ // Creatures acquire targets, chase in territory, and recover after disengaging.
+ for(let e of enemies){if(dist(e.homeX,e.homeZ,player.x,player.z)>240)continue;if(e.dead){e.dy+=dt;continue}
+ e.cool=Math.max(0,e.cool-dt);e.hitFlash=Math.max(0,e.hitFlash-dt);e.stagger=Math.max(0,e.stagger-dt);
+ let d=dist(e.x,e.z,player.x,player.z),home=dist(e.x,e.z,e.homeX,e.homeZ),range=e.type==='warden'?35:23;
+ if(d<range&&e.stagger<=0){let dir=Math.atan2(player.x-e.x,player.z-e.z);e.angle=dir;
+ if(d>(e.type==='warden'?5.2:2.3)){let speed=actorTypes[e.type].speed;let nx=e.x+Math.sin(dir)*speed*dt,nz=e.z+Math.cos(dir)*speed*dt;if(terrain(nx,nz)-terrain(e.x,e.z)<2.8){e.x=nx;e.z=nz}}
+ if(d<actorTypes[e.type].range&&e.cool<=0&&player.invul<=0){let dmg=actorTypes[e.type].damage;player.hp=Math.max(0,player.hp-dmg);player.invul=.68;e.cool=e.type==='warden'?1.75:1.30;shake=.32;spawnBurst(player.x,terrain(player.x,player.z)+2,player.z,C.fire,12);addMessage('UNDER ATTACK','Dodge with Hanuman Step or strike back.',1.1)}
+ }else if(home>7){let dir=Math.atan2(e.homeX-e.x,e.homeZ-e.z);e.x+=Math.sin(dir)*dt;e.z+=Math.cos(dir)*dt}
+ }
+ for(let p of particles){p.ttl-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;p.vy-=6*dt}
+ particles=particles.filter(p=>p.ttl>0).slice(-160);
+ for(let w of waves){w.r+=dt*w.speed;w.t+=dt}
+ waves=waves.filter(w=>w.t<.72);
+ nearTarget=null;
+ if(currentRegion==='bodhira'&&dist(player.x,player.z,...sites.keeper)<6&&(player.stage===0||player.stage===4))nearTarget='Speak with the Keeper';
+ if(player.stage===2&&currentRegion==='bodhira'){let echo=echoes.find(e=>!e.taken&&dist(e.x,e.z,player.x,player.z)<5);if(echo)nearTarget='Recover God Tree echo'}
+ if(currentRegion!=='bodhira'&&dist(player.x,player.z,WORLD_BY_ID[currentRegion].x,WORLD_BY_ID[currentRegion].z)<7)nearTarget='Survey this territory';
+ $('#interact').style.display=nearTarget?'block':'none';if(nearTarget)$('#interact').textContent='F · '+nearTarget;
+ let hint=$('#centerHint');hint.textContent=nearTarget||'';hint.style.opacity=nearTarget?'1':'0';
+ if(time>msgUntil)$('#message').style.opacity='0';
+ if(Math.floor(time*2)%2===0)updateQuest();
+ }
+function renderDynamic(){let m=new Mesh(),y=terrain(player.x,player.z)+player.jump;
+ let bob=Math.sin(player.walk*9)*.045;hmodel(m,player.x,y+bob,player.z,player.ang,false,player.walk,player.attackAnim*1.5);
+ // Character aura and tactical footprints.
+ if(player.dash>0){m.ring(player.x,y+.06,player.z,1.7,C.gold,.25);m.ring(player.x-Math.sin(player.ang)*1.6,y+.06,player.z-Math.cos(player.ang)*1.6,1.1,C.blue,.17)}
+ for(let e of enemies)if(!e.dead&&dist(e.x,e.z,player.x,player.z)<105)enemyModel(m,e,time);
+ // Keeper of Bodhira in village.
+ if(currentRegion==='bodhira'){let k=sites.keeper,ky=terrain(...k);hmodel(m,k[0],ky,k[1],2.65,false,time*.2,0);m.cone(k[0],ky,k[1],1.18,3.0,[.48,.52,.38],7,.74);m.sphere(k[0],ky+4.5,k[1],.25,.25,.25,C.gold,8,4);
+ if(player.stage===0||player.stage===4){m.ring(k[0],ky+.08,k[1],2.2,C.gold,.11);m.cone(k[0],ky+5.0,k[1],.30,.8,C.gold,7)}
+ // Searchable God Tree echoes.
+ for(let e of echoes)if(!e.taken){let base=terrain(e.x,e.z),phase=time*2+e.x;m.sphere(e.x,base+2+Math.sin(phase)*.45,e.z,.52,.86,.52,C.gold,9,5);m.ring(e.x,base+.18,e.z,2.0,C.gold,.10);m.cone(e.x,base+3+Math.sin(phase)*.45,e.z,.28,.72,C.ivory,7)}
+ }
+ for(let p of particles){let size=p.size*Math.min(1,p.ttl*3);m.sphere(p.x,p.y,p.z,size,size,size,p.c,5,3)}
+ for(let w of waves){let yy=terrain(w.x,w.z)+.32+w.t*.15;m.ring(w.x,yy,w.z,w.r,w.col,.12+w.t*.11,28)}
+ // Guidance ring to next destination when within drawing distance.
+ let wp=currentRegion==='bodhira'?waypoint():null;if(wp&&dist(player.x,player.z,wp[0],wp[1])<55){m.ring(wp[0],terrain(...wp)+.35,wp[1],2.8,C.gold,.15)}
+ return m;
+}
+let staticCount=staticBuffer.count;
+let dynamicBuffer=gl.createBuffer(),dynCapacity=0;
+function render(){let ww=Math.floor(window.innerWidth*Math.min(devicePixelRatio||1,mobileMode?1:1.65)),hh=Math.floor(window.innerHeight*Math.min(devicePixelRatio||1,mobileMode?1:1.65));if(canvas.width!==ww||canvas.height!==hh){canvas.width=ww;canvas.height=hh;gl.viewport(0,0,ww,hh)}
+ let day=(Math.sin(player.clock/125+1)+1)/2,amount=.49+day*.51;
+ let sky=[mix(.09,skyBase[0],day),mix(.16,skyBase[1],day),mix(.23,skyBase[2],day)];
+ gl.clearColor(...sky,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+ let targetY=terrain(player.x,player.z)+2.3+player.jump;let xx=player.x-Math.sin(cameraYaw)*cameraDist*Math.cos(cameraPitch),zz=player.z-Math.cos(cameraYaw)*cameraDist*Math.cos(cameraPitch),yy=targetY+Math.sin(cameraPitch)*cameraDist;
+ camX=mix(camX,xx,.13);camZ=mix(camZ,zz,.13);camY=mix(camY,yy,.13);
+ let cx=camX+(Math.random()-.5)*shake,cy=camY+(Math.random()-.5)*shake,cz=camZ+(Math.random()-.5)*shake;shake=Math.max(0,shake-.025);
+ const view=lookAt([cx,cy,cz],[player.x,targetY,player.z]);let vp=mul(persp(66*Math.PI/180,ww/hh,.15,370),view);
+ gl.uniformMatrix4fv(uni.vp,false,vp);gl.uniform3f(uni.sun,.5,1.1,.36);gl.uniform3f(uni.cam,cx,cy,cz);gl.uniform1f(uni.day,amount);gl.uniform3f(uni.fog,...sky);
+ if(Math.abs(player.x)<580&&Math.abs(player.z)<580){drawBuffer(staticBuffer);drawCalls++}
+ renderChunks();if(hubBuffer&&Math.hypot(player.x-WORLD_BY_ID[currentRegion].x,player.z-WORLD_BY_ID[currentRegion].z)<380){drawBuffer(hubBuffer);drawCalls++}
+ let dynamic=renderDynamic(),d=new Float32Array(dynamic.a);gl.bindBuffer(gl.ARRAY_BUFFER,dynamicBuffer);gl.bufferData(gl.ARRAY_BUFFER,d,gl.DYNAMIC_DRAW);drawBuffer({buffer:dynamicBuffer,count:d.length/9});
+ // HUD stats.
+ $('#hpfill').style.width=player.hp+'%';$('#aurafill').style.width=player.aura+'%';$('#stfill').style.width=player.st+'%';
+ css('#clock','DAY '+String(1+Math.floor(player.clock/350)).padStart(2,'0')+' · '+(day>.65?'DAYLIGHT':day<.32?'DUSK':'DAWN'));
+ css('#coords',`MARGERINA · ${Math.round(player.x/1000)} km E / ${Math.round(player.z/1000)} km N · ${chunks.size} STREAMED CELLS · LEVEL ${player.level} · ${player.kills} DEFEATED`);
+ for(let b of document.querySelectorAll('#buttons [data-action]')){let cd=cooldown[b.dataset.action],max={attack:.42,fire:4,palm:3.3,dash:2.4}[b.dataset.action];b.querySelector('.cool').style.transform='scaleY('+Math.min(1,cd/max)+')';b.classList.toggle('active',cd<=0)}
+ minimap();
+}
+const mm=$('#minimap'),mc=mm.getContext('2d');let mapTick=0;
+function minimap(){mapTick++;if(mapTick%3!==0)return;let s=200;mc.clearRect(0,0,s,s);mc.save();mc.beginPath();mc.arc(100,100,97,0,TAU);mc.clip();mc.fillStyle='#1c302e';mc.fillRect(0,0,s,s);
+ const scale=0.68,to=(x,z)=>[100+(x-player.x)*scale,100-(z-player.z)*scale];
+ mc.lineWidth=4;mc.strokeStyle='#645d47';mc.beginPath();for(let [a,b] of [[[0,0],[62,-37]],[[0,0],[98,51]],[[98,51],[153,120]],[[0,0],[68,119]]]){let p=to(...a),q=to(...b);mc.moveTo(...p);mc.lineTo(...q)}mc.stroke();
+ for(let [x,z] of [sites.village,sites.ruins,sites.shrine,sites.caravan].filter(q=>dist(q[0],q[1],player.x,player.z)<200)){let p=to(x,z);mc.fillStyle='#a5a78d';mc.fillRect(p[0]-2,p[1]-2,4,4)}
+ for(let e of enemies)if(!e.dead){let p=to(e.x,e.z);mc.fillStyle=e.type==='warden'?'#d16fba':'#b45d67';mc.beginPath();mc.arc(...p,e.type==='warden'?4:2.5,0,TAU);mc.fill()}
+ let region=closestRegion(player.x,player.z);if(region.id!=='bodhira'){let p=to(region.x,region.z);mc.fillStyle='#e9d397';mc.beginPath();mc.arc(...p,4,0,TAU);mc.fill()}
+ let wp=waypoint();if(wp&&dist(player.x,player.z,...wp)<600){let p=to(...wp),dx=p[0]-100,dy=p[1]-100,l=Math.hypot(dx,dy);if(l>88){p[0]=100+dx/l*88;p[1]=100+dy/l*88}mc.strokeStyle='#efcc81';mc.lineWidth=2;mc.beginPath();mc.arc(...p,6,0,TAU);mc.stroke();mc.fillStyle='#efcc81';mc.beginPath();mc.arc(...p,2,0,TAU);mc.fill()}
+ mc.translate(100,100);mc.rotate(player.ang);mc.fillStyle='#f8f2d8';mc.beginPath();mc.moveTo(0,-9);mc.lineTo(5,6);mc.lineTo(0,3);mc.lineTo(-5,6);mc.closePath();mc.fill();mc.restore();}
+applyRegion(false);queueChunks(true);renderAtlas();selectRegion(currentRegion);
+let last=performance.now(),lastSave=0;
+function tick(now){let dt=Math.min(.045,(now-last)/1000||0);last=now;if(running&&!paused){update(dt);if(time-lastSave>9){saveGame();lastSave=time}}render();requestAnimationFrame(tick)}
+window.addEventListener('blur',()=>{if(running)setPaused(true)});
+window.addEventListener('beforeunload',saveGame);
+window.__seekerReady=true;
+updateQuest();$('#loading').style.display='none';requestAnimationFrame(tick);
+})();
+
+</script>
+</body></html>
