@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
 <meta name="theme-color" content="#10191b" />
-<title>Seeker's Codex — World of Margerina | Living Frontier v0.6</title>
+<title>Seeker's Codex — World of Margerina | Roads & Rivals v0.7</title>
 <style>
 :root { --ink:#e8ead9;--gold:#e6c68b;--muted:#9daaa3;--glass:rgba(10,22,24,.78);--line:rgba(217,208,168,.25) }
 * { box-sizing:border-box; -webkit-tap-highlight-color:transparent }
@@ -178,13 +178,13 @@ h2 {font-family:Georgia,serif;font-weight:normal;font-size:23px;letter-spacing:.
   <div id="quest"><div class="kicker">✦ MAIN QUEST · ACT I</div><div id="questName">The Fallen Echoes</div><div id="questText">Seek the village Keeper by the central fire.</div><div id="progress">OBJECTIVE · TALK TO THE KEEPER</div></div>
   <div id="message"></div><div id="centerHint"></div><button id="interact">F · Speak</button>
   <button id="menuBtn" title="Pause">Ⅱ PAUSE</button><button id="helpBtn" title="Help">? HELP</button><button id="atlasBtn" title="World Atlas (M)">◈ WORLD ATLAS</button><button id="journalBtn" title="Field Codex (I)">✥ FIELD CODEX</button>
-  <div id="buttons"><button class="ability" data-action="attack">⚔<span>STAFF</span><i class="hotkey">J</i><div class="cool"></div></button><button class="ability" data-action="fire">✺<span>AGNI</span><i class="hotkey">Q</i><div class="cool"></div></button><button class="ability" data-action="palm">✧<span>BODHI</span><i class="hotkey">E</i><div class="cool"></div></button><button class="ability" data-action="dash">↝<span>HANUMAN</span><i class="hotkey">R</i><div class="cool"></div></button></div>
-  <button id="canonBtn" title="Canon Index (L)">📚 LORE ATLAS</button><button id="campBtn" title="Build Camp (B)">⌂ CAMP</button><div id="coords"></div><div id="controls">WASD MOVE · MOUSE DRAG CAMERA · M ATLAS · I FIELD CODEX · L LORE ATLAS · B CAMP · SHIFT SPRINT · SPACE JUMP<br>J / CLICK ATTACK · Q AGNI MUDRA · E BODHI PALM · R HANUMAN STEP · F INTERACT</div>
+  <div id="buttons"><button class="ability" data-action="attack">⚔<span>STAFF</span><i class="hotkey">J</i><div class="cool"></div></button><button class="ability" data-action="fire">✺<span>AGNI</span><i class="hotkey">Q</i><div class="cool"></div></button><button class="ability" data-action="palm">✧<span>BODHI</span><i class="hotkey">E</i><div class="cool"></div></button><button class="ability" data-action="dash">↝<span>HANUMAN</span><i class="hotkey">R</i><div class="cool"></div></button><button class="ability" data-action="guard">⛨<span>GUARD</span><i class="hotkey">G</i><div class="cool"></div></button></div>
+  <button id="canonBtn" title="Canon Index (L)">📚 LORE ATLAS</button><button id="campBtn" title="Build Camp (B)">⌂ CAMP</button><div id="coords"></div><div id="controls">WASD MOVE · MOUSE DRAG CAMERA · M ATLAS · I CODEX · L LORE · B CAMP · SHIFT SPRINT · SPACE JUMP<br>J STAFF · Q AGNI · E BODHI · R HANUMAN · G GUARD/COUNTER · F INTERACT</div>
 </div>
-<div id="mobile"><div id="joystick"><div id="stick"></div></div><div id="mobileActions"><button class="mobilebtn" data-action="fire">✺</button><button class="mobilebtn" data-action="palm">✧</button><button class="mobilebtn" data-action="dash">↝</button><button class="mobilebtn" data-action="jump">↑</button><button class="mobilebtn" data-action="interact">F</button><button class="mobilebtn big" data-action="attack">⚔</button></div></div>
+<div id="mobile"><div id="joystick"><div id="stick"></div></div><div id="mobileActions"><button class="mobilebtn" data-action="fire">✺</button><button class="mobilebtn" data-action="palm">✧</button><button class="mobilebtn" data-action="dash">↝</button><button class="mobilebtn" data-action="jump">↑</button><button class="mobilebtn" data-action="interact">F</button><button class="mobilebtn big" data-action="attack">⚔</button><button class="mobilebtn" data-action="guard">⛨</button></div></div>
 <div id="rotate">↻ LANDSCAPE MODE RECOMMENDED</div>
 <div id="lifePanel" role="dialog" aria-modal="true" aria-label="Local resident dialogue and contracts"><div class="life-shell"><div class="life-head"><div><div class="atlas-eyebrow">LOCAL FIELD CONTACT · GAMEPLAY PROTOTYPE</div><h2 id="lifeTitle">Resident</h2></div><button id="lifeClose">✕ CLOSE</button></div><p id="lifeDescription"></p><div id="lifeActions"></div><p class="atlas-note">Residents, contracts, resources and trust are game-only simulation placeholders, not new events in the published novels.</p></div></div>
-<div id="intro"><div class="introBox"><div class="introEmblem">☼</div><div class="eyebrow">AN EXPANDING 3D WORLD · VERSION 0.6 · LIVING FRONTIER</div><h1>SEEKER'S CODEX</h1><div class="sub">World of Margerina · Living Frontier</div><p class="introCopy">Begin in Bodhira as Kai Xander, fight with Muti, and open the WORLD ATLAS to survey forty region-specific waypoint expeditions across a vast continental-scale coordinate grid. Walk through streamed wilderness, discover distinct climates, visit regional waypoints and return to finish the God Tree quest. All regional placements are PROVISIONAL design coordinates — not established Seeker’s Codex geography.</p><button class="cta" id="startBtn">ENTER MARGERINA →</button><button class="ghost" id="resetBtn">NEW JOURNEY</button><div class="tiny">NO ACCOUNT · NO SERVER · 40 EXPEDITIONS · STREAMED 3D TERRAIN · LIVING CONTRACTS<br>DESKTOP KEYBOARD OR MOBILE TOUCH CONTROLS</div></div></div>
+<div id="intro"><div class="introBox"><div class="introEmblem">☼</div><div class="eyebrow">VERSION 0.7 · ROADS & RIVALS</div><h1>SEEKER'S CODEX</h1><div class="sub">World of Margerina · Roads & Rivals</div><p class="introCopy">Begin in Bodhira as Kai Xander, fight with Muti, and open the WORLD ATLAS to explore forty region-specific destinations. Survey trails on foot and follow the optional five-stop Seeker Road expedition from Bodhira toward Magnara. Walk through streamed wilderness, discover distinct climates, visit regional waypoints and return to finish the God Tree quest. All regional placements are PROVISIONAL design coordinates — not established Seeker’s Codex geography.</p><button class="cta" id="startBtn">ENTER MARGERINA →</button><button class="ghost" id="resetBtn">NEW JOURNEY</button><div class="tiny">NO ACCOUNT · NO SERVER · 40 DESTINATIONS · 160 OPTIONAL TRAIL SITES · TACTICAL COMBAT<br>DESKTOP KEYBOARD OR MOBILE TOUCH CONTROLS</div></div></div>
 <div id="pause"><div class="introBox"><div class="introEmblem">✥</div><h2>SEEKER'S JOURNAL</h2><div class="introCopy" id="pauseCopy">Your journey continues.</div><button class="cta" id="resumeBtn">RESUME JOURNEY</button><button class="ghost" id="saveBtn">SAVE GAME</button><div class="save-tools"><button class="ghost" id="exportBtn">BACK UP SAVE</button><button class="ghost" id="importBtn">RESTORE SAVE</button><textarea id="backupText" rows="2" placeholder="Your backup code appears here. Save it somewhere private or paste an old code to restore."></textarea></div><div class="tiny">This world is a procedural proof of concept: distant cities are landmark proxies, not complete authored urban areas. Map placements are not canon.</div></div></div>
 <div id="atlas" role="dialog" aria-modal="true" aria-label="World Atlas">
  <div class="atlas-shell">
@@ -196,13 +196,13 @@ h2 {font-family:Georgia,serif;font-weight:normal;font-size:23px;letter-spacing:.
 </div>
 <div id="journal" role="dialog" aria-modal="true" aria-label="Seeker Field Codex"><div class="journal-shell">
  <div class="journal-head"><div><div class="atlas-eyebrow">1500 A.S. · PERSONAL FIELD RECORD</div><h2 id="journalTitle">THE SEEKER’S FIELD CODEX</h2><p id="journalSummary"></p></div><button id="journalClose">✕ CLOSE</button></div>
- <div class="journal-grid"><section class="journal-panel"><small>LOCAL FIELD NOTES</small><h3>Current Territory</h3><p id="journalLore"></p><p id="journalProgress"></p><small>40 EXPEDITIONS · FIVE OBJECTIVES EACH</small><div id="journalRegions"></div></section>
+ <div class="journal-grid"><section class="journal-panel"><small>LOCAL FIELD NOTES</small><h3>Current Territory</h3><p id="journalLore"></p><p id="journalProgress"></p><small>40 DESTINATIONS · FIVE OBJECTIVES EACH</small><div id="journalRegions"></div></section>
  <section class="journal-panel"><small>TRAINING · ESSENCE EARNED IN PLAY</small><h3>Muti Development</h3><p>Recover Ancient Traces or defeat nearby threats to earn Essence. Every upgrade is permanent in this browser save.</p><div id="journalTraining"></div><p><small>RECENT DISCOVERIES</small></p><p id="journalEvents"></p><p><small>SUPPLIES & STRAIN</small></p><p id="journalSupplies"></p><p><small>CURRENT LOCAL CONTRACT</small></p><p id="journalContract"></p></section></div>
  <p class="atlas-note">World layout, generic threats, Ancient Traces, expedition rewards, and art silhouettes are non-canon development placeholders. Published Seeker’s Codex lore is the source of truth. Saves stay in this browser.</p>
  </div></div>
 
 <div id="canonPanel" role="dialog" aria-modal="true" aria-label="Seeker's Codex source-indexed lore atlas"><div class="canon-shell">
-<div class="journal-head"><div><div class="atlas-eyebrow">AUTHOR ATLAS REGISTRY · 1500 A.S. + HISTORICAL SITES</div><h2>LORE ATLAS <span class="canon-version">v0.6</span></h2><p id="canonCount"></p></div><button id="canonClose">✕ CLOSE</button></div>
+<div class="journal-head"><div><div class="atlas-eyebrow">AUTHOR ATLAS REGISTRY · 1500 A.S. + HISTORICAL SITES</div><h2>LORE ATLAS <span class="canon-version">v0.7</span></h2><p id="canonCount"></p></div><button id="canonClose">✕ CLOSE</button></div>
 <div class="canon-layout"><div class="canon-browse"><input id="canonSearch" autocomplete="off" placeholder="Search Margerina's locations, realms, cities…" aria-label="Search locations"/><select id="canonCategory" aria-label="Filter location category"><option value="all">Every registry section</option><option value="II.">Nations and regions</option><option value="IV.">Rajistan / Bodhira</option><option value="V.">Chun</option><option value="VI.">Janoah / Magnara</option><option value="VIII.">Britannia</option><option value="IX.">Vinlan / Tsar</option><option value="XV.">Domains</option></select><div id="canonResults"></div></div>
 <div id="canonDetail" class="canon-detail"><h3>Every recorded place has a source</h3><p>Choose a place to read its canonical context.</p></div></div>
 <p class="atlas-note">This is a source-indexed lore library, not the in-universe knowledge of Kai. ARCHIVAL canon, unpublished author locks, map-only and game-only locations may appear and can contain spoilers. Newer published and explicit author corrections override older July descriptions. Grid coordinates in the playable 3D world are not true planetary distances.</p>
@@ -504,8 +504,8 @@ function persp(fovy,aspect,near,far){let f=1/Math.tan(fovy/2),o=new Float32Array
 function lookAt(eye,target){let z=[eye[0]-target[0],eye[1]-target[1],eye[2]-target[2]],len=Math.hypot(...z)||1;z=z.map(v=>v/len);let x=[z[2],0,-z[0]];len=Math.hypot(...x)||1;x=x.map(v=>v/len);let y=[z[1]*x[2]-z[2]*x[1],z[2]*x[0]-z[0]*x[2],z[0]*x[1]-z[1]*x[0]];
 let o=new Float32Array(16);o[0]=x[0];o[1]=y[0];o[2]=z[0];o[4]=x[1];o[5]=y[1];o[6]=z[1];o[8]=x[2];o[9]=y[2];o[10]=z[2];o[12]=-(x[0]*eye[0]+x[1]*eye[1]+x[2]*eye[2]);o[13]=-(y[0]*eye[0]+y[1]*eye[1]+y[2]*eye[2]);o[14]=-(z[0]*eye[0]+z[1]*eye[1]+z[2]*eye[2]);o[15]=1;return o}
 function mul(a,b){let o=new Float32Array(16);for(let col=0;col<4;col++)for(let row=0;row<4;row++)for(let k=0;k<4;k++)o[col*4+row]+=a[k*4+row]*b[col*4+k];return o}
-let player={x:0,z:12,ang:0,vy:0,jump:0,hp:100,aura:100,st:100,level:1,experience:0,defeats:0,echoes:0,stage:0,kills:0,invul:0,dash:0,combo:0,walk:0,clock:0,attackAnim:0,marks:0,essence:0,strain:0,perks:{martial:0,aura:0,resolve:0}};
-let cooldown={attack:0,fire:0,palm:0,dash:0};let paused=true,running=false,finished=false;
+let player={guardWindow:0,x:0,z:12,ang:0,vy:0,jump:0,hp:100,aura:100,st:100,level:1,experience:0,defeats:0,echoes:0,stage:0,kills:0,invul:0,dash:0,combo:0,walk:0,clock:0,attackAnim:0,marks:0,essence:0,strain:0,perks:{martial:0,aura:0,resolve:0}};
+let cooldown={attack:0,fire:0,palm:0,dash:0,guard:0};let paused=true,running=false,finished=false;
 const saveKey='seekers_codex_margerina_world_v02';
 let visited=new Set(['bodhira']);let currentRegion='bodhira';
 const regionState=Object.fromEntries(REGIONS.map(r=>[r.id,{surveyed:false,shards:[],threats:0,awarded:false,rested:false}]));
@@ -521,11 +521,52 @@ const contracts={}; // one non-repeatable field contract per destination
 const camps={}; // one persistent shelter per destination
 const spoken={}; // one trust-building civilian encounter per destination
 const regionalTrust={};
+const trailRecord={}; // four optional discoveries per region; does not change Seeker rank or mainline canon
 let lifeOpen=false,contactNear=null;
 const contractModes=['investigate','supplies','patrol'];
 function worldGroup(r){if(r.group)return r.group;let l=r.land.toLowerCase();if(l.includes('rajistan'))return 'Rajistan';if(l.includes('chun'))return 'Chun';if(l.includes('janoah'))return 'Janoah';if(l.includes('vinlan'))return 'Vinlan';if(l.includes('britannia'))return 'Britannia';if(l.includes('germania'))return 'Germania';if(l.includes('tsar'))return 'Tsar Empire';if(l.includes('dune'))return 'Dune Island';if(l.includes('americana'))return 'Americana';return 'Other';}
-function contractMode(r){if(['ring2','magnara','ring3','ring4','ring5','amphistad','talkingboar','harbor','skyport','krystal','zirael','zuba'].includes(r.id))return 'investigate';return contractModes[REGIONS.indexOf(r)%3];}
+function contractMode(r){if(isTown(r))return 'investigate';if(['ring2','magnara','ring3','ring4','ring5','amphistad','talkingboar','harbor','skyport','krystal','zirael','zuba'].includes(r.id))return 'investigate';return contractModes[REGIONS.indexOf(r)%3];}
 const contractInfo={investigate:['Aura-Residue Survey','Study two anomalous residue sites and report back to the local contract steward.'],supplies:['Relief Supplies','Gather 3 herbs and 2 timber for the traveling quartermaster, then deliver them.'],patrol:['Road Watch','Secure two roaming threats within the current territory and report the result.']};
+const TRAIL_OFFSETS=[[-175,25],[170,102],[-96,-214],[220,-142]];
+const TRAIL_TYPES=[
+ {name:'Wayside Record',text:'A field marker on a traveled route. You record tracks and conditions without altering the region&#39;s history.'},
+ {name:'Lookout Survey',text:'A viewpoint over the neighboring terrain. Your Codex gains a local survey observation.'},
+ {name:'Weathered Crossing',text:'Inspect a roadside crossing and check whether its approach remains safe.'},
+ {name:'Boundary Witness',text:'Record changes in terrain and traces of movement at a quiet boundary.'}
+];
+// Optional game-only chapter-spine: reconnaissance along Kai's established travel direction.
+// This does not insert new events into the published Beyond the Abyssal Line storyline.
+const ROAD_STEPS=[
+ {id:'bodhira',title:'Bodhira monastery approaches'},
+ {id:'rajir',title:'Rajir proving roads'},
+ {id:'rehli',title:'New Rehli caravan routes'},
+ {id:'cradlewood',title:'Chun survival approaches'},
+ {id:'magnara',title:'Magnara arrival survey'}
+];
+let roadIndex=0;
+function advanceSeekerRoad(){while(roadIndex<ROAD_STEPS.length){const step=ROAD_STEPS[roadIndex];
+ if(trailCount(step.id)<2)break;
+ roadIndex++;player.marks+=6;gainExp(45);
+ logDiscovery('SEEKER ROAD · '+step.title);
+ addMessage('SEEKER ROAD · '+roadIndex+'/5',step.title+' documented · +6 Field Points · +45 XP',5);
+}
+}
+function trailSites(r){const spin=REGIONS.indexOf(r)*.47;return TRAIL_OFFSETS.map(([a,b],id)=>({id,x:r.x+Math.cos(spin)*a-Math.sin(spin)*b,z:r.z+Math.sin(spin)*a+Math.cos(spin)*b,...TRAIL_TYPES[id]}));}
+function trailCount(id){return (trailRecord[id]||[]).length;}
+function nearestTrail(r,max=7){let best=null,bd=max;for(const t of trailSites(r)){
+  if((trailRecord[r.id]||[]).includes(t.id))continue;
+  let d=dist(player.x,player.z,t.x,t.z);if(d<bd){best=t;bd=d;}}
+ return best;
+}
+function completeTrail(r,t){if(!t)return false;const record=trailRecord[r.id]||(trailRecord[r.id]=[]);
+ if(record.includes(t.id))return false;
+ record.push(t.id);player.marks+=3;gainExp(22);logDiscovery(r.name+' · '+t.name);
+ spawnBurst(t.x,terrain(t.x,t.z)+1.3,t.z,C.gold,18);
+ addMessage(t.name.toUpperCase(),t.text+' · '+record.length+'/4 reports · +22 XP',5);
+ if(record.length===4){player.marks+=25;player.essence+=3;gainExp(90);logDiscovery(r.name+' · local trail circuit completed');
+  addMessage('ROUTE CIRCUIT COMPLETE',r.name+' · +25 Field Points · +3 Training Points · +90 XP',6);}
+ advanceSeekerRoad();awardExpedition(r.id);updateQuest();saveGame();return true;
+}
 function resourceNodes(r){let a=[[-70,-32,'timber'],[75,18,'herbs'],[-52,78,'stone'],[70,83,'timber'],[-86,34,'herbs'],[35,-84,'herbs'],[96,-44,'stone'],[-10,-88,'timber']];return a.map(([dx,dz,kind],i)=>({id:i,x:r.x+dx,z:r.z+dz,kind}));}
 function residueSites(r){return [[-72,40],[91,45]].map(([dx,dz],i)=>({id:i,x:r.x+dx,z:r.z+dz}));}
 function isTown(r){return r.kind==='city'||['rehli','rajir','skyport','harbor','cainowa','curan'].includes(r.id)}
@@ -540,7 +581,9 @@ function relicsFor(r){let spin=REGIONS.indexOf(r)*.61;return relicOffsets.map(([
  x:r.x+Math.cos(spin)*x-Math.sin(spin)*z,z:r.z+Math.sin(spin)*x+Math.cos(spin)*z,id:i
 }));}
 function logDiscovery(title){adventureLog.unshift(title);if(adventureLog.length>12)adventureLog.length=12;}
-function expStatus(id){let s=regionState[id];return (s.surveyed?1:0)+s.shards.length+(s.threats>=2?1:0);}
+function expStatus(id){let s=regionState[id],r=WORLD_BY_ID[id];let finalCondition=s.threats>=2||(isTown(r)&&((id==='ring2'&&ringTwoIntel.size>=3)||trailCount(id)>=2));
+ return (s.surveyed?1:0)+s.shards.length+(finalCondition?1:0);
+}
 function expComplete(id){return expStatus(id)>=5;}
 function maxAura(){return 100+(player.perks.aura||0)*16;}
 function maxHP(){return 100+(player.perks.resolve||0)*14;}
@@ -574,15 +617,19 @@ try{let s=JSON.parse(localStorage.getItem(saveKey)||localStorage.getItem('seeker
    if(key==='regionalTrust'&&Number.isFinite(val))store[id]=clamp(val,0,10);
   }
  }
+ if(Number.isInteger(s.roadIndex))roadIndex=clamp(s.roadIndex,0,ROAD_STEPS.length);
+ if(s.trailRecord&&typeof s.trailRecord==='object')for(const id of Object.keys(s.trailRecord))if(WORLD_BY_ID[id]){
+  let arr=s.trailRecord[id];if(Array.isArray(arr))trailRecord[id]=[...new Set(arr.filter(n=>Number.isInteger(n)&&n>=0&&n<4))];
+ }
  if(Number.isFinite(s.player.strain))player.strain=clamp(s.player.strain,0,100);
 
  }}catch{}
 const actorTypes={shade:{hp:76,damage:8,speed:2.9,range:2.4},brute:{hp:135,damage:14,speed:2.15,range:3.2},warden:{hp:470,damage:21,speed:2.0,range:5.0}};
-let enemies=[];function spawnEnemy(type,x,z){const base=actorTypes[type];enemies.push({type,x,z,homeX:x,homeZ:z,hp:base.hp,max:base.hp,angle:rand(0,TAU),cool:rand(0,.5),state:0,hitFlash:0,dead:false,dy:0,stagger:0,seed:rnd()*10})}
+let enemies=[];function spawnEnemy(type,x,z){const base=actorTypes[type];enemies.push({type,x,z,homeX:x,homeZ:z,hp:base.hp,max:base.hp,angle:rand(0,TAU),cool:rand(0,.5),state:0,hitFlash:0,dead:false,dy:0,stagger:0,windup:0,seed:rnd()*10})}
 for(let [x,z] of [[39,-14],[50,-27],[65,-39],[77,-12],[72,17],[102,40],[126,80],[140,102]])spawnEnemy('shade',x,z);
 for(let [x,z] of [[72,-44],[103,64]])spawnEnemy('brute',x,z);
 spawnEnemy('warden',165,144);
-function updateRegionEnemies(region){enemies=enemies.filter(e=>!e.worldGenerated);if(['bodhira','ring2','harbor','skyport','magnara'].includes(region.id))return;let rng=chunkRandom(Math.floor(region.x/128),Math.floor(region.z/128));for(let i=0;i<6;i++){let a=rng()*TAU,r=45+rng()*110,x=region.x+Math.sin(a)*r,z=region.z+Math.cos(a)*r;spawnEnemy(i%3===0?'brute':'shade',x,z);enemies[enemies.length-1].worldGenerated=true;}}
+function updateRegionEnemies(region){enemies=enemies.filter(e=>!e.worldGenerated);if(region.id==='bodhira'||isTown(region))return;let rng=chunkRandom(Math.floor(region.x/128),Math.floor(region.z/128));for(let i=0;i<6;i++){let a=rng()*TAU,r=45+rng()*110,x=region.x+Math.sin(a)*r,z=region.z+Math.cos(a)*r;spawnEnemy(i%3===0?'brute':'shade',x,z);enemies[enemies.length-1].worldGenerated=true;}}
 let savedDefeats=clamp(player.defeats,0,10);
 if(savedDefeats)for(let e of enemies.filter(e=>e.type==='shade').slice(0,savedDefeats)){e.dead=true;e.hp=0}
 const echoes=[[95,-10],[116,48],[139,91]].map((p,i)=>({x:p[0],z:p[1],taken:player.echoes>i}));
@@ -597,10 +644,10 @@ const activeQuest=[
 ];
 function waypoint(){switch(player.stage){case 0:case 4:return sites.keeper;case 1:{let live=enemies.filter(e=>e.type==='shade'&&!e.dead);if(!live.length)return sites.camp;live.sort((a,b)=>dist(a.x,a.z,player.x,player.z)-dist(b.x,b.z,player.x,player.z));return [live[0].x,live[0].z]}case 2:{let e=echoes.filter(e=>!e.taken);if(!e.length)return sites.ruins;e.sort((a,b)=>dist(a.x,a.z,player.x,player.z)-dist(b.x,b.z,player.x,player.z));return [e[0].x,e[0].z]}case 3:return [165,144];default:return null}}
 function addMessage(title,body='',duration=3.3){let t=$('#message');t.innerHTML='<strong>'+title+'</strong>'+body;msgUntil=time+duration;t.style.opacity='1'}
-function updateQuest(){if(currentRegion!=='bodhira'){let region=WORLD_BY_ID[currentRegion];css('#questName','THE GREAT SURVEY');css('#questText',region.blurb+' Explore this territory, or use the World Atlas to travel.');let s=regionState[region.id];css('#progress',s.awarded?'EXPEDITION COMPLETE · +45 FIELD POINTS EARNED':
- 'SURVEY '+(s.surveyed?'✓':'○')+' · TRACES '+s.shards.length+'/3 · '+(region.id==='ring2'?'RING II LANDMARKS '+ringTwoIntel.size+'/3':'THREATS '+s.threats+'/2'));return;}let [name,text,progress]=activeQuest[player.stage];css('#questName',name);css('#questText',text);let counter=player.stage===1?' · '+Math.min(3,player.defeats)+'/3':player.stage===2?' · '+player.echoes+'/3':'';
+function updateQuest(){if(currentRegion!=='bodhira'){let region=WORLD_BY_ID[currentRegion];css('#questName','THE GREAT SURVEY');css('#questText',region.blurb+' Explore local survey trails, or use the World Atlas to travel.');let s=regionState[region.id];css('#progress',s.awarded?'EXPEDITION COMPLETE · +45 FIELD POINTS EARNED':
+ 'SURVEY '+(s.surveyed?'✓':'○')+' · TRACES '+s.shards.length+'/3 · TRAIL REPORTS '+trailCount(region.id)+'/4 · '+(region.id==='ring2'?'RING TWO '+ringTwoIntel.size+'/3':isTown(region)?'CIVIC REPORTS '+Math.min(2,trailCount(region.id))+'/2':'THREATS '+s.threats+'/2'));return;}let [name,text,progress]=activeQuest[player.stage];css('#questName',name);css('#questText',text);let counter=player.stage===1?' · '+Math.min(3,player.defeats)+'/3':player.stage===2?' · '+player.echoes+'/3':'';
  let wp=waypoint(),where=wp?' · '+Math.round(dist(player.x,player.z,...wp))+'m':'';css('#progress',progress+counter+where);}
-function saveGame(){try{localStorage.setItem(saveKey,JSON.stringify({visited:[...visited],regions:regionState,journal:adventureLog,ringTwoIntel:[...ringTwoIntel],supplies,gathered,contracts,camps,spoken,regionalTrust,
+function saveGame(){try{localStorage.setItem(saveKey,JSON.stringify({visited:[...visited],regions:regionState,journal:adventureLog,ringTwoIntel:[...ringTwoIntel],supplies,gathered,contracts,camps,spoken,regionalTrust,trailRecord,roadIndex,
  player:{...Object.fromEntries(['x','z','ang','hp','aura','st','level','experience','defeats','echoes','stage','kills','clock','marks','essence','strain'].map(k=>[k,player[k]])),perks:player.perks}}));}catch{}}
 function gainExp(v){player.experience+=v;let leveled=false;while(player.experience>=player.level*100&&player.level<60){player.experience-=player.level*100;player.level++;leveled=true;}if(leveled){player.hp=maxHP();player.aura=maxAura();addMessage('FIELD PRACTICE', 'Gameplay level '+player.level+' · your official Seeker rank is unchanged',4)}}
 function interact(){if(paused)return;
@@ -615,6 +662,7 @@ function interact(){if(paused)return;
   const site=residueSites(worldR).find(n=>!(cs.clues||[]).includes(n.id)&&dist(player.x,player.z,n.x,n.z)<6.0);
   if(site){cs.clues.push(site.id);player.strain=clamp(player.strain+3,0,100);addMessage('RESONANCE READ',cs.clues.length+'/2 traces analyzed · return to contract steward',4);logDiscovery(worldR.name+' · field residue '+(site.id+1));saveGame();return;}
  }
+ const trail=nearestTrail(worldR,7.0);if(trail){completeTrail(worldR,trail);return;}
  if(camps[worldR.id]&&dist(player.x,player.z,camps[worldR.id].x,camps[worldR.id].z)<7){resetRest();addMessage('PERSONAL CAMP','Recovered beside your persistent shelter.',3);saveGame();return;}
 
  if(currentRegion==='ring2'){
@@ -693,7 +741,8 @@ function tryCampBuild(){if(paused||!running)return;const r=WORLD_BY_ID[currentRe
 function lifeTick(){if(paused)return;const r=WORLD_BY_ID[currentRegion];let near=nearestContact();let resource=resourceNodes(r).find(n=>!(gathered[r.id]||[]).includes(n.id)&&dist(player.x,player.z,n.x,n.z)<5.8);
  let c=contracts[r.id],read=c?.state==='active'&&c.mode==='investigate'?residueSites(r).find(n=>!(c.clues||[]).includes(n.id)&&dist(player.x,player.z,n.x,n.z)<6):null;
  const camp=camps[r.id],rest=camp&&dist(player.x,player.z,camp.x,camp.z)<7;
- let active=near?.distance<6?'Talk: '+(near.who==='board'?'Contract Steward':near.who==='supply'?'Quartermaster':'Resident Guide'):resource?'Gather '+resource.kind:read?'Study aura residue':rest?'Rest at camp':null;
+ const trail=nearestTrail(r,7);
+ let active=near?.distance<6?'Talk: '+(near.who==='board'?'Contract Steward':near.who==='supply'?'Quartermaster':'Resident Guide'):resource?'Gather '+resource.kind:read?'Study aura residue':rest?'Rest at camp':trail?'Record '+trail.name:null;
  if(active){nearTarget=active;$('#interact').style.display='block';$('#interact').textContent='F · '+active;$('#centerHint').textContent=active;$('#centerHint').style.opacity='1';}
 }
 
@@ -730,13 +779,13 @@ function renderJournal(){const s=regionState[currentRegion],r=WORLD_BY_ID[curren
  css('#journalTitle','THE SEEKER’S FIELD CODEX · '+r.name.toUpperCase());
  css('#journalSummary','LEVEL '+player.level+' · '+player.experience+'/'+(player.level*100)+' XP · '+player.marks+' FIELD POINTS · '+player.essence+' TRAINING POINTS · '+supplies.tola+' TOLA · '+done+'/'+REGIONS.length+' EXPEDITIONS');
  css('#journalLore',regionLore(r));
- css('#journalProgress',(s.surveyed?'✓':'○')+' Activate region waypoint   ·   '+s.shards.length+'/3 Ancient Traces   ·   '+(r.id==='ring2'?ringTwoIntel.size+'/3 Lore Landmarks':s.threats+'/2 Threats')+'   '+(s.awarded?'· COMPLETE':'· +45 Field Points & 200 XP on completion'));
+ css('#journalProgress',(s.surveyed?'✓':'○')+' Activate region waypoint   ·   '+s.shards.length+'/3 Ancient Traces   ·   '+(r.id==='ring2'?ringTwoIntel.size+'/3 Lore Landmarks':isTown(r)?Math.min(2,trailCount(r.id))+'/2 Civic Reports':s.threats+'/2 Threats')+'   '+(s.awarded?'· COMPLETE':'· +45 Field Points & 200 XP on completion'));
  let list=$('#journalRegions');list.innerHTML=REGIONS.map(q=>{let v=regionState[q.id];return '<div class="journal-region"><span>'+q.name+'</span><strong>'+expStatus(q.id)+'/5 '+(v.awarded?'✓':'')+'</strong></div>'}).join('');
  $('#journalTraining').innerHTML=Object.entries(PERKS).map(([id,p])=>'<button data-perk="'+id+'"><b>'+p.name+' · '+player.perks[id]+'/5</b><small>'+p.info+'</small><em>'+(player.perks[id]>=5?'MAXED':(p.cost+4*player.perks[id])+' TRAINING POINTS')+'</em></button>').join('');
  for(let b of $('#journalTraining').querySelectorAll('button'))b.onclick=()=>upgradePerk(b.dataset.perk);
  $('#journalEvents').textContent=adventureLog.length?adventureLog.slice(0,5).join('  •  '):'Your discoveries will be recorded here.';
- css('#journalSupplies',`TIMBER ${supplies.timber} · STONE ${supplies.stone} · HERBS ${supplies.herbs} · RATIONS ${supplies.rations} · TOLA ${supplies.tola} · STRAIN ${Math.round(player.strain)}%`);
- css('#journalContract',`${contractInfo[contracts[r.id]?.mode||contractMode(r)][0]} — ${contractProgress(r)} · LOCAL TRUST ${regionalTrust[r.id]||0}`);
+ css('#journalSupplies',`ROUTE ${trailCount(r.id)}/4 · TIMBER ${supplies.timber} · STONE ${supplies.stone} · HERBS ${supplies.herbs} · RATIONS ${supplies.rations} · TOLA ${supplies.tola} · STRAIN ${Math.round(player.strain)}%`);
+ css('#journalContract',`${contractInfo[contracts[r.id]?.mode||contractMode(r)][0]} — ${contractProgress(r)} · LOCAL TRUST ${regionalTrust[r.id]||0} · SEEKER ROAD ${roadIndex}/${ROAD_STEPS.length} · ${roadIndex>=ROAD_STEPS.length?'COMPLETE':ROAD_STEPS[roadIndex].title}`);
 }
 
 function spawnBurst(x,y,z,color,n=14){for(let i=0;i<n;i++){let a=rnd()*TAU,p=rnd()*Math.PI;particles.push({x,y,z,vx:Math.cos(a)*rand(.8,6),vy:rand(.7,5.8),vz:Math.sin(a)*rand(.8,6),ttl:rand(.35,.95),life:1,c:color,size:rand(.07,.24)})}}
@@ -759,6 +808,7 @@ function action(type){if(paused||player.hp<=0)return;
  if(type==='jump'){if(player.jump<=.04){player.vy=7;player.st=Math.max(0,player.st-8)}return}
  if(cooldown[type]>0)return;
  if(player.strain>84&&['fire','palm','dash'].includes(type)){addMessage('AURA STRAIN','Rest, recover or use basic Martial footwork before casting again.',2.5);return;}
+ if(type==='guard'&&player.st>=12){player.st-=12;cooldown.guard=1.20;player.guardWindow=.82;wave(player.x,player.z,C.blue,.8,8);addMessage('MARTIAL GUARD','Read the incoming strike and time your counter.',1.3);return;}
  if(type==='attack'){
   player.strain=clamp(player.strain+2,0,100);
   player.combo=(player.combo+1)%3;cooldown.attack=.42;player.attackAnim=.35;let target=nearestEnemy(4.9),dmg=(26+player.level*3)*(1+player.perks.martial*.09);
@@ -779,7 +829,7 @@ window.addEventListener('keydown',e=>{if(['Space','ArrowUp','ArrowDown','ArrowLe
  if(e.code==='KeyL'){if(canonOpen)closeCanon();else openCanon();return}
  if(e.code==='KeyI'){if(atlasOpen)closeAtlas();if(journalOpen)closeJournal();else openJournal();return}
  if(e.code==='KeyB'){tryCampBuild();return}
- const hot={KeyJ:'attack',KeyQ:'fire',KeyE:'palm',KeyR:'dash',KeyF:'interact',Space:'jump'};
+ const hot={KeyG:'guard',KeyJ:'attack',KeyQ:'fire',KeyE:'palm',KeyR:'dash',KeyF:'interact',Space:'jump'};
  if(hot[e.code])action(hot[e.code]);
 });window.addEventListener('keyup',e=>keys[e.code]=false);
 canvas.addEventListener('pointerdown',e=>{if(paused)return;pointerDrag=true;pointerX=e.clientX;pointerY=e.clientY;canvas.setPointerCapture(e.pointerId);if(e.pointerType==='mouse'&&e.button===0)action('attack')});
@@ -796,7 +846,7 @@ $('#interact').onclick=()=>action('interact');
 $('#campBtn').onclick=tryCampBuild;$('#lifeClose').onclick=closeLife;
 function setPaused(v){if(lifeOpen)closeLife();if(canonOpen)closeCanon();if(atlasOpen)closeAtlas();if(journalOpen)closeJournal();paused=v;$('#pause').style.display=v&&running?'flex':'none';if(v)saveGame()}
 $('#menuBtn').onclick=()=>setPaused(true);
-$('#helpBtn').onclick=()=>{setPaused(true);css('#pauseCopy','Move with WASD / joystick; drag to rotate camera. M: World Atlas, I: Field Codex. At each region, activate the waypoint, collect three glowing Ancient Traces and defeat two threats. Spend earned Training Points on Muti training in the Codex. F or INTERACT at monuments, relics and the Keeper. Progress saves locally.')};
+$('#helpBtn').onclick=()=>{setPaused(true);css('#pauseCopy','Move with WASD / joystick; drag to rotate camera. M: World Atlas, I: Field Codex. At each region, activate a waypoint, collect three Ancient Traces and explore four road reports. Wilderness expeditions also require two threats; protected settlements use civic surveys instead. Guard incoming attacks with G or ⛨. Spend earned Training Points on Muti training in the Codex. F or INTERACT at monuments, relics and the Keeper. Progress saves locally.')};
 $('#resumeBtn').onclick=()=>{setPaused(false);css('#pauseCopy','Your journey continues.')};
 $('#saveBtn').onclick=()=>{saveGame();css('#pauseCopy','Journey saved locally on this device. The God Tree remembers.')};
 $('#exportBtn').onclick=()=>{saveGame();const v=localStorage.getItem(saveKey)||'';$('#backupText').value=v;$('#backupText').focus();$('#backupText').select();css('#pauseCopy','Backup is ready below. Copy and keep this text privately; it contains your game progress.');};
@@ -888,7 +938,17 @@ function makeRingTwoMesh(mesh,x,z){
  for(const p of RING2_POINTS){mesh.ring(x+p.dx,terrain(x+p.dx,z+p.dz)+.25,z+p.dz,3,blue,.25,18);
    mesh.box(x+p.dx,terrain(x+p.dx,z+p.dz)+1.5,z+p.dz,1.2,3,1.2,gold)}
 }
-function createHubMesh(region){let mesh=new Mesh();if(region.id==='bodhira')return null;
+function createHubMesh(region){let mesh=new Mesh();
+ if(region.id==='bodhira'){
+  // Preserve the original Bodhira set and overlay only gentle new approach paths.
+  for(const t of trailSites(region)){
+   let mx=(t.x+region.x)*.5+Math.sin(t.id*2)*14,mz=(t.z+region.z)*.5+Math.cos(t.id*2)*14;
+   mesh.path([[region.x,region.z],[mx,mz],[t.x,t.z]],2.3,[.41,.38,.30]);
+   let yy=terrain(t.x,t.z);mesh.box(t.x,yy+.55,t.z,3.4,1.1,3.4,C.stone2);
+   mesh.cone(t.x,yy+1.1,t.z,1.2,3,C.gold,6);
+  }
+  return mesh.buffer();
+ }
  let x=region.x,z=region.z,y=terrain(x,z),t=region.kind;
  const pale=t==='tundra'?[.67,.76,.78]:t==='dunes'?[.67,.55,.36]:t==='city'?[.70,.67,.58]:[.52,.56,.50];
  mesh.ring(x,y+.1,z,30,[.80,.68,.41],.32,32);
@@ -907,6 +967,23 @@ function createHubMesh(region){let mesh=new Mesh();if(region.id==='bodhira')retu
     mesh.box(px,terrain(px,pz)+4.5,pz,2.2,9,2.2,pale);}
  }
  if(region.id==='ring2'){makeRingTwoMesh(mesh,x,z)}
+ if(region.id==='rajir'){
+  // Rajir's King in the Lair arena: sculptural exterior test only.
+  const ax=x+110,az=z-75,ay=terrain(ax,az);
+  for(let tier=0;tier<4;tier++)mesh.ring(ax,ay+.7+tier*1.65,az,26+tier*4,[.63,.49,.34],1.9,40);
+  for(let i=0;i<16;i++){const a=i*TAU/16,tx=ax+Math.cos(a)*43,tz=az+Math.sin(a)*43;
+   mesh.box(tx,terrain(tx,tz)+4,tz,2.8,8,2.8,C.stone2);}
+ }
+ if(region.id==='cradlewood'){
+  // Exam forest architecture: marker stones and dense tree silhouette, no story spoilers.
+  for(let i=0;i<13;i++){const a=i*TAU/13,px=x+95+Math.cos(a)*29,pz=z-55+Math.sin(a)*29;
+   mesh.cone(px,terrain(px,pz),pz,2.7,18,[.25,.44,.32],6,.23);}
+ }
+ if(region.id==='dunecity'){
+  // Coastal black-glass reef silhouettes, deliberately game-only.
+  for(let i=0;i<8;i++){const px=x+75+i*12,pz=z-100+Math.sin(i*2.6)*13,yy=terrain(px,pz);
+   mesh.cone(px,yy,pz,2.1+i%3,8+i%4*4,[.15,.21,.25],5,.02);}
+ }
  if(region.id==='magnara'){
   for(let i=0;i<7;i++)mesh.ring(x,y+.12+i*.04,z,28+i*11,[.68+i*.015,.56+i*.012,.43],.42,44);
   for(let i=0;i<13;i++){let a=i*TAU/13,px=x+Math.cos(a)*82,pz=z+Math.sin(a)*82;
@@ -946,6 +1023,17 @@ function createHubMesh(region){let mesh=new Mesh();if(region.id==='bodhira')retu
  }
  if(region.kind==='coast'){for(let j=0;j<9;j++){let px=x-65+j*16,pz=z+94,yy=terrain(px,pz);mesh.box(px,yy+.25,pz,12,.5,29,[.35,.43,.41]);mesh.cone(px,yy+1,pz,1.1,4,C.wood,6)}}
 
+ // Local trails are hand-placed playable circuits extending well beyond each hub.
+ for(const t of trailSites(region)){
+  const midx=mix(x,t.x,.53)+Math.sin(t.id*2.1+1)*19,midz=mix(z,t.z,.53)+Math.cos(t.id*2.3)*19;
+  mesh.path([[x,z],[midx,midz],[t.x,t.z]],3.1,isTown(region)?[.58,.54,.46]:region.kind==='dunes'?[.61,.50,.34]:[.42,.41,.34]);
+  const yy=terrain(t.x,t.z);
+  mesh.box(t.x,yy+.65,t.z,4.4,1.3,4.4,C.stone2);
+  mesh.box(t.x,yy+2.2,t.z,1.4,2.7,1.4,C.stone);
+  mesh.cone(t.x,yy+3.6,t.z,1.1,2.2,C.gold,6);
+  for(const sign of [-1,1]){const px=t.x+sign*3.2,pz=t.z+1.8,sy=terrain(px,pz);
+   mesh.cone(px,sy,pz,.23,3,C.wood,5,.12);mesh.sphere(px,sy+3.0,pz,.3,.3,.3,C.gold,6,3);}
+ }
  // Survey monolith: a touchable marker distinct from lore-specific monuments.
  mesh.box(x,y+5,z,2.5,10,2.5,[.34,.43,.45]);mesh.cone(x,y+10,z,2.5,4,C.gold,6);
  mesh.ring(x,y+.18,z,6,C.gold,.24,22);
@@ -977,7 +1065,7 @@ function renderAtlas(){let ui=$('#atlasList');if(!ui)return;
 }
 let selectedRegion='bodhira',atlasOpen=false;
 function selectRegion(id){selectedRegion=id;const r=WORLD_BY_ID[id];if(!r)return;
- css('#atlasSelection',r.name);css('#atlasInfo',r.blurb+'  ·  '+r.feature+'  ·  Expedition '+expStatus(r.id)+'/5'+(regionState[r.id].awarded?' COMPLETE':'')+'  ·  DEV ONLY coordinates: '+Math.round(r.x/1000)+' km E / '+Math.round(r.z/1000)+' km N');
+ css('#atlasSelection',r.name);css('#atlasInfo',r.blurb+'  ·  '+r.feature+'  ·  Expedition '+expStatus(r.id)+'/5'+(regionState[r.id].awarded?' COMPLETE':'')+(roadIndex<ROAD_STEPS.length&&ROAD_STEPS[roadIndex].id===r.id?'  ·  NEXT SEEKER ROAD STOP':'')+'  ·  DEV ONLY coordinates: '+Math.round(r.x/1000)+' km E / '+Math.round(r.z/1000)+' km N');
  css('#travelBtn',r.id===currentRegion?'RETURN TO WAYPOINT →':'TRAVEL TO WAYPOINT →');renderAtlasCanvas();
 }
 function atlasProject(x,z,w,h){return [46+(x+WORLD_X)/(2*WORLD_X)*(w-92),42+(WORLD_Z-z)/(2*WORLD_Z)*(h-84)]}
@@ -1020,7 +1108,7 @@ $('#atlasCanvas').addEventListener('pointerdown',e=>{let r=e.currentTarget.getBo
  let best=null,bd=22;for(let region of REGIONS){let [xx,zz]=atlasProject(region.x,region.z,e.currentTarget.width,e.currentTarget.height);let d=Math.hypot(xx-x,zz-z);if(d<bd){best=region;bd=d}}if(best)selectRegion(best.id)});
 
 function update(dt){time+=dt;player.clock+=dt;updateStreaming();applyRegion(false);for(let k of Object.keys(cooldown))cooldown[k]=Math.max(0,cooldown[k]-dt);
- player.attackAnim=Math.max(0,player.attackAnim-dt);player.invul=Math.max(0,player.invul-dt);player.dash=Math.max(0,player.dash-dt);player.hp=clamp(player.hp+(.16+.06*player.perks.resolve)*dt,0,maxHP());player.aura=clamp(player.aura+(5.0+player.perks.aura*.9)*dt,0,maxAura());player.st=clamp(player.st+12.0*dt,0,100);player.strain=clamp(player.strain-3.5*dt,0,100);
+ player.guardWindow=Math.max(0,player.guardWindow-dt);player.attackAnim=Math.max(0,player.attackAnim-dt);player.invul=Math.max(0,player.invul-dt);player.dash=Math.max(0,player.dash-dt);player.hp=clamp(player.hp+(.16+.06*player.perks.resolve)*dt,0,maxHP());player.aura=clamp(player.aura+(5.0+player.perks.aura*.9)*dt,0,maxAura());player.st=clamp(player.st+12.0*dt,0,100);player.strain=clamp(player.strain-3.5*dt,0,100);
  let forward=(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0)+joyY;
  let strafe=(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0)+joyX;
  let mag=Math.min(1,Math.hypot(forward,strafe));let a=mag>0?Math.atan2(strafe,forward)+cameraYaw:player.ang;
@@ -1036,9 +1124,28 @@ function update(dt){time+=dt;player.clock+=dt;updateStreaming();applyRegion(fals
  e.cool=Math.max(0,e.cool-dt);e.hitFlash=Math.max(0,e.hitFlash-dt);e.stagger=Math.max(0,e.stagger-dt);
  let d=dist(e.x,e.z,player.x,player.z),home=dist(e.x,e.z,e.homeX,e.homeZ),range=e.type==='warden'?35:23;
  if(d<range&&e.stagger<=0){let dir=Math.atan2(player.x-e.x,player.z-e.z);e.angle=dir;
- if(d>(e.type==='warden'?5.2:2.3)){let speed=actorTypes[e.type].speed;let nx=e.x+Math.sin(dir)*speed*dt,nz=e.z+Math.cos(dir)*speed*dt;if(terrain(nx,nz)-terrain(e.x,e.z)<2.8){e.x=nx;e.z=nz}}
- if(d<actorTypes[e.type].range&&e.cool<=0&&player.invul<=0){let dmg=actorTypes[e.type].damage;player.hp=Math.max(0,player.hp-dmg);player.invul=.68;e.cool=e.type==='warden'?1.75:1.30;shake=.32;spawnBurst(player.x,terrain(player.x,player.z)+2,player.z,C.fire,12);addMessage('UNDER ATTACK','Dodge with Hanuman Step or strike back.',1.1)}
- }else if(home>7){let dir=Math.atan2(e.homeX-e.x,e.homeZ-e.z);e.x+=Math.sin(dir)*dt;e.z+=Math.cos(dir)*dt}
+  if(e.windup>0){e.windup=Math.max(0,e.windup-dt);
+   if(e.windup<=0){
+    e.cool=e.type==='warden'?2.6:e.type==='brute'?2.1:1.65;
+    if(d<actorTypes[e.type].range+1.0){
+     if(player.guardWindow>0){player.guardWindow=0;e.stagger=1.0;shake=.12;
+      hitEnemy(e,e.type==='warden'?13:19,3.0);wave(player.x,player.z,C.blue,1.3,16);
+      addMessage('PERFECT COUNTER','Martial timing broke the incoming strike.',2.2);
+     }else if(player.invul<=0){player.hp=Math.max(0,player.hp-actorTypes[e.type].damage);player.invul=.72;shake=.29;
+      spawnBurst(player.x,terrain(player.x,player.z)+2,player.z,C.fire,12);
+      addMessage('HIT — RECOVER','Read the red attack circle. Press G / ⛨ to counter, or use Hanuman Step.',1.5);}
+    }
+   }
+  }else if(d<actorTypes[e.type].range&&e.cool<=0){
+   e.windup=e.type==='warden'?1.08:e.type==='brute'?.92:.68;
+  }else if(d>(e.type==='warden'?5.5:2.7)){
+   let speed=actorTypes[e.type].speed;
+   // Shades circle their target instead of running straight toward it.
+   let side=e.type==='shade'&&d<12?Math.sin(e.seed*1.7)>0?1:-1:0;
+   let aa=dir+side*.30,nx=e.x+Math.sin(aa)*speed*dt,nz=e.z+Math.cos(aa)*speed*dt;
+   if(terrain(nx,nz)-terrain(e.x,e.z)<2.8){e.x=nx;e.z=nz;}
+  }
+ }else{e.windup=0;if(home>7){let dir=Math.atan2(e.homeX-e.x,e.homeZ-e.z);e.x+=Math.sin(dir)*dt;e.z+=Math.cos(dir)*dt}}
  }
  for(let p of particles){p.ttl-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;p.vy-=6*dt}
  particles=particles.filter(p=>p.ttl>0).slice(-160);
@@ -1084,8 +1191,9 @@ function renderDynamic(){let m=new Mesh(),y=terrain(player.x,player.z)+player.ju
    else{hmodel(m,nx,yy,nz,Math.sin(player.clock*.03+nx)*.3,false,Math.sin(time*.15),0);m.sphere(nx,yy+4.6,nz,.29,.29,.29,who==='guide'?C.blue:C.gold,6,4);}
   }
   for(let i=0;i<(mobileMode?3:6);i++){
+   const inDay=Math.sin(player.clock/125+1)>-.12;if(!inDay&&i%3!==0)continue;
    const a=i*2.399,rad=48+(i%2)*26;
-   let nx=site.x+Math.cos(a)*rad+Math.sin(player.clock*.010+i)*4,nz=site.z+Math.sin(a)*rad+Math.cos(player.clock*.010+i)*4,yy=terrain(nx,nz);
+   let nx=site.x+Math.cos(a)*rad+Math.sin(player.clock*(i%3===0?.017:.010)+i)*4,nz=site.z+Math.sin(a)*rad+Math.cos(player.clock*(i%3===0?.017:.010)+i)*4,yy=terrain(nx,nz);
    hmodel(m,nx,yy,nz,a+Math.sin(player.clock*.006+i)*.6,false,time*.18+i,0);
   }
   for(const node of resourceNodes(site))if(!(gathered[site.id]||[]).includes(node.id)){
@@ -1106,9 +1214,25 @@ function renderDynamic(){let m=new Mesh(),y=terrain(player.x,player.z)+player.ju
   m.ring(shelter.x,yy+.15,shelter.z,5,C.gold,.15);
  }
 
+ // Optional trails: records are explored on foot rather than unlocked from the world atlas.
+ const activeRegion=WORLD_BY_ID[currentRegion];
+ if(dist(player.x,player.z,activeRegion.x,activeRegion.z)<350){
+  for(const t of trailSites(activeRegion))if(!(trailRecord[activeRegion.id]||[]).includes(t.id)&&dist(player.x,player.z,t.x,t.z)<115){
+   const yy=terrain(t.x,t.z),bob=.5+.35*Math.sin(time*2+t.id);
+   m.ring(t.x,yy+.24,t.z,4.7,C.gold,.19,22);
+   m.cone(t.x,yy+4.3+bob,t.z,.52,1.45,C.gold,6);
+   m.sphere(t.x,yy+6+bob,t.z,.30,.46,.30,C.blue,6,3);
+  }
+ }
  // Character aura and tactical footprints.
+ if(player.guardWindow>0){m.ring(player.x,y+.1,player.z,2.3,C.blue,.28,26);m.ring(player.x,y+1.4,player.z,1.25,C.gold,.10,22)}
  if(player.dash>0){m.ring(player.x,y+.06,player.z,1.7,C.gold,.25);m.ring(player.x-Math.sin(player.ang)*1.6,y+.06,player.z-Math.cos(player.ang)*1.6,1.1,C.blue,.17)}
- for(let e of enemies)if(!e.dead&&dist(e.x,e.z,player.x,player.z)<105)enemyModel(m,e,time);
+ for(let e of enemies)if(!e.dead&&dist(e.x,e.z,player.x,player.z)<105){
+  enemyModel(m,e,time);
+  if(e.windup>0){let rr=actorTypes[e.type].range+.25,yy=terrain(e.x,e.z)+.19;
+   m.ring(e.x,yy,e.z,rr,[.94,.30,.22],.17+.07*Math.sin(time*16),23);
+   m.ring(e.x,yy+.06,e.z,rr*(1.0-Math.min(.6,e.windup*.2)),C.fire,.11,22);}
+ }
  // Keeper of Bodhira in village.
  if(currentRegion==='bodhira'){let k=sites.keeper,ky=terrain(...k);hmodel(m,k[0],ky,k[1],2.65,false,time*.2,0);m.cone(k[0],ky,k[1],1.18,3.0,[.48,.52,.38],7,.74);m.sphere(k[0],ky+4.5,k[1],.25,.25,.25,C.gold,8,4);
  if(player.stage===0||player.stage===4){m.ring(k[0],ky+.08,k[1],2.2,C.gold,.11);m.cone(k[0],ky+5.0,k[1],.30,.8,C.gold,7)}
@@ -1142,7 +1266,7 @@ function render(){let ww=Math.floor(window.innerWidth*Math.min(devicePixelRatio|
  css('#clock','DAY '+String(1+Math.floor(player.clock/350)).padStart(2,'0')+' · '+(day>.65?'DAYLIGHT':day<.32?'DUSK':'DAWN'));
  css('#weather',w+' · '+supplies.tola+' TOLA');
  css('#coords',`PROTOTYPE GRID · ${Math.round(player.x/1000)} / ${Math.round(player.z/1000)} units · ${chunks.size} STREAMED CELLS · LEVEL ${player.level} · ${player.marks} FIELD POINTS · STRAIN ${Math.round(player.strain)}%`);
- for(let b of document.querySelectorAll('#buttons [data-action]')){let cd=cooldown[b.dataset.action],max={attack:.42,fire:4,palm:3.3,dash:2.4}[b.dataset.action];b.querySelector('.cool').style.transform='scaleY('+Math.min(1,cd/max)+')';b.classList.toggle('active',cd<=0)}
+ for(let b of document.querySelectorAll('#buttons [data-action]')){let cd=cooldown[b.dataset.action],max={attack:.42,fire:4,palm:3.3,dash:2.4,guard:1.2}[b.dataset.action];b.querySelector('.cool').style.transform='scaleY('+Math.min(1,cd/max)+')';b.classList.toggle('active',cd<=0)}
  minimap();
 }
 const mm=$('#minimap'),mc=mm.getContext('2d');let mapTick=0;
@@ -1155,14 +1279,16 @@ function minimap(){mapTick++;if(mapTick%3!==0)return;let s=200;mc.clearRect(0,0,
  let here=WORLD_BY_ID[currentRegion];for(let relic of relicsFor(here))if(!regionState[currentRegion].shards.includes(relic.id)){
   let p=to(relic.x,relic.z);if(dist(player.x,player.z,relic.x,relic.z)<145){mc.fillStyle='#e8d17b';mc.beginPath();mc.arc(...p,3.8,0,TAU);mc.fill()}}
 
+ for(const t of trailSites(WORLD_BY_ID[currentRegion]))if(!(trailRecord[currentRegion]||[]).includes(t.id)&&dist(player.x,player.z,t.x,t.z)<143){let [tx,tz]=to(t.x,t.z);
+   mc.strokeStyle='#f5e19e';mc.lineWidth=2;mc.beginPath();mc.arc(tx,tz,4.5,0,TAU);mc.stroke();}
  let wp=waypoint();if(wp&&dist(player.x,player.z,...wp)<600){let p=to(...wp),dx=p[0]-100,dy=p[1]-100,l=Math.hypot(dx,dy);if(l>88){p[0]=100+dx/l*88;p[1]=100+dy/l*88}mc.strokeStyle='#efcc81';mc.lineWidth=2;mc.beginPath();mc.arc(...p,6,0,TAU);mc.stroke();mc.fillStyle='#efcc81';mc.beginPath();mc.arc(...p,2,0,TAU);mc.fill()}
  mc.translate(100,100);mc.rotate(player.ang);mc.fillStyle='#f8f2d8';mc.beginPath();mc.moveTo(0,-9);mc.lineTo(5,6);mc.lineTo(0,3);mc.lineTo(-5,6);mc.closePath();mc.fill();mc.restore();}
-applyRegion(false);queueChunks(true);renderAtlas();selectRegion(currentRegion);
+applyRegion(false);updateHub(WORLD_BY_ID[currentRegion]);queueChunks(true);renderAtlas();selectRegion(currentRegion);
 let last=performance.now(),lastSave=0;
 function tick(now){let dt=Math.min(.045,(now-last)/1000||0);last=now;if(running&&!paused){update(dt);if(time-lastSave>9){saveGame();lastSave=time}}render();requestAnimationFrame(tick)}
 window.addEventListener('blur',()=>{if(running)setPaused(true)});
 window.addEventListener('beforeunload',saveGame);
-window.__seekerStatus=()=>({region:currentRegion,visited:[...visited],expeditions:Object.fromEntries(Object.keys(regionState).map(k=>[k,{...regionState[k]}])),
+window.__seekerStatus=()=>({trailRecord,roadIndex,guardWindow:player.guardWindow,region:currentRegion,visited:[...visited],expeditions:Object.fromEntries(Object.keys(regionState).map(k=>[k,{...regionState[k]}])),
  marks:player.marks,essence:player.essence,perks:{...player.perks},level:player.level,activeChunks:chunks.size,atlasOpen,journalOpen,camps:{...camps},supplies:{...supplies},contracts:{...contracts},strain:player.strain,regions:REGIONS.length});
 
 window.__seekerReady=true;
