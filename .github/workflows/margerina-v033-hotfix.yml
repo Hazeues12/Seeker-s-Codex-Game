@@ -1,0 +1,135 @@
+name: Margerina V0.33 Hub Startup Fix
+
+on:
+  push:
+    branches:
+      - codex-modular-v31
+    paths:
+      - '.github/workflows/margerina-v033-hotfix.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Godot development branch
+        uses: actions/checkout@v4
+        with:
+          ref: codex-modular-v31
+          persist-credentials: true
+
+      - name: Fix scene initialization order and commit to development branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PYCODE'
+          from pathlib import Path
+
+          path = Path('systems/hub_manager.gd')
+          if not path.exists():
+              raise SystemExit('V0.33 hub script is missing. No changes made.')
+          text = path.read_text()
+          if 'func _finish_setup() -> void:' in text:
+              print('V0.33 hub startup fix is already installed')
+          else:
+              original_lines = [
+                  'func _ready() -> void:',
+                  '    add_to_group("hub_manager")',
+                  '    player = get_parent().get_node("Player") as CharacterBody3D',
+                  '    mobile = get_tree().get_first_node_in_group("mobile_controls") as Control',
+                  '    _make_environment()',
+                  '    _make_hub()',
+                  '    _make_interface()',
+                  '    _load_game(false)',
+                  '    _update_plants()',
+                  '    _refresh_status()',
+              ]
+              replacement_lines = [
+                  'func _ready() -> void:',
+                  '    add_to_group("hub_manager")',
+                  '    # Main scene is still constructing children. Initialize afterward.',
+                  '    set_process(false)',
+                  '    call_deferred("_finish_setup")',
+                  '',
+                  '',
+                  'func _finish_setup() -> void:',
+                  '    if not is_inside_tree():',
+                  '        return',
+                  '    player = get_parent().get_node("Player") as CharacterBody3D',
+                  '    mobile = get_tree().get_first_node_in_group("mobile_controls") as Control',
+                  '    _make_environment()',
+                  '    _make_hub()',
+                  '    _make_interface()',
+                  '    _load_game(false)',
+                  '    _update_plants()',
+                  '    _refresh_status()',
+                  '    set_process(true)',
+              ]
+              original = "\n".join(original_lines)
+              replacement = "\n".join(replacement_lines)
+              if text.count(original) != 1:
+                  raise SystemExit('V0.33 source differs from expected version; refusing to overwrite it')
+              path.write_text(text.replace(original, replacement, 1))
+              print('Deferred Seeker Quarters construction until the main scene is ready')
+          PYCODE
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add systems/hub_manager.gd
+          if ! git diff --cached --quiet; then
+            git commit -m 'V0.33 fix deferred Seeker hub initialization'
+            git push origin HEAD:codex-modular-v31
+          fi
+
+      - name: Install Godot and web templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+
+      - name: Import and validate Godot project
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . --editor --import --quit 2>&1 | tee v033-hotfix-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v033-hotfix-import.log; then exit 1; fi
+
+      - name: Run 60-frame startup check
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . --quit-after 60 2>&1 | tee v033-hotfix-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v033-hotfix-startup.log; then exit 1; fi
+
+      - name: Export HTML5 browser build
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p build/web
+          godot --headless --path . --export-release 'Web' build/web/index.html 2>&1 | tee v033-hotfix-export.log
+          for ext in html js wasm pck; do
+            test -s "build/web/index.$ext" || { echo "Missing index.$ext"; exit 1; }
+          done
+          ls -lh build/web/
+
+      - name: Upload V0.33 repaired browser game
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v033-web
+          path: build/web/
+          if-no-files-found: error
+
+      - name: Save failure logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v033-hotfix-logs
+          path: |
+            v033-hotfix-import.log
+            v033-hotfix-startup.log
+            v033-hotfix-export.log
+          if-no-files-found: ignore
