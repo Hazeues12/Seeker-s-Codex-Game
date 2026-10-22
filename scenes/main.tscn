@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="PackedScene" path="res://characters/player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://ui/mobile_controls.tscn" id="2"]
 [ext_resource type="Script" path="res://systems/hub_manager.gd" id="3"]
+[ext_resource type="Script" path="res://combat/combat_arena.gd" id="4"]
 
 [sub_resource type="BoxMesh" id="GroundMesh"]
 size = Vector3(60, 1, 60)
@@ -37,3 +38,6 @@ position = Vector3(0, 1, 0)
 
 [node name="HubManager" type="Node" parent="."]
 script = ExtResource("3")
+
+[node name="CombatArena" type="Node3D" parent="."]
+script = ExtResource("4")

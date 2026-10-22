@@ -117,6 +117,10 @@ func _physics_process(delta: float) -> void:
 
 
 func _show_martial_pulse(facing: Vector3) -> void:
+    # V0.35 forwards the existing accepted Martial strike to actual hit detection.
+    var arena: Node = get_tree().get_first_node_in_group("combat_arena")
+    if is_instance_valid(arena) and arena.has_method("player_strike"):
+        arena.call("player_strike", facing)
     # A tiny, temporary effect keeps the Web/mobile build lightweight.
     var pulse := MeshInstance3D.new()
     pulse.name = "MartialPulse"
