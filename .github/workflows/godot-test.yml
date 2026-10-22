@@ -1,0 +1,43 @@
+
+name: Godot Prototype Test
+
+on:
+  push:
+    branches:
+      - codex-modular-v31
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get game files
+        uses: actions/checkout@v4
+
+      - name: Install Godot
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+
+      - name: Check Godot version
+        run: godot --version
+
+      - name: Import and check project
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . --editor --import --quit 2>&1 | tee import.log
+          if grep -E 'ERROR:|Parse Error' import.log; then
+            exit 1
+          fi
+
+      - name: Test game startup
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . --quit-after 10 2>&1 | tee startup.log
+          if grep -E 'ERROR:|Parse Error' startup.log; then
+            exit 1
+          fi
