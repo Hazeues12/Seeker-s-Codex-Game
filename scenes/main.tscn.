@@ -1,7 +1,8 @@
 
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="PackedScene" path="res://characters/player.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://ui/mobile_controls.tscn" id="2"]
 
 [sub_resource type="BoxMesh" id="GroundMesh"]
 size = Vector3(60, 1, 60)
@@ -14,11 +15,11 @@ albedo_color = Color(0.43, 0.48, 0.40, 1)
 
 [node name="Margerina" type="Node3D"]
 
-[node name="Sun" type="DirectionalLight3D"]
+[node name="Sun" type="DirectionalLight3D" parent="."]
 rotation_degrees = Vector3(-45, 30, 0)
 shadow_enabled = true
 
-[node name="Ground" type="StaticBody3D"]
+[node name="Ground" type="StaticBody3D" parent="."]
 
 [node name="GroundMesh" type="MeshInstance3D" parent="Ground"]
 mesh = SubResource("GroundMesh")
@@ -29,3 +30,7 @@ shape = SubResource("GroundCollision")
 
 [node name="Player" parent="." instance=ExtResource("1")]
 position = Vector3(0, 1, 0)
+
+[node name="MobileUI" type="CanvasLayer" parent="."]
+
+[node name="MobileControls" parent="MobileUI" groups=["mobile_controls"] instance=ExtResource("2")]
