@@ -48,6 +48,14 @@ var bag_list: VBoxContainer
 
 func _ready() -> void:
     add_to_group("hub_manager")
+    # Main scene is still constructing children. Initialize afterward.
+    set_process(false)
+    call_deferred("_finish_setup")
+
+
+func _finish_setup() -> void:
+    if not is_inside_tree():
+        return
     player = get_parent().get_node("Player") as CharacterBody3D
     mobile = get_tree().get_first_node_in_group("mobile_controls") as Control
     _make_environment()
@@ -56,6 +64,7 @@ func _ready() -> void:
     _load_game(false)
     _update_plants()
     _refresh_status()
+    set_process(true)
 
 
 func _process(delta: float) -> void:
