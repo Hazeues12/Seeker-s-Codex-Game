@@ -1,5 +1,7 @@
 extends CharacterBody3D
 
+const SeekerRigScript = preload("res://characters/procedural_seeker.gd")
+
 # V0.36 procedural sparring AI. Keeps the V0.35 arena signal/API contract.
 signal attack_connected(damage: int)
 signal knocked_out
@@ -25,6 +27,7 @@ var model: MeshInstance3D
 var model_mat: StandardMaterial3D
 var status_tag: Label3D
 var aura_core: MeshInstance3D
+var visual_rig: Node3D
 
 func _ready() -> void:
     var shape := CapsuleShape3D.new()
@@ -83,6 +86,13 @@ func _ready() -> void:
     status_tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
     status_tag.no_depth_test = true
     add_child(status_tag)
+    # Humanoid visual only. The existing body collider and AI remain unchanged.
+    visual_rig = SeekerRigScript.new()
+    visual_rig.name = "HumanoidFighter"
+    add_child(visual_rig)
+    visual_rig.call("configure", "guardian")
+    model.visible = false
+    head.visible = false
     _update_label()
 
 func configure(player: CharacterBody3D, label_text: String, where: Vector3, phase: float) -> void:
@@ -92,6 +102,8 @@ func configure(player: CharacterBody3D, label_text: String, where: Vector3, phas
     global_position = where
     patrol_phase = phase
     style = "skirmisher" if phase > 1.0 else "guardian"
+    if is_instance_valid(visual_rig):
+        visual_rig.call("configure", style)
     if is_instance_valid(model_mat):
         model_mat.albedo_color = _base_color()
     _update_label()
@@ -180,6 +192,8 @@ func _physics_process(delta: float) -> void:
         if global_position.distance_to(look_point) > 0.1:
             look_at(look_point, Vector3.UP)
     _animate_pose()
+    if is_instance_valid(visual_rig):
+        visual_rig.call("animate_state", delta, Vector2(velocity.x, velocity.z).length(), false, state)
 
 func _animate_pose() -> void:
     if not is_instance_valid(model):
@@ -221,6 +235,8 @@ func take_strike(damage: int, attacker_position: Vector3) -> bool:
     var blocked: bool = state == "guard"
     var actual_damage: int = maxi(1, int(round(float(damage) * 0.35))) if blocked else damage
     health = maxi(0, health - actual_damage)
+    if is_instance_valid(visual_rig):
+        visual_rig.call("trigger_impact")
     _update_label()
     _damage_number(actual_damage, blocked)
     if health <= 0:

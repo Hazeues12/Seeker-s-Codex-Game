@@ -1,5 +1,7 @@
 extends CharacterBody3D
 
+const SeekerRigScript = preload("res://characters/procedural_seeker.gd")
+
 @export var walk_speed: float = 5.0
 @export var sprint_speed: float = 9.0
 @export var jump_velocity: float = 5.0
@@ -20,11 +22,18 @@ var attack_cooldown: float = 0.0
 var dodge_cooldown: float = 0.0
 var dodge_time: float = 0.0
 var dodge_direction: Vector3 = Vector3.ZERO
+var seeker_rig: Node3D
 
 func _ready() -> void:
     mobile_controls = get_tree().get_first_node_in_group("mobile_controls")
     camera_node.position = Vector3(0.0, 1.6, 5.5)
     camera_node.rotation_degrees = Vector3(-15.0, 0.0, 0.0)
+    # Cosmetic rig; retain the original capsule collider and all camera behavior.
+    seeker_rig = SeekerRigScript.new()
+    seeker_rig.name = "AnimatedSeeker"
+    add_child(seeker_rig)
+    seeker_rig.call("configure", "seeker")
+    $Visual.visible = false
 
 func _process(delta: float) -> void:
     if not is_instance_valid(mobile_controls):
@@ -114,9 +123,16 @@ func _physics_process(delta: float) -> void:
         velocity.x = move_toward(velocity.x, target.x, rate * delta)
         velocity.z = move_toward(velocity.z, target.z, rate * delta)
     move_and_slide()
+    if is_instance_valid(seeker_rig):
+        if direction.length_squared() > 0.04:
+            var turn_to: float = atan2(-direction.x, -direction.z)
+            seeker_rig.rotation.y = lerp_angle(seeker_rig.rotation.y, turn_to, minf(1.0, delta * 12.0))
+        seeker_rig.call("animate_state", delta, Vector2(velocity.x, velocity.z).length(), dodge_time > 0.0, "")
 
 
 func _show_martial_pulse(facing: Vector3) -> void:
+    if is_instance_valid(seeker_rig):
+        seeker_rig.call("trigger_attack")
     # V0.35 forwards the existing accepted Martial strike to actual hit detection.
     var arena: Node = get_tree().get_first_node_in_group("combat_arena")
     if is_instance_valid(arena) and arena.has_method("player_strike"):
