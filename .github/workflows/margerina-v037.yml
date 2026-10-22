@@ -1,0 +1,201 @@
+name: Margerina V0.37 Visual Evolution
+
+on:
+  push:
+    branches:
+      - codex-modular-v31
+    paths:
+      - '.github/workflows/margerina-v037.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  validate-and-install-v037:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out existing Godot development branch
+        uses: actions/checkout@v4
+        with:
+          ref: codex-modular-v31
+          persist-credentials: true
+
+      - name: Apply guarded V0.37 cosmetic upgrade
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PYCODE'
+          import base64
+          import io
+          import pathlib
+          import tarfile
+          payload = (
+          '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'
+          )
+          permitted = {'install_v037.py', 'characters/procedural_seeker.gd',
+                       'world/visual_district.gd', 'docs/V037_FEATURES.md'}
+          with tarfile.open(fileobj=io.BytesIO(base64.b64decode(payload)), mode='r:gz') as archive:
+              members = archive.getmembers()
+              if {entry.name for entry in members} != permitted or len(members) != len(permitted):
+                  raise SystemExit('Invalid V0.37 file manifest')
+              for entry in members:
+                  if not entry.isfile():
+                      raise SystemExit('Unexpected V0.37 archive entry')
+                  path = pathlib.Path(entry.name)
+                  path.parent.mkdir(parents=True, exist_ok=True)
+                  raw = archive.extractfile(entry)
+                  if raw is None:
+                      raise SystemExit('Missing V0.37 source')
+                  contents = raw.read().decode('utf-8')
+                  if path.exists() and path.read_text() != contents:
+                      raise SystemExit(f'Conflicting V0.37 source: {path}')
+                  path.write_text(contents)
+          PYCODE
+          python3 install_v037.py
+          rm install_v037.py
+          grep -q 'func animate_state' characters/procedural_seeker.gd
+          grep -q 'AnimatedSeeker' characters/player_controller.gd
+          grep -q 'HumanoidFighter' combat/sparring_construct.gd
+          grep -q 'VisualDistrict' scenes/main.tscn
+
+      - name: Install Godot 4.4.1 and browser templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+
+      - name: Validate Godot import and 120-frame startup
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --path . --editor --import --quit 2>&1 | tee v037-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v037-import.log; then exit 1; fi
+          godot --headless --path . --quit-after 120 2>&1 | tee v037-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v037-startup.log; then exit 1; fi
+
+      - name: Export iPhone friendly browser build
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v037-export.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v037-export.log; then exit 1; fi
+          for ext in html js wasm pck; do
+            test -s "build/web/index.$ext" || { echo "Missing Web index.$ext"; exit 1; }
+          done
+          ls -lh build/web/
+
+      - name: Commit V0.37 only after successful tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add characters/procedural_seeker.gd world/visual_district.gd docs/V037_FEATURES.md characters/player_controller.gd combat/sparring_construct.gd scenes/main.tscn
+          if ! git diff --cached --quiet; then
+            git commit -m 'V0.37 animate Seeker models and add Magnara district dressing'
+            git pull --rebase origin codex-modular-v31
+            git push origin HEAD:codex-modular-v31
+          else
+            echo 'V0.37 already installed; no changes to commit'
+          fi
+
+      - name: Upload verified V0.37 game for itch.io
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v037-web
+          path: build/web/
+          if-no-files-found: error
+
+      - name: Upload Godot debug logs only if failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: margerina-v037-debug-logs
+          if-no-files-found: ignore
+          path: |
+            v037-import.log
+            v037-startup.log
+            v037-export.log
