@@ -1,0 +1,85 @@
+name: Margerina V0.32 Touch and Camera
+
+on:
+  push:
+    branches:
+      - codex-modular-v31
+    paths:
+      - .github/workflows/margerina-v032.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix-and-build:
+    if: github.ref == 'refs/heads/codex-modular-v31'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out development branch
+        uses: actions/checkout@v4
+        with:
+          ref: codex-modular-v31
+          persist-credentials: true
+
+      - name: Install V0.32 touch and camera scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PYCODE'
+          from pathlib import Path
+          mobile = 'extends Control\n\n# V0.32: one-pointer Safari-friendly controls with a smooth visual joystick.\nvar movement: Vector2 = Vector2.ZERO\nvar sprinting: bool = false\nvar jump_requested: bool = false\nvar camera_drag: Vector2 = Vector2.ZERO\n\n@onready var joystick: Control = $Joystick\n@onready var joystick_base: Panel = $Joystick/JoystickBase\n@onready var jump_button: Button = $JumpButton\n@onready var sprint_button: Button = $SprintButton\n\nvar joystick_knob: Panel\nvar pointer_mode: int = 0  # 0 = idle, 1 = joystick, 2 = camera\nvar last_pointer_position: Vector2 = Vector2.ZERO\nconst JOYSTICK_RADIUS: float = 65.0\nconst DEAD_ZONE: float = 0.13\n\nfunc _ready() -> void:\n    Input.emulate_mouse_from_touch = true\n    joystick.mouse_filter = Control.MOUSE_FILTER_IGNORE\n    joystick_base.mouse_filter = Control.MOUSE_FILTER_IGNORE\n\n    var ring_style := StyleBoxFlat.new()\n    ring_style.bg_color = Color(0.09, 0.18, 0.30, 0.47)\n    ring_style.border_color = Color(0.68, 0.83, 1.0, 0.85)\n    ring_style.set_border_width_all(3)\n    ring_style.set_corner_radius_all(90)\n    joystick_base.add_theme_stylebox_override("panel", ring_style)\n\n    joystick_knob = Panel.new()\n    joystick_knob.name = "JoystickThumb"\n    joystick_knob.size = Vector2(58.0, 58.0)\n    joystick_knob.mouse_filter = Control.MOUSE_FILTER_IGNORE\n    var knob_style := StyleBoxFlat.new()\n    knob_style.bg_color = Color(0.26, 0.63, 1.0, 0.90)\n    knob_style.border_color = Color(1.0, 1.0, 1.0, 0.95)\n    knob_style.set_border_width_all(2)\n    knob_style.set_corner_radius_all(29)\n    joystick_knob.add_theme_stylebox_override("panel", knob_style)\n    joystick.add_child(joystick_knob)\n    _place_knob_immediately()\n\n    jump_button.pressed.connect(request_jump)\n    sprint_button.toggle_mode = true\n    sprint_button.button_pressed = false\n    sprint_button.toggled.connect(_on_sprint_toggled)\n    sprint_button.text = "RUN: OFF"\n\nfunc _input(event: InputEvent) -> void:\n    if event is InputEventMouseButton:\n        if event.button_index != MOUSE_BUTTON_LEFT:\n            return\n        if event.pressed:\n            if joystick.get_global_rect().has_point(event.position):\n                pointer_mode = 1\n                _update_movement(event.position)\n            elif event.position.x > get_viewport_rect().size.x * 0.43 and not _on_action_button(event.position):\n                pointer_mode = 2\n                last_pointer_position = event.position\n        else:\n            if pointer_mode == 1:\n                movement = Vector2.ZERO\n            pointer_mode = 0\n    elif event is InputEventMouseMotion:\n        if pointer_mode == 1:\n            _update_movement(event.position)\n        elif pointer_mode == 2:\n            var change: Vector2 = event.position - last_pointer_position\n            camera_drag += change.limit_length(90.0)\n            last_pointer_position = event.position\n\nfunc _process(delta: float) -> void:\n    if not is_instance_valid(joystick_knob):\n        return\n    var center: Vector2 = (joystick.size - joystick_knob.size) * 0.5\n    var target: Vector2 = center + movement * JOYSTICK_RADIUS\n    var weight: float = 1.0 - exp(-22.0 * delta)\n    joystick_knob.position = joystick_knob.position.lerp(target, weight)\n\nfunc _on_action_button(position: Vector2) -> bool:\n    return jump_button.get_global_rect().has_point(position) or sprint_button.get_global_rect().has_point(position)\n\nfunc _update_movement(position: Vector2) -> void:\n    var center: Vector2 = joystick.get_global_rect().get_center()\n    var raw: Vector2 = ((position - center) / JOYSTICK_RADIUS).limit_length(1.0)\n    if raw.length() < DEAD_ZONE:\n        movement = Vector2.ZERO\n    else:\n        movement = raw\n\nfunc _place_knob_immediately() -> void:\n    if is_instance_valid(joystick_knob):\n        joystick_knob.position = (joystick.size - joystick_knob.size) * 0.5\n\nfunc consume_camera_drag() -> Vector2:\n    var result: Vector2 = camera_drag\n    camera_drag = Vector2.ZERO\n    return result\n\nfunc _on_sprint_toggled(enabled: bool) -> void:\n    sprinting = enabled\n    sprint_button.text = "RUN: ON" if enabled else "RUN: OFF"\n\nfunc request_jump() -> void:\n    jump_requested = true\n\nfunc consume_jump() -> bool:\n    if jump_requested:\n        jump_requested = false\n        return true\n    return false\n\nfunc release_controls() -> void:\n    movement = Vector2.ZERO\n    camera_drag = Vector2.ZERO\n    jump_requested = false\n    pointer_mode = 0\n    sprint_button.button_pressed = false\n    sprinting = false\n    _place_knob_immediately()\n\n# Retain compatibility with the existing V0.31 repair workflow.\nfunc _on_sprint_down() -> void:\n    pass\n\nfunc _on_sprint_up() -> void:\n    pass\n'
+          player = 'extends CharacterBody3D\n\n@export var walk_speed: float = 5.0\n@export var sprint_speed: float = 9.0\n@export var jump_velocity: float = 5.0\n@export var acceleration: float = 17.0\n@export var braking: float = 23.0\n@export var camera_turn_sensitivity: float = 0.0045\n\n@onready var camera_pivot: Node3D = $CameraPivot\n@onready var camera_node: Camera3D = $CameraPivot/Camera3D\n\nvar gravity: float = 9.8\nvar mobile_controls = null\nvar wanted_yaw: float = 0.0\nvar wanted_pitch: float = 0.0\n\nfunc _ready() -> void:\n    mobile_controls = get_tree().get_first_node_in_group("mobile_controls")\n    camera_node.position = Vector3(0.0, 1.6, 5.5)\n    camera_node.rotation_degrees = Vector3(-15.0, 0.0, 0.0)\n\nfunc _process(delta: float) -> void:\n    if not is_instance_valid(mobile_controls):\n        return\n    var drag: Vector2 = mobile_controls.consume_camera_drag()\n    wanted_yaw -= drag.x * camera_turn_sensitivity\n    wanted_pitch = clampf(\n        wanted_pitch - drag.y * camera_turn_sensitivity,\n        deg_to_rad(-25.0),\n        deg_to_rad(22.0)\n    )\n    var smoothing: float = 1.0 - exp(-11.0 * delta)\n    camera_pivot.rotation.y = lerp_angle(camera_pivot.rotation.y, wanted_yaw, smoothing)\n    camera_pivot.rotation.x = lerp_angle(camera_pivot.rotation.x, wanted_pitch, smoothing)\n\nfunc _physics_process(delta: float) -> void:\n    if not is_instance_valid(mobile_controls):\n        mobile_controls = get_tree().get_first_node_in_group("mobile_controls")\n\n    if not is_on_floor():\n        velocity.y -= gravity * delta\n\n    var keyboard_jump: bool = Input.is_action_just_pressed("ui_accept")\n    var mobile_jump: bool = false\n    if is_instance_valid(mobile_controls):\n        mobile_jump = mobile_controls.consume_jump()\n    if is_on_floor() and (keyboard_jump or mobile_jump):\n        velocity.y = jump_velocity\n\n    var input_dir: Vector2 = Input.get_vector(\n        "ui_left", "ui_right", "ui_up", "ui_down"\n    )\n    var mobile_sprinting: bool = false\n    if is_instance_valid(mobile_controls):\n        if mobile_controls.movement.length() > 0.05:\n            input_dir = mobile_controls.movement\n        mobile_sprinting = mobile_controls.sprinting\n\n    # Walking directions follow the camera instead of world axes.\n    var right: Vector3 = camera_node.global_transform.basis.x\n    var forward: Vector3 = -camera_node.global_transform.basis.z\n    right.y = 0.0\n    forward.y = 0.0\n    right = right.normalized()\n    forward = forward.normalized()\n    var direction: Vector3 = (right * input_dir.x - forward * input_dir.y).normalized()\n    var speed: float = sprint_speed if (Input.is_key_pressed(KEY_SHIFT) or mobile_sprinting) else walk_speed\n    var target: Vector3 = direction * (speed * input_dir.length())\n    var rate: float = acceleration if input_dir.length() > 0.05 else braking\n    velocity.x = move_toward(velocity.x, target.x, rate * delta)\n    velocity.z = move_toward(velocity.z, target.z, rate * delta)\n    move_and_slide()\n'
+          Path('ui/mobile_controls.gd').write_text(mobile)
+          Path('characters/player_controller.gd').write_text(player)
+          PYCODE
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ui/mobile_controls.gd characters/player_controller.gd
+          if ! git diff --cached --quiet; then
+            git commit -m "V0.32 improve joystick motion and add orbit camera"
+            git push origin HEAD:codex-modular-v31
+          fi
+
+      - name: Install Godot with web templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+
+      - name: Test scene and script startup
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . --editor --import --quit 2>&1 | tee import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' import.log; then exit 1; fi
+          godot --headless --path . --quit-after 10 2>&1 | tee startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' startup.log; then exit 1; fi
+
+      - name: Export Godot browser game
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p build/web
+          godot --headless --path . --export-release "Web" build/web/index.html 2>&1 | tee export.log
+          for file in index.html index.js index.wasm index.pck; do
+            test -s "build/web/$file" || { echo "Missing $file"; exit 1; }
+          done
+
+      - name: Upload new browser build
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v032-web
+          path: build/web/
+          if-no-files-found: error
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: margerina-v032-logs
+          path: |
+            import.log
+            startup.log
+            export.log
+          if-no-files-found: ignore
