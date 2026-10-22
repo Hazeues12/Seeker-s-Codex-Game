@@ -1,0 +1,50 @@
+
+name: Seeker Codex Web Build
+
+on:
+  push:
+    branches:
+      - codex-modular-v31
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-web:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get game files
+        uses: actions/checkout@v4
+
+      - name: Install Godot and Web templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+
+      - name: Import game resources
+        run: godot --headless --path . --editor --import --quit
+
+      - name: Create web build folder
+        run: mkdir -p build/web
+
+      - name: Export browser game
+        run: |
+          godot --headless --path . \
+            --export-release "Web" \
+            build/web/index.html
+
+      - name: Verify browser build
+        run: |
+          test -s build/web/index.html
+          ls -lh build/web/
+
+      - name: Save playable browser files
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-web
+          path: build/web/
+          if-no-files-found: error
