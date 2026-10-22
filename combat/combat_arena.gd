@@ -109,7 +109,13 @@ func _receive_enemy_attack(amount: int) -> void:
         return
     if hurt_grace > 0.0:
         return
-    player_health = maxi(0, player_health - amount)
+    var guarded: bool = false
+    if bool(player.get("guard_active")):
+        var hub: Node = get_tree().get_first_node_in_group("hub_manager")
+        if is_instance_valid(hub) and hub.has_method("spend_guard_stamina"):
+            guarded = bool(hub.call("spend_guard_stamina"))
+    var final_damage: int = maxi(1, int(round(float(amount) * 0.30))) if guarded else amount
+    player_health = maxi(0, player_health - final_damage)
     _flash_damage()
     hurt_grace = PLAYER_HIT_GRACE
     combo = 0
@@ -117,7 +123,10 @@ func _receive_enemy_attack(amount: int) -> void:
         ko_timer = 2.2
         _announce("KNOCKED OUT - returning to the Seeker entry point.", 2.3)
     else:
-        _announce("You took %d damage. DODGE when the enemy flashes gold!" % amount, 1.7)
+        if guarded:
+            _announce("GUARD! -%d HP, -15 Stamina. Press GUARD to lower defense." % final_damage, 1.7)
+        else:
+            _announce("You took %d damage. DODGE when the enemy flashes gold!" % final_damage, 1.7)
     _refresh_hud()
 
 func _enemy_defeated() -> void:

@@ -23,6 +23,8 @@ var dodge_cooldown: float = 0.0
 var dodge_time: float = 0.0
 var dodge_direction: Vector3 = Vector3.ZERO
 var seeker_rig: Node3D
+var guard_active: bool = false
+var guard_window: float = 0.0
 
 func _ready() -> void:
     mobile_controls = get_tree().get_first_node_in_group("mobile_controls")
@@ -78,11 +80,17 @@ func _physics_process(delta: float) -> void:
     forward.y = 0.0
     right = right.normalized()
     forward = forward.normalized()
+    var editor: Node = get_tree().get_first_node_in_group("seeker_creator")
+    var editing: bool = is_instance_valid(editor) and bool(editor.call("is_open"))
+    if editing:
+        input_dir = Vector2.ZERO
     var direction: Vector3 = (right * input_dir.x - forward * input_dir.y).normalized()
 
     attack_cooldown = maxf(0.0, attack_cooldown - delta)
     dodge_cooldown = maxf(0.0, dodge_cooldown - delta)
     dodge_time = maxf(0.0, dodge_time - delta)
+    guard_window = maxf(0.0, guard_window - delta)
+    guard_active = is_instance_valid(mobile_controls) and bool(mobile_controls.get("guarding")) and not editing and guard_window <= 0.0 and dodge_time <= 0.0
     var wants_attack: bool = Input.is_key_pressed(KEY_F)
     var wants_dodge: bool = Input.is_key_pressed(KEY_Q)
     if is_instance_valid(mobile_controls):
@@ -98,6 +106,8 @@ func _physics_process(delta: float) -> void:
             strike_allowed = bool(hub.call("try_martial_strike"))
         if strike_allowed:
             attack_cooldown = 0.40
+            guard_window = 0.40
+            guard_active = false
             _show_martial_pulse(forward)
     if actions_allowed and wants_dodge and dodge_cooldown <= 0.0 and is_on_floor():
         var dodge_allowed: bool = true
@@ -114,6 +124,10 @@ func _physics_process(delta: float) -> void:
         sprint_allowed = bool(hub.call("can_sprint"))
     var wants_sprint: bool = Input.is_key_pressed(KEY_SHIFT) or mobile_sprinting
     var speed: float = sprint_speed if wants_sprint and sprint_allowed else walk_speed
+    if guard_active:
+        speed = minf(speed, 2.5)
+    if editing:
+        speed = 0.0
     var target: Vector3 = direction * (speed * input_dir.length())
     var rate: float = acceleration if input_dir.length() > 0.05 else braking
     if dodge_time > 0.0:
@@ -127,7 +141,7 @@ func _physics_process(delta: float) -> void:
         if direction.length_squared() > 0.04:
             var turn_to: float = atan2(-direction.x, -direction.z)
             seeker_rig.rotation.y = lerp_angle(seeker_rig.rotation.y, turn_to, minf(1.0, delta * 12.0))
-        seeker_rig.call("animate_state", delta, Vector2(velocity.x, velocity.z).length(), dodge_time > 0.0, "")
+        seeker_rig.call("animate_state", delta, Vector2(velocity.x, velocity.z).length(), dodge_time > 0.0, "guard" if guard_active else "")
 
 
 func _show_martial_pulse(facing: Vector3) -> void:

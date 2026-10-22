@@ -163,3 +163,43 @@ func animate_state(delta: float, planar_speed: float, dodging: bool = false, pos
     body_root.rotation.x = lerpf(body_root.rotation.x, lean, minf(1.0, delta * 14.0))
     body_root.position.y = absf(wave) * stride * 0.06
     aura_gem.scale = Vector3.ONE * (1.0 + 0.12 * sin(animation_time * 0.55))
+
+
+func apply_player_appearance(skin_id: int, hair_id: int, coat_id: int, aura_id: int) -> void:
+    if not is_instance_valid(body_root) or appearance != "seeker":
+        return
+    var skins: Array[Color] = [Color(0.69, 0.48, 0.37), Color(0.35, 0.23, 0.18), Color(0.85, 0.65, 0.52), Color(0.61, 0.49, 0.31)]
+    var coats: Array[Color] = [Color(0.19, 0.32, 0.47), Color(0.19, 0.39, 0.31), Color(0.13, 0.15, 0.22), Color(0.51, 0.20, 0.25)]
+    var auras: Array[Color] = [Color(0.32, 0.78, 1.0), Color(1.0, 0.79, 0.31), Color(0.72, 0.50, 1.0), Color(0.34, 0.88, 0.55)]
+    var skin_color: Color = skins[clampi(skin_id, 0, skins.size() - 1)]
+    var jacket_color: Color = coats[clampi(coat_id, 0, coats.size() - 1)]
+    var aura_color: Color = auras[clampi(aura_id, 0, auras.size() - 1)]
+    for part_name in ["Head", "Neck"]:
+        var part: MeshInstance3D = body_root.get_node(part_name) as MeshInstance3D
+        (part.material_override as StandardMaterial3D).albedo_color = skin_color
+    for part in [torso_mesh, left_sleeve, right_sleeve, cape_trim]:
+        (part.material_override as StandardMaterial3D).albedo_color = jacket_color
+    for part in [left_pant, right_pant]:
+        (part.material_override as StandardMaterial3D).albedo_color = jacket_color.darkened(0.33)
+    (aura_gem.material_override as StandardMaterial3D).albedo_color = aura_color
+    for sleeve in ["LeftTrim", "RightTrim"]:
+        var parent: Node3D = left_arm if sleeve == "LeftTrim" else right_arm
+        var trim: MeshInstance3D = parent.get_node(sleeve) as MeshInstance3D
+        (trim.material_override as StandardMaterial3D).albedo_color = aura_color
+
+    if not body_root.has_node("HairSpikes"):
+        var spikes := Node3D.new()
+        spikes.name = "HairSpikes"
+        body_root.add_child(spikes)
+        for i in range(3):
+            _box(spikes, "Spike%d" % i, Vector3(-0.21 + float(i) * 0.21, 2.55 + float(i % 2) * 0.09, -0.04), Vector3(0.16, 0.30, 0.32), Color(0.12, 0.15, 0.20))
+    if not body_root.has_node("HairTopknot"):
+        _sphere(body_root, "HairTopknot", Vector3(0.0, 2.61, 0.10), Vector3(0.16, 0.20, 0.16), Color(0.12, 0.15, 0.20))
+    var style: int = clampi(hair_id, 0, 3)
+    var hair: MeshInstance3D = body_root.get_node("Hair") as MeshInstance3D
+    var spikes_node: Node3D = body_root.get_node("HairSpikes") as Node3D
+    var topknot: MeshInstance3D = body_root.get_node("HairTopknot") as MeshInstance3D
+    hair.visible = style != 3
+    hair.scale = Vector3(1.0, 0.65 if style == 1 else 1.0, 1.0)
+    spikes_node.visible = style == 1
+    topknot.visible = style == 2

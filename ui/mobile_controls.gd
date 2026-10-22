@@ -6,6 +6,7 @@ var sprinting: bool = false
 var jump_requested: bool = false
 var attack_requested: bool = false
 var dodge_requested: bool = false
+var guarding: bool = false
 var camera_drag: Vector2 = Vector2.ZERO
 
 @onready var joystick: Control = $Joystick
@@ -47,6 +48,9 @@ func _ready() -> void:
     jump_button.pressed.connect(request_jump)
     $AttackButton.pressed.connect(request_attack)
     $DodgeButton.pressed.connect(request_dodge)
+    $GuardButton.toggle_mode = true
+    $GuardButton.toggled.connect(_on_guard_toggled)
+    $GuardButton.text = "GUARD OFF"
     sprint_button.toggle_mode = true
     sprint_button.button_pressed = false
     sprint_button.toggled.connect(_on_sprint_toggled)
@@ -87,7 +91,8 @@ func _on_action_button(position: Vector2) -> bool:
     return (jump_button.get_global_rect().has_point(position)
         or sprint_button.get_global_rect().has_point(position)
         or $AttackButton.get_global_rect().has_point(position)
-        or $DodgeButton.get_global_rect().has_point(position))
+        or $DodgeButton.get_global_rect().has_point(position)
+        or $GuardButton.get_global_rect().has_point(position))
 
 func _update_movement(position: Vector2) -> void:
     var center: Vector2 = joystick.get_global_rect().get_center()
@@ -109,6 +114,10 @@ func consume_camera_drag() -> Vector2:
 func _on_sprint_toggled(enabled: bool) -> void:
     sprinting = enabled
     sprint_button.text = "RUN: ON" if enabled else "RUN: OFF"
+
+func _on_guard_toggled(enabled: bool) -> void:
+    guarding = enabled
+    $GuardButton.text = "GUARD ON" if enabled else "GUARD OFF"
 
 func request_jump() -> void:
     jump_requested = true
@@ -143,6 +152,8 @@ func release_controls() -> void:
     jump_requested = false
     attack_requested = false
     dodge_requested = false
+    guarding = false
+    $GuardButton.button_pressed = false
     pointer_mode = 0
     sprint_button.button_pressed = false
     sprinting = false

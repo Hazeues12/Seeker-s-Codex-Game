@@ -98,6 +98,14 @@ func can_sprint() -> bool:
     return stamina > 1.0
 
 
+func spend_guard_stamina() -> bool:
+    if stamina < 15.0:
+        return false
+    stamina -= 15.0
+    _refresh_status()
+    return true
+
+
 func can_use_combat_actions() -> bool:
     return is_instance_valid(player) and is_instance_valid(board_panel) and not _any_panel_open()
 
@@ -465,7 +473,8 @@ func _clear_list(list_node: VBoxContainer) -> void:
 
 
 func _any_panel_open() -> bool:
-    return board_panel.visible or bag_panel.visible
+    var editor: Node = get_tree().get_first_node_in_group("seeker_creator")
+    return board_panel.visible or bag_panel.visible or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
@@ -477,7 +486,11 @@ func _nearest_location() -> Dictionary:
         var key: String = str(spot["id"])
         if key.begins_with("herb") and (active_contract != 1 or gathered.has(key)):
             continue
-        var distance: float = player.global_position.distance_to(spot["position"])
+        var spot_node: Node3D = spot["node"] as Node3D
+        if key.begins_with("npc_") and (not is_instance_valid(spot_node) or not spot_node.visible):
+            continue
+        var place: Vector3 = spot_node.global_position if key.begins_with("npc_") else spot["position"]
+        var distance: float = player.global_position.distance_to(place)
         if distance < best_distance:
             best_distance = distance
             closest = spot
@@ -499,9 +512,22 @@ func _interact() -> void:
             _talk_to_hanami()
         "dummy":
             _train_at_post()
+        "npc_canal", "npc_vendor", "npc_scout":
+            _npc_dialogue(kind)
         _:
             if kind.begins_with("herb"):
                 _gather_herb(kind)
+
+
+func _npc_dialogue(kind: String) -> void:
+    var hour: int = int(floor(float(int(world_minutes) % 1440) / 60.0))
+    match kind:
+        "npc_canal":
+            _announce("Canal guide: 'The bronze lamps illuminate Ring Two at dusk. Stay clear of the waterways.'")
+        "npc_vendor":
+            _announce("Market seller: 'Supplies arrive from all across Margerina. Hanami handles the official guild stock.'")
+        "npc_scout":
+            _announce("Seeker scout: 'Patrols rotate at sundown. It's hour %d; train before the next watch.'" % hour)
 
 
 func _open_board() -> void:
