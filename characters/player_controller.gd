@@ -57,7 +57,6 @@ func _physics_process(delta: float) -> void:
             input_dir = mobile_controls.movement
         mobile_sprinting = mobile_controls.sprinting
 
-    # Walking directions follow the camera instead of world axes.
     var right: Vector3 = camera_node.global_transform.basis.x
     var forward: Vector3 = -camera_node.global_transform.basis.z
     right.y = 0.0
@@ -65,7 +64,13 @@ func _physics_process(delta: float) -> void:
     right = right.normalized()
     forward = forward.normalized()
     var direction: Vector3 = (right * input_dir.x - forward * input_dir.y).normalized()
-    var speed: float = sprint_speed if (Input.is_key_pressed(KEY_SHIFT) or mobile_sprinting) else walk_speed
+
+    var sprint_allowed: bool = true
+    var hub: Node = get_tree().get_first_node_in_group("hub_manager")
+    if is_instance_valid(hub) and hub.has_method("can_sprint"):
+        sprint_allowed = bool(hub.call("can_sprint"))
+    var wants_sprint: bool = Input.is_key_pressed(KEY_SHIFT) or mobile_sprinting
+    var speed: float = sprint_speed if wants_sprint and sprint_allowed else walk_speed
     var target: Vector3 = direction * (speed * input_dir.length())
     var rate: float = acceleration if input_dir.length() > 0.05 else braking
     velocity.x = move_toward(velocity.x, target.x, rate * delta)
