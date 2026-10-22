@@ -4,6 +4,8 @@ extends Control
 var movement: Vector2 = Vector2.ZERO
 var sprinting: bool = false
 var jump_requested: bool = false
+var attack_requested: bool = false
+var dodge_requested: bool = false
 var camera_drag: Vector2 = Vector2.ZERO
 
 @onready var joystick: Control = $Joystick
@@ -43,6 +45,8 @@ func _ready() -> void:
     _place_knob_immediately()
 
     jump_button.pressed.connect(request_jump)
+    $AttackButton.pressed.connect(request_attack)
+    $DodgeButton.pressed.connect(request_dodge)
     sprint_button.toggle_mode = true
     sprint_button.button_pressed = false
     sprint_button.toggled.connect(_on_sprint_toggled)
@@ -80,7 +84,10 @@ func _process(delta: float) -> void:
     joystick_knob.position = joystick_knob.position.lerp(target, weight)
 
 func _on_action_button(position: Vector2) -> bool:
-    return jump_button.get_global_rect().has_point(position) or sprint_button.get_global_rect().has_point(position)
+    return (jump_button.get_global_rect().has_point(position)
+        or sprint_button.get_global_rect().has_point(position)
+        or $AttackButton.get_global_rect().has_point(position)
+        or $DodgeButton.get_global_rect().has_point(position))
 
 func _update_movement(position: Vector2) -> void:
     var center: Vector2 = joystick.get_global_rect().get_center()
@@ -112,10 +119,30 @@ func consume_jump() -> bool:
         return true
     return false
 
+func request_attack() -> void:
+    attack_requested = true
+
+func consume_attack() -> bool:
+    if attack_requested:
+        attack_requested = false
+        return true
+    return false
+
+func request_dodge() -> void:
+    dodge_requested = true
+
+func consume_dodge() -> bool:
+    if dodge_requested:
+        dodge_requested = false
+        return true
+    return false
+
 func release_controls() -> void:
     movement = Vector2.ZERO
     camera_drag = Vector2.ZERO
     jump_requested = false
+    attack_requested = false
+    dodge_requested = false
     pointer_mode = 0
     sprint_button.button_pressed = false
     sprinting = false

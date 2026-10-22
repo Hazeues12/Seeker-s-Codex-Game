@@ -98,6 +98,46 @@ func can_sprint() -> bool:
     return stamina > 1.0
 
 
+func can_use_combat_actions() -> bool:
+    return is_instance_valid(player) and is_instance_valid(board_panel) and not _any_panel_open()
+
+
+func try_dodge() -> bool:
+    if not can_use_combat_actions():
+        return false
+    if stamina < 18.0:
+        _announce("Dodge needs 18 Stamina. Recover and try again.")
+        return false
+    stamina -= 18.0
+    _refresh_status()
+    return true
+
+
+func try_martial_strike() -> bool:
+    if not can_use_combat_actions():
+        return false
+    if aura < 12.0 or stamina < 4.0:
+        _announce("Martial strike requires 12 Aura and 4 Stamina.")
+        return false
+    aura -= 12.0
+    stamina -= 4.0
+    var near_post: bool = false
+    for spot in locations:
+        if str(spot["id"]) == "dummy":
+            near_post = player.global_position.distance_to(spot["position"]) <= 3.4
+            break
+    if near_post and active_contract == 2 and progress < 3:
+        progress += 1
+        _announce("Martial training strike %d/3. Use the board to claim at 3/3." % progress)
+        _save_game()
+    elif near_post:
+        _announce("Practice strike! Accept Aura Technique Drills at the board to earn rewards.")
+    else:
+        _announce("Martial Muti: basic Aura-infused strike. Training targets are ahead.")
+    _refresh_status()
+    return true
+
+
 func _make_environment() -> void:
     var sky_node := WorldEnvironment.new()
     sky_node.name = "ClearAfternoon"
