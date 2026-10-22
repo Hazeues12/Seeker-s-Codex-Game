@@ -1,0 +1,18 @@
+
+[gd_scene format=3]
+
+[node name="Margerina" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment"]
+
+[node name="Sun" type="DirectionalLight3D"]
+rotation_degrees = Vector3(-45, 30, 0)
+shadow_enabled = true
+
+[node name="Ground" type="MeshInstance3D"]
+mesh = PlaneMesh.new()
+
+[node name="Camera3D" type="Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 12)
+rotation_degrees = Vector3(-20, 0, 0)
+current = true
