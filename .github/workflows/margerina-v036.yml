@@ -1,0 +1,206 @@
+name: Margerina V0.36 Combat Polish and Living Quarters
+
+on:
+  push:
+    branches:
+      - codex-modular-v31
+    paths:
+      - '.github/workflows/margerina-v036.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  validate-and-install-v036:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout Seeker Codex development branch only
+        uses: actions/checkout@v4
+        with:
+          ref: codex-modular-v31
+          persist-credentials: true
+
+      - name: Apply guarded V0.36 upgrade to V0.35 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PYCODE'
+          import base64
+          import io
+          import pathlib
+          import tarfile
+          encoded = (
+          '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'
+          )
+          data = base64.b64decode(encoded)
+          allowed = {'install_v036.py', 'upgrade_payload/sparring_construct.gd',
+                     'upgrade_payload/ambient_life.gd', 'upgrade_payload/V036_FEATURES.md'}
+          with tarfile.open(fileobj=io.BytesIO(data), mode='r:gz') as bundle:
+              items = bundle.getmembers()
+              if {item.name for item in items} != allowed or len(items) != len(allowed):
+                  raise SystemExit('Invalid V0.36 bundled file list')
+              for item in items:
+                  if not item.isfile():
+                      raise SystemExit('Unexpected non-file entry in V0.36 bundle')
+                  path = pathlib.Path(item.name)
+                  path.parent.mkdir(parents=True, exist_ok=True)
+                  stream = bundle.extractfile(item)
+                  if stream is None:
+                      raise SystemExit('Missing bundle content')
+                  path.write_bytes(stream.read())
+          PYCODE
+          python3 install_v036.py
+          rm install_v036.py
+          rm -rf upgrade_payload
+          test -s combat/sparring_construct.gd
+          test -s combat/combat_arena.gd
+          test -s world/ambient_life.gd
+          grep -q 'func _spawn_hit_sparks' combat/combat_arena.gd
+          grep -q 'func take_strike' combat/sparring_construct.gd
+          grep -q 'func _process' world/ambient_life.gd
+
+      - name: Install Godot 4.4.1 with Web templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+
+      - name: Validate Godot import and 120-frame startup
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --version
+          godot --headless --path . --editor --import --quit 2>&1 | tee v036-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v036-import.log; then exit 1; fi
+          godot --headless --path . --quit-after 120 2>&1 | tee v036-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v036-startup.log; then exit 1; fi
+
+      - name: Export HTML5 Web build for itch.io
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v036-export.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v036-export.log; then exit 1; fi
+          for ext in html js wasm pck; do
+            test -s "build/web/index.$ext" || { echo "Missing Web export index.$ext"; exit 1; }
+          done
+          ls -lh build/web/
+
+      - name: Commit only validated V0.36 gameplay changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add combat/sparring_construct.gd combat/combat_arena.gd world/ambient_life.gd docs/V036_FEATURES.md
+          if ! git diff --cached --quiet; then
+            git commit -m 'V0.36 add guard and skirmisher AI, combat FX and ambient NPCs'
+            git pull --rebase origin codex-modular-v31
+            git push origin HEAD:codex-modular-v31
+          else
+            echo 'V0.36 already installed, skipping duplicate commit'
+          fi
+
+      - name: Upload playable V0.36 Web game ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v036-web
+          path: build/web/
+          if-no-files-found: error
+
+      - name: Upload failure logs for debugging
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: margerina-v036-error-logs
+          path: |
+            v036-import.log
+            v036-startup.log
+            v036-export.log
+          if-no-files-found: ignore
