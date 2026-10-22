@@ -1,18 +1,31 @@
 
-[gd_scene format=3]
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://characters/player.tscn" id="1"]
+
+[sub_resource type="BoxMesh" id="GroundMesh"]
+size = Vector3(60, 1, 60)
+
+[sub_resource type="BoxShape3D" id="GroundCollision"]
+size = Vector3(60, 1, 60)
+
+[sub_resource type="StandardMaterial3D" id="GroundMaterial"]
+albedo_color = Color(0.43, 0.48, 0.40, 1)
 
 [node name="Margerina" type="Node3D"]
-
-[node name="WorldEnvironment" type="WorldEnvironment"]
 
 [node name="Sun" type="DirectionalLight3D"]
 rotation_degrees = Vector3(-45, 30, 0)
 shadow_enabled = true
 
-[node name="Ground" type="MeshInstance3D"]
-mesh = PlaneMesh.new()
+[node name="Ground" type="StaticBody3D"]
 
-[node name="Camera3D" type="Camera3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 12)
-rotation_degrees = Vector3(-20, 0, 0)
-current = true
+[node name="GroundMesh" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("GroundMesh")
+material_override = SubResource("GroundMaterial")
+
+[node name="GroundCollision" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("GroundCollision")
+
+[node name="Player" parent="." instance=ExtResource("1")]
+position = Vector3(0, 1, 0)
