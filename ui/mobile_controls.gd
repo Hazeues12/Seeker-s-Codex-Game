@@ -112,3 +112,9 @@ func release_controls() -> void:
     sprint_button.button_pressed = false
     sprinting = false
     jump_requested = false
+
+func _on_sprint_down() -> void:
+    sprinting = true
+
+func _on_sprint_up() -> void:
+    sprinting = false
