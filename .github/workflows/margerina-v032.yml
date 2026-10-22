@@ -1,9 +1,12 @@
+
 name: Margerina V0.32 Touch and Camera
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - codex-modular-v31
+
     paths:
       - .github/workflows/margerina-v032.yml
 
