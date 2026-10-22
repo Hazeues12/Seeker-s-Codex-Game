@@ -17,12 +17,8 @@ func _ready() -> void:
     joystick_center = joystick.get_global_rect().get_center()
 
     jump_button.pressed.connect(request_jump)
-    sprint_button.button_down.connect(
-        func(): sprinting = true
-    )
-    sprint_button.button_up.connect(
-        func(): sprinting = false
-    )
+    sprint_button.button_down.connect(_on_sprint_down)
+    sprint_button.button_up.connect(_on_sprint_up)
 
 func _input(event: InputEvent) -> void:
     if event is InputEventScreenTouch:
@@ -57,3 +53,9 @@ func release_controls() -> void:
     sprinting = false
     jump_requested = false
     joystick_touch_id = -1
+
+func _on_sprint_down() -> void:
+    sprinting = true
+
+func _on_sprint_up() -> void:
+    sprinting = false

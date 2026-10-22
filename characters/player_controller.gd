@@ -6,12 +6,14 @@ extends CharacterBody3D
 @export var jump_velocity: float = 5.0
 
 var gravity: float = 9.8
-var mobile_controls: Control = null
+var mobile_controls = null
 
 func _ready() -> void:
     mobile_controls = get_tree().get_first_node_in_group("mobile_controls")
 
 func _physics_process(delta: float) -> void:
+    if not is_instance_valid(mobile_controls):
+        mobile_controls = get_tree().get_first_node_in_group("mobile_controls")
     if not is_on_floor():
         velocity.y -= gravity * delta
 
