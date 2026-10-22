@@ -1,0 +1,353 @@
+name: Margerina V0.34 Martial Prototype
+
+on:
+  push:
+    branches:
+      - codex-modular-v31
+    paths:
+      - '.github/workflows/margerina-v034.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  validate-build-and-install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Godot development branch only
+        uses: actions/checkout@v4
+        with:
+          ref: codex-modular-v31
+          persist-credentials: true
+
+      - name: Prepare V0.34 touch controls and Martial prototype
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PYCODE'
+          from pathlib import Path
+
+          def replace_once(content, before, after, filename):
+              matches = content.count(before)
+              if matches != 1:
+                  raise SystemExit(f'{filename}: expected one safe patch anchor, found {matches}; no overwrite')
+              return content.replace(before, after, 1)
+
+          player_path = Path('characters/player_controller.gd')
+          touch_path = Path('ui/mobile_controls.gd')
+          touch_scene_path = Path('ui/mobile_controls.tscn')
+          hub_path = Path('systems/hub_manager.gd')
+          for path in (player_path, touch_path, touch_scene_path, hub_path):
+              if not path.is_file():
+                  raise SystemExit(f'Missing expected file: {path}')
+
+          player = player_path.read_text()
+          touch = touch_path.read_text()
+          touch_scene = touch_scene_path.read_text()
+          hub = hub_path.read_text()
+          markers = (
+              'var attack_cooldown: float = 0.0' in player,
+              'func consume_attack() -> bool:' in touch,
+              '[node name="AttackButton"' in touch_scene,
+              'func try_martial_strike() -> bool:' in hub,
+          )
+          if any(markers) and not all(markers):
+              raise SystemExit('Partial V0.34 installation detected; refusing to mix versions')
+
+          if not all(markers):
+              player = replace_once(player,
+                  'var wanted_pitch: float = 0.0\n',
+                  '''var wanted_pitch: float = 0.0
+
+          # V0.34: independent, cooldown-limited prototype Martial actions.
+          var attack_cooldown: float = 0.0
+          var dodge_cooldown: float = 0.0
+          var dodge_time: float = 0.0
+          var dodge_direction: Vector3 = Vector3.ZERO
+          ''', str(player_path))
+
+              player = replace_once(player,
+                  '    var direction: Vector3 = (right * input_dir.x - forward * input_dir.y).normalized()\n\n    var sprint_allowed: bool = true\n    var hub: Node = get_tree().get_first_node_in_group("hub_manager")\n',
+                  '''    var direction: Vector3 = (right * input_dir.x - forward * input_dir.y).normalized()
+
+              attack_cooldown = maxf(0.0, attack_cooldown - delta)
+              dodge_cooldown = maxf(0.0, dodge_cooldown - delta)
+              dodge_time = maxf(0.0, dodge_time - delta)
+              var wants_attack: bool = Input.is_key_pressed(KEY_F)
+              var wants_dodge: bool = Input.is_key_pressed(KEY_Q)
+              if is_instance_valid(mobile_controls):
+                  wants_attack = mobile_controls.consume_attack() or wants_attack
+                  wants_dodge = mobile_controls.consume_dodge() or wants_dodge
+              var hub: Node = get_tree().get_first_node_in_group("hub_manager")
+              var actions_allowed: bool = true
+              if is_instance_valid(hub) and hub.has_method("can_use_combat_actions"):
+                  actions_allowed = bool(hub.call("can_use_combat_actions"))
+              if actions_allowed and wants_attack and attack_cooldown <= 0.0 and dodge_time <= 0.0:
+                  var strike_allowed: bool = true
+                  if is_instance_valid(hub) and hub.has_method("try_martial_strike"):
+                      strike_allowed = bool(hub.call("try_martial_strike"))
+                  if strike_allowed:
+                      attack_cooldown = 0.40
+                      _show_martial_pulse(forward)
+              if actions_allowed and wants_dodge and dodge_cooldown <= 0.0 and is_on_floor():
+                  var dodge_allowed: bool = true
+                  if is_instance_valid(hub) and hub.has_method("try_dodge"):
+                      dodge_allowed = bool(hub.call("try_dodge"))
+                  if dodge_allowed:
+                      dodge_direction = direction if direction.length() > 0.10 else forward
+                      dodge_direction = dodge_direction.normalized()
+                      dodge_time = 0.19
+                      dodge_cooldown = 0.95
+
+              var sprint_allowed: bool = true
+          ''', str(player_path))
+
+              player = replace_once(player,
+                  '''    velocity.x = move_toward(velocity.x, target.x, rate * delta)
+              velocity.z = move_toward(velocity.z, target.z, rate * delta)
+              move_and_slide()
+          ''',
+                  '''    if dodge_time > 0.0:
+                  velocity.x = dodge_direction.x * 11.5
+                  velocity.z = dodge_direction.z * 11.5
+              else:
+                  velocity.x = move_toward(velocity.x, target.x, rate * delta)
+                  velocity.z = move_toward(velocity.z, target.z, rate * delta)
+              move_and_slide()
+
+
+          func _show_martial_pulse(facing: Vector3) -> void:
+              # A tiny, temporary effect keeps the Web/mobile build lightweight.
+              var pulse := MeshInstance3D.new()
+              pulse.name = "MartialPulse"
+              var sphere := SphereMesh.new()
+              sphere.radius = 0.42
+              sphere.height = 0.84
+              pulse.mesh = sphere
+              var material := StandardMaterial3D.new()
+              material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+              material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+              material.albedo_color = Color(0.31, 0.78, 1.0, 0.72)
+              pulse.material_override = material
+              pulse.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+              get_parent().add_child(pulse)
+              pulse.global_position = global_position + Vector3.UP * 1.20 + facing * 1.35
+              pulse.scale = Vector3(0.28, 0.28, 0.28)
+              var effect := create_tween()
+              effect.tween_property(pulse, "scale", Vector3(2.3, 1.15, 1.6), 0.21)
+              effect.tween_callback(pulse.queue_free)
+          ''', str(player_path))
+
+              touch = replace_once(touch,
+                  'var jump_requested: bool = false\n',
+                  '''var jump_requested: bool = false
+          var attack_requested: bool = false
+          var dodge_requested: bool = false
+          ''', str(touch_path))
+              touch = replace_once(touch,
+                  '    jump_button.pressed.connect(request_jump)\n',
+                  '''    jump_button.pressed.connect(request_jump)
+              $AttackButton.pressed.connect(request_attack)
+              $DodgeButton.pressed.connect(request_dodge)
+          ''', str(touch_path))
+              touch = replace_once(touch,
+                  '    return jump_button.get_global_rect().has_point(position) or sprint_button.get_global_rect().has_point(position)\n',
+                  '''    return (jump_button.get_global_rect().has_point(position)
+                  or sprint_button.get_global_rect().has_point(position)
+                  or $AttackButton.get_global_rect().has_point(position)
+                  or $DodgeButton.get_global_rect().has_point(position))
+          ''', str(touch_path))
+              touch = replace_once(touch,
+                  'func release_controls() -> void:\n',
+                  '''func request_attack() -> void:
+              attack_requested = true
+
+          func consume_attack() -> bool:
+              if attack_requested:
+                  attack_requested = false
+                  return true
+              return false
+
+          func request_dodge() -> void:
+              dodge_requested = true
+
+          func consume_dodge() -> bool:
+              if dodge_requested:
+                  dodge_requested = false
+                  return true
+              return false
+
+          func release_controls() -> void:
+          ''', str(touch_path))
+              touch = replace_once(touch,
+                  '    jump_requested = false\n    pointer_mode = 0\n',
+                  '''    jump_requested = false
+              attack_requested = false
+              dodge_requested = false
+              pointer_mode = 0
+          ''', str(touch_path))
+
+              touch_scene += '''
+          [node name="AttackButton" type="Button" parent="."]
+          layout_mode = 1
+          anchor_left = 1.0
+          anchor_top = 1.0
+          anchor_right = 1.0
+          anchor_bottom = 1.0
+          offset_left = -155.0
+          offset_top = -235.0
+          offset_right = -25.0
+          offset_bottom = -165.0
+          text = "STRIKE"
+
+          [node name="DodgeButton" type="Button" parent="."]
+          layout_mode = 1
+          anchor_left = 1.0
+          anchor_top = 1.0
+          anchor_right = 1.0
+          anchor_bottom = 1.0
+          offset_left = -275.0
+          offset_top = -145.0
+          offset_right = -165.0
+          offset_bottom = -75.0
+          text = "DODGE"
+          '''
+
+              hub = replace_once(hub,
+                  'func can_sprint() -> bool:\n    return stamina > 1.0\n',
+                  '''func can_sprint() -> bool:
+              return stamina > 1.0
+
+
+          func can_use_combat_actions() -> bool:
+              return is_instance_valid(player) and is_instance_valid(board_panel) and not _any_panel_open()
+
+
+          func try_dodge() -> bool:
+              if not can_use_combat_actions():
+                  return false
+              if stamina < 18.0:
+                  _announce("Dodge needs 18 Stamina. Recover and try again.")
+                  return false
+              stamina -= 18.0
+              _refresh_status()
+              return true
+
+
+          func try_martial_strike() -> bool:
+              if not can_use_combat_actions():
+                  return false
+              if aura < 12.0 or stamina < 4.0:
+                  _announce("Martial strike requires 12 Aura and 4 Stamina.")
+                  return false
+              aura -= 12.0
+              stamina -= 4.0
+              var near_post: bool = false
+              for spot in locations:
+                  if str(spot["id"]) == "dummy":
+                      near_post = player.global_position.distance_to(spot["position"]) <= 3.4
+                      break
+              if near_post and active_contract == 2 and progress < 3:
+                  progress += 1
+                  _announce("Martial training strike %d/3. Use the board to claim at 3/3." % progress)
+                  _save_game()
+              elif near_post:
+                  _announce("Practice strike! Accept Aura Technique Drills at the board to earn rewards.")
+              else:
+                  _announce("Martial Muti: basic Aura-infused strike. Training targets are ahead.")
+              _refresh_status()
+              return true
+          ''', str(hub_path))
+
+              player_path.write_text(player)
+              touch_path.write_text(touch)
+              touch_scene_path.write_text(touch_scene)
+              hub_path.write_text(hub)
+
+          notes = Path('docs/V034_FEATURES.md')
+          notes.parent.mkdir(exist_ok=True)
+          notes.write_text('''# Seeker's Codex: World of Margerina — V0.34 Martial Prototype
+
+          This milestone builds directly on the working V0.33 Seeker Quarters hub. The original HTML game on `main` is untouched.
+
+          ## Mobile controls
+          - Left joystick: move; swipe on the right (away from buttons): look.
+          - RUN: toggle sprint. JUMP: jump. TALK / USE: interact.
+          - **STRIKE:** basic Martial Muti aura pulse. Costs 12 Aura and 4 Stamina; 0.40s cooldown.
+          - **DODGE:** short ground-level dash in the movement direction (or camera-forward). Costs 18 Stamina; 0.95s cooldown. Prototype dodge does not grant invulnerability.
+          - On desktop: `F` to strike and `Q` to dodge.
+
+          ## Mini-game loop
+          - Accept **Aura Technique Drills** at the guild board.
+          - Approach the wooden training post and use STRIKE three times. The original TALK / USE training option still works.
+          - Return to the board and claim your reward; other V0.33 contracts, Hanami's shop, inventory and browser-local save stay intact.
+
+          ## Scope and caveats
+          - No enemy AI or combat damage yet. STRIKE makes a lightweight temporary pulse for visual feedback.
+          - The existing joystick/swipe input logic is deliberately preserved to avoid regressing the iPhone controls already tested on itch.io.
+          - Saves continue using the V0.33 browser-local format; site-data clearing can delete progress.
+          - This is gameplay scaffolding, not new story canon or an official Seeker rank-examination rule.
+          ''')
+          print('V0.34 source prepared. Existing V0.33 progression preserved.')
+          PYCODE
+
+      - name: Install Godot 4.4.1 and Web export templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+
+      - name: Validate Godot import and 90-frame startup
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --version
+          godot --headless --path . --editor --import --quit 2>&1 | tee v034-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v034-import.log; then exit 1; fi
+          godot --headless --path . --quit-after 90 2>&1 | tee v034-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v034-startup.log; then exit 1; fi
+
+      - name: Export browser game and verify artifacts
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p build/web
+          godot --headless --path . --export-release 'Web' build/web/index.html 2>&1 | tee v034-export.log
+          for ext in html js wasm pck; do
+            test -s "build/web/index.$ext" || { echo "Missing index.$ext"; exit 1; }
+          done
+          ls -lh build/web/
+
+      - name: Commit V0.34 only after successful validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add characters/player_controller.gd ui/mobile_controls.gd ui/mobile_controls.tscn systems/hub_manager.gd docs/V034_FEATURES.md
+          if ! git diff --cached --quiet; then
+            git commit -m 'V0.34 add mobile Martial strike and dodge prototype'
+            git push origin HEAD:codex-modular-v31
+          else
+            echo 'V0.34 already installed; no source changes to commit'
+          fi
+
+      - name: Upload tested V0.34 Web game for itch.io
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v034-web
+          path: build/web/
+          if-no-files-found: error
+
+      - name: Upload debug logs if a step fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: margerina-v034-debug-logs
+          if-no-files-found: ignore
+          path: |
+            v034-import.log
+            v034-startup.log
+            v034-export.log
