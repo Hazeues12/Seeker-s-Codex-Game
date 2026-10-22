@@ -1,0 +1,169 @@
+name: Repair and Build Margerina
+
+on:
+  push:
+    branches:
+      - codex-modular-v31
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out development branch only
+        uses: actions/checkout@v4
+        with:
+          ref: codex-modular-v31
+          persist-credentials: true
+
+      - name: Repair and save Godot project
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f scenes/main.tscn. ]; then
+            if [ -e scenes/main.tscn ]; then
+              echo "Both main scene filenames exist; stopping rather than overwriting."
+              exit 1
+            fi
+            git mv scenes/main.tscn. scenes/main.tscn
+          fi
+
+          python3 - <<'PYCODE'
+          from pathlib import Path
+
+          scene = Path('scenes/main.tscn')
+          if not scene.is_file():
+              raise SystemExit('Missing scenes/main.tscn')
+
+          player = Path('characters/player_controller.gd')
+          code = player.read_text()
+          code = code.replace('var mobile_controls: Control = null', 'var mobile_controls = null')
+          before = 'func _physics_process(delta: float) -> void:\n'
+          after = ('func _physics_process(delta: float) -> void:\n'
+                   '    if not is_instance_valid(mobile_controls):\n'
+                   '        mobile_controls = get_tree().get_first_node_in_group("mobile_controls")\n')
+          if 'if not is_instance_valid(mobile_controls):\n        mobile_controls = get_tree().get_first_node_in_group' not in code:
+              if before not in code:
+                  raise SystemExit('Cannot identify player physics function')
+              code = code.replace(before, after, 1)
+          player.write_text(code)
+
+          ui = Path('ui/mobile_controls.gd')
+          code = ui.read_text()
+          old = ('    sprint_button.button_down.connect(\n'
+                 '        func(): sprinting = true\n'
+                 '    )\n'
+                 '    sprint_button.button_up.connect(\n'
+                 '        func(): sprinting = false\n'
+                 '    )')
+          replacement = ('    sprint_button.button_down.connect(_on_sprint_down)\n'
+                         '    sprint_button.button_up.connect(_on_sprint_up)')
+          if old in code:
+              code = code.replace(old, replacement)
+          if 'func _on_sprint_down' not in code:
+              code += ('\nfunc _on_sprint_down() -> void:\n'
+                       '    sprinting = true\n\n'
+                       'func _on_sprint_up() -> void:\n'
+                       '    sprinting = false\n')
+          ui.write_text(code)
+
+          preset = '''[preset.0]
+          name="Web"
+          platform="Web"
+          runnable=true
+          advanced_options=false
+          dedicated_server=false
+          custom_features=""
+          export_filter="all_resources"
+          include_filter=""
+          exclude_filter=""
+          export_path="build/web/index.html"
+          encryption_include_filters=""
+          encryption_exclude_filters=""
+          encrypt_pck=false
+          encrypt_directory=false
+          script_export_mode=2
+
+          [preset.0.options]
+          custom_template/debug=""
+          custom_template/release=""
+          variant/extensions_support=false
+          variant/thread_support=false
+          vram_texture_compression/for_desktop=true
+          vram_texture_compression/for_mobile=true
+          html/export_icon=true
+          html/custom_html_shell=""
+          html/head_include=""
+          html/canvas_resize_policy=2
+          html/focus_canvas_on_start=true
+          html/experimental_virtual_keyboard=true
+          progressive_web_app/enabled=false
+          progressive_web_app/ensure_cross_origin_isolation_headers=false
+          progressive_web_app/display=0
+          progressive_web_app/orientation=1
+          progressive_web_app/background_color=Color(0, 0, 0, 1)
+          '''
+          # Remove YAML block indentation from preset value.
+          from textwrap import dedent
+          Path('export_presets.cfg').write_text(dedent(preset))
+          Path('.gitignore').write_text('.godot/\nbuild/\n.DS_Store\n')
+          PYCODE
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scenes/main.tscn scenes/main.tscn. characters/player_controller.gd ui/mobile_controls.gd export_presets.cfg .gitignore 2>/dev/null || git add -A scenes characters ui export_presets.cfg .gitignore
+          if ! git diff --cached --quiet; then
+            git commit -m "Repair Godot V0.31 scene, inputs, and Web export"
+            git push origin HEAD:codex-modular-v31
+          fi
+
+      - name: Install Godot and web templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+
+      - name: Validate project import and startup
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --version
+          test -s scenes/main.tscn
+          test -s export_presets.cfg
+          godot --headless --path . --editor --import --quit 2>&1 | tee godot-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' godot-import.log; then exit 1; fi
+          godot --headless --path . --quit-after 10 2>&1 | tee godot-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' godot-startup.log; then exit 1; fi
+
+      - name: Export HTML5 game
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p build/web
+          godot --headless --path . --export-release "Web" build/web/index.html 2>&1 | tee godot-export.log
+          for file in index.html index.js index.wasm index.pck; do
+            test -s "build/web/$file" || { echo "Missing export: $file"; exit 1; }
+          done
+          ls -lh build/web/
+
+      - name: Upload browser build
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-web
+          path: build/web/
+          if-no-files-found: error
+
+      - name: Save logs if failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: margerina-repair-logs
+          if-no-files-found: ignore
+          path: |
+            godot-import.log
+            godot-startup.log
+            godot-export.log
