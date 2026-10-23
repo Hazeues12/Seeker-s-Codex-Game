@@ -97,6 +97,9 @@ func _physics_process(delta: float) -> void:
     forward = forward.normalized()
     var editor: Node = get_tree().get_first_node_in_group("seeker_creator")
     var editing: bool = is_instance_valid(editor) and bool(editor.call("is_open"))
+    var ring_journal: Node = get_tree().get_first_node_in_group("ring_two_life")
+    if is_instance_valid(ring_journal) and ring_journal.has_method("is_open"):
+        editing = editing or bool(ring_journal.call("is_open"))
     if editing:
         input_dir = Vector2.ZERO
     var direction: Vector3 = (right * input_dir.x - forward * input_dir.y).normalized()

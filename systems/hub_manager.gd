@@ -474,7 +474,9 @@ func _clear_list(list_node: VBoxContainer) -> void:
 
 func _any_panel_open() -> bool:
     var editor: Node = get_tree().get_first_node_in_group("seeker_creator")
-    return board_panel.visible or bag_panel.visible or (is_instance_valid(editor) and bool(editor.call("is_open")))
+    var ring_journal: Node = get_tree().get_first_node_in_group("ring_two_life")
+    var journal_open: bool = is_instance_valid(ring_journal) and bool(ring_journal.call("is_open"))
+    return board_panel.visible or bag_panel.visible or journal_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
@@ -515,7 +517,11 @@ func _interact() -> void:
         "npc_canal", "npc_vendor", "npc_scout":
             _npc_dialogue(kind)
         _:
-            if kind.begins_with("herb"):
+            if kind.begins_with("npc_ring2_"):
+                var life: Node = get_tree().get_first_node_in_group("ring_two_life")
+                if is_instance_valid(life) and life.has_method("interact"):
+                    life.call("interact", kind)
+            elif kind.begins_with("herb"):
                 _gather_herb(kind)
 
 
