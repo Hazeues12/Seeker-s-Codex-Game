@@ -1,0 +1,204 @@
+name: Margerina V0.40 Canon Ring Two Expansion
+
+on:
+  push:
+    branches:
+      - codex-modular-v31
+    paths:
+      - '.github/workflows/margerina-v040.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  validate-install-v040:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out only the Godot development branch
+        uses: actions/checkout@v4
+        with:
+          ref: codex-modular-v31
+          persist-credentials: true
+
+      - name: Verify and install canon-aware Ring Two extension
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PYCODE'
+          import base64, io, tarfile
+          from pathlib import Path
+          packed = (
+          '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'
+          'PiWTwBM0hw6vn6KLFFOdvAW2gtq91OzyE1pUHUhNgMHsXslZjhUsX2f7hgD9FkCsXdLCcxPvRcrYQ41PxyQEX8bjGhgTXcLUv6ojyKlHqXsjjEFw'
+          'zDBCPjViX4bQkTBn8O6GnC+FQZJfWmHWzg9LdtnsFdleEAwymzYpAPxsCrJk9MkP/ZSMg+N5GrdPCkIZ2XL8kuOTOFjQVvYngM1LdlM04ySUQnTB'
+          '7MGC53RHFEbPST1FVEStJ/VFNr4Ll3QigUZpFEYtiLy2Hn6eXPd6mfp0DiwjIwDylwl9/SsXemKwMHRmJ5xV5yRLpRSeSNAMOZBClrYAhl3f3n5r'
+          'QiMK2NknvEEWPHcNlOvrTJT4gYx7NyOD0aAuGleYL4WxpIhklPPAbAJAqjHBT8xC5R92mANOyIBeiteBg8htBhfGF2vXSrFOugj4U5e67W2s/a8/'
+          '7Mu+7Mu+7Mu+7Mu+7Mu+7Mu+7Mu+7Mu+7Mu+7Mu+7Mu+7Mu+7Mu+7Mu+7Mu+7Mu+7Mu+7Mu+7Mu+7Mu+7Mu+/NbyX2JnijIAeAAA'
+          )
+          allowed = {'install_v040.py', 'world/magnara_ring_two.gd', 'docs/MAGNARA_CANON_BLUEPRINT.md'}
+          with tarfile.open(fileobj=io.BytesIO(base64.b64decode(packed)), mode='r:gz') as archive:
+              members = archive.getmembers()
+              if {m.name for m in members} != allowed or any(not m.isfile() for m in members):
+                  raise SystemExit('Unexpected V0.40 package contents; aborting')
+              for member in members:
+                  target = Path(member.name)
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  source = archive.extractfile(member)
+                  if source is None:
+                      raise SystemExit('Missing file data')
+                  content = source.read()
+                  if target.exists() and target.read_bytes() != content:
+                      raise SystemExit(f'Unexpected existing file: {target}')
+                  target.write_bytes(content)
+          PYCODE
+          python3 install_v040.py
+          rm install_v040.py
+          test -s docs/MAGNARA_CANON_BLUEPRINT.md
+          grep -q 'MagnaraRingTwo' scenes/main.tscn
+          # Preserve V0.39 multitouch, parkour and existing local save identifiers.
+          grep -q 'joystick_finger' ui/mobile_controls.gd
+          grep -q 'wall_running' characters/player_controller.gd
+          grep -q 'margerina_v033.json' systems/hub_manager.gd
+
+      - name: Install Godot 4.4.1 and browser export templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+
+      - name: Validate source import and 120 frame startup
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --version
+          godot --headless --path . --editor --import --quit 2>&1 | tee v040-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v040-import.log; then exit 1; fi
+          godot --headless --path . --quit-after 120 2>&1 | tee v040-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v040-startup.log; then exit 1; fi
+
+      - name: Export V0.40 browser game
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v040-export.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v040-export.log; then exit 1; fi
+          for ext in html js wasm pck; do
+            test -s "build/web/index.$ext" || { echo "Missing build/web/index.$ext"; exit 1; }
+          done
+          ls -lh build/web/
+
+      - name: Commit validated gameplay changes to development branch only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add systems/hub_manager.gd scenes/main.tscn world/magnara_ring_two.gd docs/MAGNARA_CANON_BLUEPRINT.md
+          if ! git diff --cached --quiet; then
+            git commit -m 'V0.40 establish canon-aware Ring Two city bands and modular streaming'
+            git pull --rebase origin codex-modular-v31
+            git push origin HEAD:codex-modular-v31
+          else
+            echo 'V0.40 already installed; nothing new to commit'
+          fi
+
+      - name: Upload V0.40 browser ZIP for itch.io
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v040-web
+          path: build/web/
+          if-no-files-found: error
+
+      - name: Keep failure logs for debugging
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: margerina-v040-debug-logs
+          if-no-files-found: ignore
+          path: |
+            v040-import.log
+            v040-startup.log
+            v040-export.log
