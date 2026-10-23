@@ -15,8 +15,11 @@ var camera_drag: Vector2 = Vector2.ZERO
 @onready var sprint_button: Button = $SprintButton
 
 var joystick_knob: Panel
-var pointer_mode: int = 0  # 0 = idle, 1 = joystick, 2 = camera
+var pointer_mode: int = 0  # Desktop fallback: 0 idle, 1 joystick, 2 camera.
 var last_pointer_position: Vector2 = Vector2.ZERO
+var active_fingers: Dictionary = {}
+var joystick_finger: int = -1
+var camera_finger: int = -1
 const JOYSTICK_RADIUS: float = 65.0
 const DEAD_ZONE: float = 0.13
 
@@ -57,6 +60,47 @@ func _ready() -> void:
     sprint_button.text = "RUN: OFF"
 
 func _input(event: InputEvent) -> void:
+    if event is InputEventScreenTouch:
+        var finger: int = event.index
+        var touch_at: Vector2 = event.position
+        if event.pressed:
+            active_fingers[finger] = true
+            if joystick_finger == -1 and joystick.get_global_rect().has_point(touch_at):
+                joystick_finger = finger
+                _update_movement(touch_at)
+            else:
+                var touched_button: Button = _button_at(touch_at)
+                if is_instance_valid(touched_button):
+                    # Finger zero reaches Godot Button signals through its emulated
+                    # mouse click. Secondary fingers dispatch the press themselves.
+                    if finger != 0:
+                        if touched_button.toggle_mode:
+                            touched_button.button_pressed = not touched_button.button_pressed
+                        touched_button.pressed.emit()
+                elif camera_finger == -1 and touch_at.x > get_viewport_rect().size.x * 0.43:
+                    camera_finger = finger
+                    last_pointer_position = touch_at
+        else:
+            active_fingers.erase(finger)
+            if finger == joystick_finger:
+                joystick_finger = -1
+                movement = Vector2.ZERO
+            if finger == camera_finger:
+                camera_finger = -1
+        return
+
+    if event is InputEventScreenDrag:
+        if event.index == joystick_finger:
+            _update_movement(event.position)
+        elif event.index == camera_finger:
+            var movement_delta: Vector2 = event.position - last_pointer_position
+            camera_drag += movement_delta.limit_length(90.0)
+            last_pointer_position = event.position
+        return
+
+    # Ignore synthetic pointer motion while native touch fingers are down.
+    if not active_fingers.is_empty():
+        return
     if event is InputEventMouseButton:
         if event.button_index != MOUSE_BUTTON_LEFT:
             return
@@ -64,7 +108,7 @@ func _input(event: InputEvent) -> void:
             if joystick.get_global_rect().has_point(event.position):
                 pointer_mode = 1
                 _update_movement(event.position)
-            elif event.position.x > get_viewport_rect().size.x * 0.43 and not _on_action_button(event.position):
+            elif event.position.x > get_viewport_rect().size.x * 0.43 and not is_instance_valid(_button_at(event.position)):
                 pointer_mode = 2
                 last_pointer_position = event.position
         else:
@@ -78,6 +122,18 @@ func _input(event: InputEvent) -> void:
             var change: Vector2 = event.position - last_pointer_position
             camera_drag += change.limit_length(90.0)
             last_pointer_position = event.position
+
+
+func _button_at(screen_pos: Vector2) -> Button:
+    # Reach HUD, interaction, LOOK, BAG and combat controls with extra fingers.
+    # Reverse order favors buttons in more recently added overlay menus.
+    var found: Array[Node] = get_tree().root.find_children("*", "Button", true, false)
+    for index in range(found.size() - 1, -1, -1):
+        var button: Button = found[index] as Button
+        if is_instance_valid(button) and button.is_visible_in_tree() and not button.disabled:
+            if button.get_global_rect().has_point(screen_pos):
+                return button
+    return null
 
 func _process(delta: float) -> void:
     if not is_instance_valid(joystick_knob):
@@ -152,6 +208,9 @@ func release_controls() -> void:
     jump_requested = false
     attack_requested = false
     dodge_requested = false
+    active_fingers.clear()
+    joystick_finger = -1
+    camera_finger = -1
     guarding = false
     $GuardButton.button_pressed = false
     pointer_mode = 0

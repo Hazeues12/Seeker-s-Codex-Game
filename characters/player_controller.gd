@@ -26,6 +26,15 @@ var seeker_rig: Node3D
 var guard_active: bool = false
 var guard_window: float = 0.0
 
+# V0.39: movement-state rules are independent of action-button presses.
+var jumps_used: int = 0
+var wall_running: bool = false
+var wall_normal: Vector3 = Vector3.ZERO
+var wall_run_remaining: float = 0.0
+var wall_reengage_delay: float = 0.0
+var water_running: bool = false
+var _space_latched: bool = false
+
 func _ready() -> void:
     mobile_controls = get_tree().get_first_node_in_group("mobile_controls")
     camera_node.position = Vector3(0.0, 1.6, 5.5)
@@ -55,15 +64,21 @@ func _physics_process(delta: float) -> void:
     if not is_instance_valid(mobile_controls):
         mobile_controls = get_tree().get_first_node_in_group("mobile_controls")
 
+    # Sample every jump press regardless of whether another finger is moving or running.
+    if is_on_floor():
+        jumps_used = 0
+        wall_run_remaining = 1.25
+        wall_running = false
+    wall_reengage_delay = maxf(0.0, wall_reengage_delay - delta)
     if not is_on_floor():
         velocity.y -= gravity * delta
 
-    var keyboard_jump: bool = Input.is_action_just_pressed("ui_accept")
+    var keyboard_jump: bool = Input.is_action_just_pressed("ui_accept") or Input.is_key_pressed(KEY_SPACE) and not _space_latched
+    _space_latched = Input.is_key_pressed(KEY_SPACE)
     var mobile_jump: bool = false
     if is_instance_valid(mobile_controls):
         mobile_jump = mobile_controls.consume_jump()
-    if is_on_floor() and (keyboard_jump or mobile_jump):
-        velocity.y = jump_velocity
+    var jump_requested_now: bool = keyboard_jump or mobile_jump
 
     var input_dir: Vector2 = Input.get_vector(
         "ui_left", "ui_right", "ui_up", "ui_down"
@@ -123,7 +138,37 @@ func _physics_process(delta: float) -> void:
     if is_instance_valid(hub) and hub.has_method("can_sprint"):
         sprint_allowed = bool(hub.call("can_sprint"))
     var wants_sprint: bool = Input.is_key_pressed(KEY_SHIFT) or mobile_sprinting
+    var course: Node = get_tree().get_first_node_in_group("traversal_course")
+    water_running = is_on_floor() and wants_sprint and sprint_allowed and direction.length() > 0.1 and is_instance_valid(course) and bool(course.call("is_water_at", global_position))
+
+    # Detect actual solid wall geometry, not invisible proximity magic.
+    wall_running = false
+    if not is_on_floor() and wants_sprint and sprint_allowed and direction.length_squared() > 0.05 and wall_run_remaining > 0.0 and wall_reengage_delay <= 0.0:
+        wall_normal = _nearby_traversal_wall(direction)
+        wall_running = wall_normal.length_squared() > 0.1
+    if wall_running:
+        wall_run_remaining -= delta
+        velocity.y = maxf(velocity.y, -1.05)
+
+    if jump_requested_now:
+        if is_on_floor():
+            velocity.y = 6.45
+            jumps_used = 1
+        elif wall_running:
+            velocity.y = 6.5
+            wall_running = false
+            wall_reengage_delay = 0.35
+            jumps_used = 2
+            # Sideways impulse launches the character away from the wall.
+            velocity.x += wall_normal.x * 4.2
+            velocity.z += wall_normal.z * 4.2
+        elif jumps_used < 2:
+            velocity.y = 6.15
+            jumps_used = 2
+
     var speed: float = sprint_speed if wants_sprint and sprint_allowed else walk_speed
+    if water_running:
+        speed *= 1.28
     if guard_active:
         speed = minf(speed, 2.5)
     if editing:
@@ -133,6 +178,12 @@ func _physics_process(delta: float) -> void:
     if dodge_time > 0.0:
         velocity.x = dodge_direction.x * 11.5
         velocity.z = dodge_direction.z * 11.5
+    elif wall_running:
+        # Project travel along the wall so the player keeps forward momentum.
+        var tangent: Vector3 = direction.slide(wall_normal).normalized()
+        if tangent.length_squared() > 0.01:
+            velocity.x = tangent.x * speed
+            velocity.z = tangent.z * speed
     else:
         velocity.x = move_toward(velocity.x, target.x, rate * delta)
         velocity.z = move_toward(velocity.z, target.z, rate * delta)
@@ -170,3 +221,22 @@ func _show_martial_pulse(facing: Vector3) -> void:
     var effect := create_tween()
     effect.tween_property(pulse, "scale", Vector3(2.3, 1.15, 1.6), 0.21)
     effect.tween_callback(pulse.queue_free)
+
+
+func _nearby_traversal_wall(travel: Vector3) -> Vector3:
+    # Raycast left/right from torso height, only against designated solid walls.
+    var lateral: Vector3 = Vector3(-travel.z, 0.0, travel.x).normalized()
+    if lateral.length_squared() < 0.01:
+        return Vector3.ZERO
+    var start: Vector3 = global_position + Vector3.UP * 1.15
+    for side in [-1.0, 1.0]:
+        var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(start, start + lateral * side * 0.96)
+        ray.exclude = [get_rid()]
+        var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(ray)
+        if not hit.is_empty():
+            var obstacle: Node = hit.get("collider") as Node
+            if is_instance_valid(obstacle) and obstacle.is_in_group("traversal_wall"):
+                var normal: Vector3 = hit.get("normal", Vector3.ZERO)
+                normal.y = 0.0
+                return normal.normalized()
+    return Vector3.ZERO
