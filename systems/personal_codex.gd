@@ -304,10 +304,10 @@ func _refresh_view() -> void:
         str(identity.get("name", "New Seeker")), life_nation, background_label]
     if not origin_data.is_empty():
         var temperament: String = str(origin_data.get("temperament", ""))
-        var trait: String = str(origin_data.get("trait", ""))
+        var chosen_trait: String = str(origin_data.get("trait", ""))
         var burdens: Array = origin_data.get("burdens", [])
         var perks: Array = origin_data.get("perks", [])
-        output += "Temperament: %s | Trait: %s\n" % [temperament.capitalize(), trait.replace("_", " ").capitalize()]
+        output += "Temperament: %s | Trait: %s\n" % [temperament.capitalize(), chosen_trait.replace("_", " ").capitalize()]
         output += "Burdens: %s | Perks: %s | Remaining debt: %d Tola\n" % [
             ", ".join(PackedStringArray(burdens)) if burdens.size() else "none",
             ", ".join(PackedStringArray(perks)) if perks.size() else "none",
