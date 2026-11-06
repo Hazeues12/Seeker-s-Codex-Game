@@ -4,6 +4,8 @@ on:
     branches: [magnara-world-v052-staging]
     paths:
       - '.github/workflows/margerina-v052-world.yml'
+      - 'world/magnara_city_v052.gd'
+      - 'tests/v052_city_smoke.gd'
   workflow_dispatch:
 permissions:
   contents: read
