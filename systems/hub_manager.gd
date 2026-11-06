@@ -1,6 +1,7 @@
 extends Node
 const WorldGeoV054 = preload("res://systems/known_world_geometry_v054.gd")
 const JanoahRegionV055 = preload("res://world/janoah_approach_v055.gd")
+const SaveIntegrityV063 = preload("res://systems/game_save_integrity_v063.gd")
 
 # Seeker's Codex — Margerina V0.33
 # A self-contained starter hub. The three contracts are prototype gameplay,
@@ -859,7 +860,7 @@ func award_field_payout_once(receipt_id: String, amount: int) -> bool:
     return true
 
 
-func _save_game() -> void:
+func _save_game() -> bool:
     var data := {
         "version": 1,
         "tola": GameState.tola,
@@ -880,18 +881,14 @@ func _save_game() -> void:
         "field_reward_receipts": field_reward_receipts,
         "market_stock_v062": market_stock_v062
     }
-    var file := FileAccess.open(SAVE_FILE, FileAccess.WRITE)
-    if file == null:
-        _announce("Save failed in this browser session. Try again after enabling site storage.")
-        return
-    file.store_string(JSON.stringify(data))
-    file.close()
-
+    if not SaveIntegrityV063.write_verified(data):
+        _announce("Save failed verification. Your previous game was protected; check browser storage.")
+        return false
+    return true
 
 func _save_with_notice() -> void:
-    _save_game()
-    if FileAccess.file_exists(SAVE_FILE):
-        _announce("Game saved to this browser's local storage.")
+    if _save_game():
+        _announce("Game saved and verified with a protected previous save.")
 
 
 func _load_with_notice() -> void:
@@ -899,27 +896,21 @@ func _load_with_notice() -> void:
 
 
 func _load_game(show_feedback: bool) -> void:
-    if not FileAccess.file_exists(SAVE_FILE):
+    var checked: Dictionary = SaveIntegrityV063.load_best()
+    var source: String = str(checked.get("source", "none"))
+    if source == "none":
         if show_feedback:
-            _announce("No saved game found yet. Play a contract, then tap SAVE.")
+            if FileAccess.file_exists(SAVE_FILE):
+                _announce("Saved game is unreadable. The original file was not overwritten.")
+            else:
+                _announce("No saved game found yet. Play a contract, then tap SAVE.")
         return
-    var file := FileAccess.open(SAVE_FILE, FileAccess.READ)
-    if file == null:
-        if show_feedback:
-            _announce("Unable to open saved game.")
-        return
-    var raw: String = file.get_as_text()
-    file.close()
-    var parsed: Variant = JSON.parse_string(raw)
-    if typeof(parsed) != TYPE_DICTIONARY:
-        if show_feedback:
-            _announce("Saved game data could not be read.")
-        return
-    var data: Dictionary = parsed
-    if int(data.get("version", 0)) != 1:
-        if show_feedback:
-            _announce("This save belongs to a different prototype version.")
-        return
+    var data: Dictionary = checked.get("data", {})
+    if source == "backup":
+        if SaveIntegrityV063.restore_backup():
+            _announce("Recovered the previous verified game after a damaged save.")
+        else:
+            _announce("Previous save loaded, but storage recovery failed. New saves are protected.")
     GameState.tola = maxi(0, int(data.get("tola", 100)))
     GameState.seeker_rank = str(data.get("rank", "Stray"))
     experience = maxi(0, int(data.get("xp", 0)))
