@@ -193,6 +193,10 @@ func _physics_process(delta: float) -> void:
             jumps_used = 2
 
     var speed: float = sprint_speed if wants_sprint and sprint_allowed else walk_speed
+    var life: Node = get_tree().get_first_node_in_group("young_blood_life_v057")
+    if wants_sprint and sprint_allowed and is_instance_valid(life) and life.has_method("get_origin_effects"):
+        var origin_modifiers: Dictionary = life.call("get_origin_effects")
+        speed *= float(origin_modifiers.get("sprint_mult", 1.0))
     if water_running:
         speed *= 1.28
     if guard_active:
