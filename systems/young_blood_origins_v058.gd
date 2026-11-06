@@ -168,7 +168,7 @@ static func summary(value: Variant) -> String:
     var descriptions: Array[String] = []
     for burden in d["burdens"]:
         descriptions.append(label(str(burden)))
-    var penalties: String = "none" if descriptions.is_empty() else ", ".join(descriptions)
+    var penalties: String = "none" if descriptions.is_empty() else ", ".join(PackedStringArray(descriptions))
     return "%s / %s / %s | Burdens: %s | Debt %d Tola" % [
         label(str(d["background"])), label(str(d["temperament"])),
         label(str(d["trait"])), penalties, int(d["debt_tola"])
