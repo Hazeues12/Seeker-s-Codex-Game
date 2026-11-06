@@ -186,6 +186,7 @@ func _terrain(parent: Node3D, tile: Vector2i) -> void:
     physics.name = "JanoahTerrainCollision"
     parent.add_child(physics)
     var collision := CollisionShape3D.new()
+    collision.name = "JanoahTerrainTriangleShape"
     var triangles := ConcavePolygonShape3D.new()
     triangles.set_faces(faces)
     triangles.backface_collision = true
