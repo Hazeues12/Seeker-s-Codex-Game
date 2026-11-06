@@ -70,16 +70,26 @@ func _finish_setup() -> void:
     set_process(true)
 
 
+func _origin_effects_v058() -> Dictionary:
+    var life: Node = get_tree().get_first_node_in_group("young_blood_life_v057")
+    if is_instance_valid(life) and life.has_method("get_origin_effects"):
+        return life.call("get_origin_effects")
+    return {}
+
+
 func _process(delta: float) -> void:
     world_minutes += delta * 0.25
     if is_instance_valid(player):
         var horizontal_speed: float = Vector2(player.velocity.x, player.velocity.z).length()
         var running: bool = is_instance_valid(mobile) and bool(mobile.get("sprinting"))
+        var traits: Dictionary = _origin_effects_v058()
+        var stamina_ceiling: float = float(traits.get("stamina_limit", 100.0))
+        stamina = minf(stamina_ceiling, stamina)
         if running and horizontal_speed > 5.6 and stamina > 0.0:
             stamina = maxf(0.0, stamina - delta * 16.0)
         else:
-            stamina = minf(100.0, stamina + delta * 11.0)
-        aura = minf(100.0, aura + delta * 4.5)
+            stamina = minf(stamina_ceiling, stamina + delta * 11.0 * float(traits.get("stamina_regen_mult", 1.0)))
+        aura = minf(100.0, aura + delta * 4.5 * float(traits.get("aura_regen_mult", 1.0)))
     if notice_timeout > 0.0:
         notice_timeout -= delta
     hud_clock += delta
@@ -102,9 +112,10 @@ func can_sprint() -> bool:
 
 
 func spend_guard_stamina() -> bool:
-    if stamina < 15.0:
+    var required: float = 15.0 - float(_origin_effects_v058().get("guard_discount", 0))
+    if stamina < required:
         return false
-    stamina -= 15.0
+    stamina -= required
     _refresh_status()
     return true
 
@@ -653,7 +664,7 @@ func _talk_to_hanami() -> void:
         progress = 1
         _finish_contract()
         return
-    _announce("Hanami: 'Keep your gear ready. Essence Tonics cost 12 Tola.'")
+    _announce("Hanami: 'Keep your gear ready. Essence Tonics cost %d Tola today.'" % int(_origin_effects_v058().get("tonic_price", 12)))
     _open_bag(true)
 
 
@@ -745,7 +756,7 @@ func _open_bag(shop_mode: bool) -> void:
         var buy := Button.new()
         buy.text = "BUY ESSENCE TONIC FROM HANAMI - 12 TOLA"
         buy.custom_minimum_size.y = 48
-        buy.disabled = GameState.tola < 12
+        buy.disabled = GameState.tola < int(_origin_effects_v058().get("tonic_price", 12))
         buy.pressed.connect(_buy_tonic)
         bag_list.add_child(buy)
     bag_panel.show()
@@ -772,12 +783,13 @@ func _drink_draught() -> void:
 
 
 func _buy_tonic() -> void:
-    if not GameState.spend_tola(12):
+    var price: int = int(_origin_effects_v058().get("tonic_price", 12))
+    if not GameState.spend_tola(price):
         _announce("Not enough Tola for an Essence Tonic.")
         return
     inventory["Essence Tonic"] = int(inventory.get("Essence Tonic", 0)) + 1
     bag_panel.hide()
-    _announce("Bought 1 Essence Tonic for 12 Tola.")
+    _announce("Bought 1 Essence Tonic for %d Tola." % price)
     _save_game()
 
 
