@@ -1,6 +1,7 @@
 extends Node
 # V0.44: role-specific, persistent social memory. All dialogue is GAME-ONLY.
 # No romance, reward farming, ranks, secret access, or new story canon.
+const FamilyV059 = preload("res://systems/young_blood_family_v059.gd")
 const ROLES = {
     "npc_ring2_noodles": {"title": "NOODLE VENDOR", "duty": "Workers and Seekers share these streets long after sunset.", "thanks": "You noticed our work. I'll remember that kindness.", "refusal": "Treating the workers of this quarter poorly won't earn you a favor."},
     "npc_ring2_canal": {"title": "CANAL RESIDENT", "duty": "The blue-resonance canals and bronze lanterns serve this entire quarter.", "thanks": "It's reassuring when a Seeker listens to the people who live here.", "refusal": "The public waterways aren't yours to command."},
@@ -116,6 +117,11 @@ func _refresh_choices() -> void:
     elif score < 0:
         attitude = "cautious around you"
     greeting.text = "This resident remembers your conversations and is " + attitude + "."
+    var profile: Dictionary = codex.get("profile")
+    var family_response: String = FamilyV059.relationship_response(
+        profile.get("family_v059", {}), current_kind)
+    if not family_response.is_empty():
+        greeting.text += "\n" + family_response
     for topic in TOPICS:
         var topic_id: String = str(topic["id"])
         var used: bool = bool(codex.call("has_social_choice", current_kind, topic_id))
