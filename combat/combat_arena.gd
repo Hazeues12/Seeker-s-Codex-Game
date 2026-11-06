@@ -74,7 +74,15 @@ func _process(delta: float) -> void:
 func register_field_enemy(fighter: CharacterBody3D) -> void:
     if is_instance_valid(fighter) and not field_enemies.has(fighter):
         field_enemies.append(fighter)
-        fighter.connect("attack_connected", _receive_enemy_attack)
+        fighter.connect("attack_connected", _receive_field_enemy_attack)
+
+func _receive_field_enemy_attack(amount: int) -> void:
+    var mission: Node = get_tree().get_first_node_in_group("field_mission_v048")
+    if is_instance_valid(mission) and mission.has_method("intercept_field_attack"):
+        if bool(mission.call("intercept_field_attack", amount)):
+            _announce("Your volunteer partner intercepted an attack.", 1.6)
+            return
+    _receive_enemy_attack(amount)
 
 func unregister_field_enemy(fighter: CharacterBody3D) -> void:
     field_enemies.erase(fighter)

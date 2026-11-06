@@ -3,6 +3,7 @@ extends Node3D
 # V0.48 field assignment is GAME-ONLY content within the existing Ring Two prototype.
 # Companion, hostile construct, and dialogue are not official novel characters.
 const Rules = preload("res://systems/field_rules_v048.gd")
+const CompanionRules = preload("res://systems/companion_state_v049.gd")
 const Construct = preload("res://combat/sparring_construct.gd")
 const MISSION_ID: String = "public_quarter_field_watch"
 const REWARD_TOLA: int = 22
@@ -18,6 +19,7 @@ var society: Node
 var arena: Node
 var player: CharacterBody3D
 var state: Dictionary = {}
+var companion_state: Dictionary = {}
 var enemy: CharacterBody3D
 var companion: Node3D
 var companion_support_wait: float = 0.0
@@ -45,6 +47,7 @@ func _setup() -> void:
         push_warning("Existing Codex unreadable; field watch stays disabled to protect progress")
         return
     state = Rules.sanitize(codex.profile.get("field_mission_v048", {}))
+    companion_state = CompanionRules.sanitize(codex.profile.get("companion_v049", {}))
     _make_markers()
     _make_companion()
     _make_panel()
@@ -107,6 +110,7 @@ func _make_companion() -> void:
     for side in [-1.0, 1.0]:
         _box(companion, "Leg", Vector3(side * 0.19, 0.48, 0), Vector3(0.24, 0.80, 0.30), coat)
     var label := Label3D.new()
+    label.name = "CompanionStatus"
     label.text = "VOLUNTEER PATROL PARTNER / GAME-ONLY"
     label.position = Vector3(0, 2.55, 0)
     label.font_size = 26
@@ -200,7 +204,10 @@ func interact(kind: String) -> void:
             elif stage == "debrief":
                 _open_panel("Your companion has returned. Submit your report to record the outcome and receive one assignment payment.", [{"action":"report", "label":"File report and collect field pay"}])
             elif stage == "complete":
-                _tell("Filed report: %s. The assignment has already paid out." % str(state.get("choice", "")))
+                if int(companion_state.get("injury", 0)) > 0:
+                    _open_panel("The assignment is filed. The volunteer partner needs recovery time. Injury %d/100." % int(companion_state.get("injury", 0)), [{"action": "rest_companion", "label": "Arrange recovery (once per game day)"}])
+                else:
+                    _tell("Filed report: %s. Partner recovered." % str(state.get("choice", "")))
             else:
                 _tell("Continue the field watch. Your partner is keeping pace.")
         "field_v048_checkpoint":
@@ -221,6 +228,19 @@ func interact(kind: String) -> void:
 
 func _act(action: String) -> void:
     _close_panel()
+    if action == "rest_companion":
+        if str(state.get("stage", "")) != "complete" or not is_instance_valid(hub):
+            _tell("Return to dispatch after filing your report.")
+            return
+        var game_day: int = int(floor(float(hub.get("world_minutes")) / 1440.0)) + 1
+        var recovered: Dictionary = CompanionRules.recover_once(companion_state, game_day)
+        if recovered.is_empty():
+            _tell("The partner already recovered today. Another game day is required.")
+            return
+        companion_state = recovered
+        _persist_companion()
+        _tell("Your partner rested and recovered. Injury now %d/100." % int(companion_state["injury"]))
+        return
     var next: Dictionary = Rules.advance(state, action)
     if next.is_empty() or not is_instance_valid(codex) or bool(codex.get("save_blocked")):
         _tell("This decision is unavailable or already recorded.")
@@ -238,6 +258,27 @@ func _act(action: String) -> void:
             "secure_evidence":"Evidence secured. Return to the dispatch marker."}
         _tell(str(messages.get(action, "Field journal updated.")))
 
+# Only field-attacks may be intercepted; the original training arena remains unchanged.
+func intercept_field_attack(amount: int) -> bool:
+    if str(state.get("stage", "")) != "engage" or not is_instance_valid(companion) or not is_instance_valid(player) or not is_instance_valid(enemy):
+        return false
+    if companion.global_position.distance_to(player.global_position) > 3.2 or companion.global_position.distance_to(enemy.global_position) > 4.5:
+        return false
+    var next: Dictionary = CompanionRules.absorb_field_hit(companion_state, amount)
+    if next.is_empty():
+        return false
+    companion_state = next
+    _persist_companion()
+    _tell("Your partner intercepted a blow and was injured (%d/100)." % int(companion_state["injury"]))
+    return true
+
+func _persist_companion() -> void:
+    if not is_instance_valid(codex) or bool(codex.get("save_blocked")):
+        return
+    codex.profile["companion_v049"] = companion_state.duplicate(true)
+    codex.call("_save_profile")
+    _ensure_state_visuals()
+
 func _enemy_knocked_out() -> void:
     if str(state.get("stage", "")) != "engage":
         return
@@ -250,6 +291,10 @@ func _ensure_state_visuals() -> void:
         companion.visible = stage in ["patrol", "engage", "response", "debrief"]
     if is_instance_valid(saved_status):
         saved_status.text = "FIELD WATCH: " + stage.to_upper().replace("_", " ")
+    if is_instance_valid(companion):
+        var partner_tag: Label3D = companion.get_node_or_null("CompanionStatus") as Label3D
+        if is_instance_valid(partner_tag):
+            partner_tag.text = "VOLUNTEER / TRUST %d / INJURY %d" % [int(companion_state.get("loyalty", 0)), int(companion_state.get("injury", 0))]
     if visual_markers.has("field_v048_checkpoint"):
         visual_markers["field_v048_checkpoint"].visible = stage == "patrol"
         visual_markers["field_v048_civilian"].visible = stage == "response"
@@ -286,8 +331,9 @@ func _process(delta: float) -> void:
     if distance > 30.0:
         companion.global_position = desired
     elif distance > 1.7:
-        companion.global_position = companion.global_position.move_toward(desired, minf(3.7 * delta, distance))
-    if stage == "engage" and is_instance_valid(enemy) and bool(enemy.call("is_active")) and companion_support_wait <= 0.0:
+        var follow_speed: float = 2.1 if int(companion_state.get("injury", 0)) >= 50 else 3.7
+        companion.global_position = companion.global_position.move_toward(desired, minf(follow_speed * delta, distance))
+    if stage == "engage" and int(companion_state.get("injury", 0)) < 60 and is_instance_valid(enemy) and bool(enemy.call("is_active")) and companion_support_wait <= 0.0:
         if companion.global_position.distance_to(enemy.global_position) < 4.6 and player.global_position.distance_to(enemy.global_position) < 11.0:
             companion_support_wait = 5.0
             enemy.call("take_strike", 8, companion.global_position)
@@ -312,6 +358,13 @@ func _reconcile_completion() -> void:
         codex.profile["society"] = s
         codex.call("record_event", "v048:field:report", "field_assignment", "Completed public-quarter field watch", "Chose %s alongside a volunteer. Game-only field assignment." % choice)
         codex.call("_save_profile")
+    var partner_update: Dictionary = CompanionRules.resolve_outcome(companion_state, choice)
+    if not partner_update.is_empty():
+        companion_state = partner_update
+        _persist_companion()
+        codex.call("record_event", "v049:partner:field_choice", "companion_bond",
+            "Your volunteer partner remembers the field decision",
+            "The partner's trust reflects your recorded choice during the public-quarter watch.")
     if is_instance_valid(hub) and hub.has_method("award_field_payout_once"):
         hub.call("award_field_payout_once", MISSION_ID, REWARD_TOLA)
         if not bool(state.get("paid", false)):

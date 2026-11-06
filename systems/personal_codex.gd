@@ -327,6 +327,12 @@ func _refresh_view() -> void:
     var field: Dictionary = profile.get("field_mission_v048", {})
     if not field.is_empty():
         output += "\nFIELD WATCH\nStage: %s | Decision: %s\n" % [str(field.get("stage", "available")), str(field.get("choice", "not chosen"))]
+    var companion: Dictionary = profile.get("companion_v049", {})
+    if not companion.is_empty():
+        output += "\nFIELD COMPANION / GAME-ONLY\n"
+        output += "Trust: %d | Injury: %d/100 | Interceptions: %d\n" % [
+            int(companion.get("loyalty", 0)), int(companion.get("injury", 0)), int(companion.get("interventions", 0))]
+        output += "Last field outcome: %s\n" % str(companion.get("outcome", "unresolved"))
     output += "\nLIFE CHRONICLE  (%d saved events)\n" % entries.size()
     var first: int = maxi(0, entries.size() - 14)
     for i in range(entries.size() - 1, first - 1, -1):

@@ -10,6 +10,9 @@ const MAX_HEALTH: int = 64
 const AGGRO_RANGE: float = 9.0
 const LEASH_RANGE: float = 12.0
 const STRIKE_RANGE: float = 2.15
+var adaptive_field: bool = false
+var rapid_hits: int = 0
+var last_hit_ms: int = -10000
 var patrol_min_x: float = -9.8
 var patrol_max_x: float = 9.8
 var patrol_min_z: float = -28.4
@@ -114,6 +117,7 @@ func configure(player: CharacterBody3D, label_text: String, where: Vector3, phas
 
 # Different supervised field zone; original sparring bounds remain the default.
 func set_patrol_bounds(horizontal: Vector2, longitudinal: Vector2) -> void:
+    adaptive_field = true
     patrol_min_x = minf(horizontal.x, horizontal.y)
     patrol_max_x = maxf(horizontal.x, horizontal.y)
     patrol_min_z = minf(longitudinal.x, longitudinal.y)
@@ -255,6 +259,10 @@ func take_strike(damage: int, attacker_position: Vector3) -> bool:
     var blocked: bool = state == "guard"
     var actual_damage: int = maxi(1, int(round(float(damage) * 0.35))) if blocked else damage
     health = maxi(0, health - actual_damage)
+    if adaptive_field:
+        var now_ms: int = Time.get_ticks_msec()
+        rapid_hits = rapid_hits + 1 if now_ms - last_hit_ms < 1400 else 1
+        last_hit_ms = now_ms
     if is_instance_valid(visual_rig):
         visual_rig.call("trigger_impact")
     _update_label()
@@ -266,8 +274,14 @@ func take_strike(damage: int, attacker_position: Vector3) -> bool:
         velocity = Vector3.ZERO
         knocked_out.emit()
     else:
-        state = "stagger"
-        state_timer = 0.20 if blocked else 0.38
+        if adaptive_field and rapid_hits >= 2 and guard_cooldown <= 0.0:
+            state = "guard"
+            state_timer = 0.86
+            guard_cooldown = 3.6
+            rapid_hits = 0
+        else:
+            state = "stagger"
+            state_timer = 0.20 if blocked else 0.38
         var push: Vector3 = global_position - attacker_position
         push.y = 0.0
         if push.length_squared() > 0.001:
@@ -291,6 +305,8 @@ func _damage_number(amount: int, guarded: bool) -> void:
     t.tween_callback(number.queue_free)
 
 func reset_construct() -> void:
+    rapid_hits = 0
+    last_hit_ms = -10000
     health = MAX_HEALTH
     active = true
     state = "patrol"
