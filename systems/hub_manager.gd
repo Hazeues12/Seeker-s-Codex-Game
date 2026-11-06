@@ -25,6 +25,7 @@ var active_contract: int = -1
 var progress: int = 0
 var inventory: Dictionary = {"Vitality Draught": 2, "Essence Tonic": 1}
 var field_reward_receipts: Dictionary = {}
+var market_stock_v062: Dictionary = {}
 var aura: float = 100.0
 var stamina: float = 100.0
 var guild_rep: int = 0
@@ -508,7 +509,9 @@ func _any_panel_open() -> bool:
     var homes_open: bool = is_instance_valid(homes) and bool(homes.call("is_open"))
     var workshops: Node = get_tree().get_first_node_in_group("magnara_workshops_v061")
     var workshops_open: bool = is_instance_valid(workshops) and bool(workshops.call("is_open"))
-    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
+    var market: Node = get_tree().get_first_node_in_group("magnara_markets_v062")
+    var market_open: bool = is_instance_valid(market) and bool(market.call("is_open"))
+    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
@@ -565,6 +568,10 @@ func _interact() -> void:
                 var expedition: Node = get_tree().get_first_node_in_group("multi_day_expedition_v050")
                 if is_instance_valid(expedition) and expedition.has_method("interact"):
                     expedition.call("interact", kind)
+            elif kind.begins_with("market_v062_"):
+                var market: Node = get_tree().get_first_node_in_group("magnara_markets_v062")
+                if is_instance_valid(market) and market.has_method("interact"):
+                    market.call("interact", kind)
             elif kind.begins_with("work_v061_") or kind.begins_with("npc_v061_"):
                 var workshops: Node = get_tree().get_first_node_in_group("magnara_workshops_v061")
                 if is_instance_valid(workshops) and workshops.has_method("interact"):
@@ -870,7 +877,8 @@ func _save_game() -> void:
         "position": [player.global_position.x, player.global_position.y, player.global_position.z],
         "camera_yaw": player.get("wanted_yaw"),
         "camera_pitch": player.get("wanted_pitch"),
-        "field_reward_receipts": field_reward_receipts
+        "field_reward_receipts": field_reward_receipts,
+        "market_stock_v062": market_stock_v062
     }
     var file := FileAccess.open(SAVE_FILE, FileAccess.WRITE)
     if file == null:
@@ -921,6 +929,13 @@ func _load_game(show_feedback: bool) -> void:
     world_minutes = maxf(0.0, float(data.get("world_minutes", 480.0)))
     active_contract = clampi(int(data.get("active", -1)), -1, 2)
     progress = clampi(int(data.get("progress", 0)), 0, 3)
+    # Market purchases, bag contents and Tola are committed in the same
+    # legacy save file. The new key defaults to empty on older profiles.
+    var market_raw: Variant = data.get("market_stock_v062", {})
+    if typeof(market_raw) == TYPE_DICTIONARY:
+        market_stock_v062 = market_raw
+    else:
+        market_stock_v062 = {}
     var existing_field_receipts: Variant = data.get("field_reward_receipts", {})
     if typeof(existing_field_receipts) == TYPE_DICTIONARY:
         field_reward_receipts = existing_field_receipts
