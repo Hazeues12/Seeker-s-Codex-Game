@@ -312,6 +312,15 @@ func _refresh_view() -> void:
             ", ".join(PackedStringArray(burdens)) if burdens.size() else "none",
             ", ".join(PackedStringArray(perks)) if perks.size() else "none",
             int(origin_data.get("debt_tola", 0))]
+    var family: Dictionary = profile.get("family_v059", {})
+    if not family.is_empty():
+        output += "FAMILY HISTORY (PLAYER STORY)\n"
+        output += "%s / %s / %s | Proof: %s\n" % [
+            str(family.get("family_id", "unknown")).replace("_", " ").capitalize(),
+            str(family.get("bond", "unknown")),
+            str(family.get("disclosure", "private")),
+            str(family.get("lineage_status", "unverified"))]
+        output += "Archive: %s | Restricted ocular access: no\n" % str(family.get("archive_status", "not_requested"))
     output += "YOUR ROAD\n%s\n" % ("Not chosen" if life_road.is_empty() else life_road)
     if life_road == "trade":
         var life_work: Dictionary = life_record.get("work", {})
