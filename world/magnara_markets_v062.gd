@@ -452,7 +452,11 @@ func _trade(mode: String) -> void:
         if int(next_inventory.get(item, 0)) < 1:
             feedback.text = "You do not possess that item."
             return
-        next_inventory[item] = int(next_inventory.get(item, 0)) - 1
+        var remaining_items: int = int(next_inventory.get(item, 0)) - 1
+        if remaining_items <= 0:
+            next_inventory.erase(item)
+        else:
+            next_inventory[item] = remaining_items
         GameState.earn_tola(price)
     else:
         return
