@@ -96,7 +96,7 @@ func _run() -> void:
             _fail("floodplain lacks collision-backed triangle terrain")
             return
         var bridge: MeshInstance3D = cell.find_child("JanoahRoadBridgeDeck", true, false) as MeshInstance3D
-        var deck_collider: Node = bridge.find_child("CollisionShape3D", true, false)
+        var deck_collider: Node = bridge.find_child("RegionalBlockCollider", true, false)
         if deck_collider == null:
             _fail("main river bridge is only a visual facade")
             return
