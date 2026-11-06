@@ -1,0 +1,111 @@
+name: Margerina V0.54 - Known World Geographic Scale Validation
+on:
+  push:
+    branches: [known-world-v054-staging]
+    paths:
+      - '.github/workflows/margerina-v054-geography.yml'
+      - 'world/magnara_geography_v054.gd'
+      - 'systems/known_world_geometry_v054.gd'
+      - 'tests/v054_geography_smoke.gd'
+      - 'data/known_world_v054.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-world-geography:
+    runs-on: ubuntu-latest
+    timeout-minutes: 32
+    steps:
+      - name: Checkout isolated staging branch
+        uses: actions/checkout@v4
+        with:
+          ref: known-world-v054-staging
+      - name: Verify measured-planning registry and unchanged iPhone controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m json.tool data/known_world_v054.json >/dev/null
+          python3 -m json.tool data/magnara_atlas_v052.json >/dev/null
+          python3 - <<'PY'
+          import json, math
+          from pathlib import Path
+          a=json.loads(Path("data/known_world_v054.json").read_text())
+          assert len(a["nations"]) == 13
+          assert len(a["settlements"]) == 19
+          assert len(a["magnara"]["ring_specs"]) == 7
+          assert a["magnara"]["urban_span_m_proposed"] == 26000
+          assert math.isclose(a["magnara"]["area_km2_ideal_envelope_proposed"], 530.93, abs_tol=.05)
+          assert all(s["geographic_coordinates"] is None for s in a["settlements"])
+          assert all(r["route_length_km"] is None for r in a["routes"]["edges"])
+          assert "Zuba" in a["scope"]["excluded"]
+          assert "Astraea" in a["scope"]["boundary_unverified"]
+          assert "San Ciana" in a["scope"]["boundary_unverified"]
+          assert "joystick_finger" in Path("ui/mobile_controls.gd").read_text()
+          assert "wall_running" in Path("characters/player_controller.gd").read_text()
+          assert "margerina_v033.json" in Path("systems/hub_manager.gd").read_text()
+          assert "seeker_profile_v1.json" in Path("systems/personal_codex.gd").read_text()
+          assert 'res://world/magnara_geography_v054.gd' in Path("scenes/main.tscn").read_text()
+          print("V0.54 CANON BOUNDARY AND COORDINATE REGISTRY PASS")
+          PY
+      - name: Install Godot 4.4.1 and HTML5 templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+      - name: Compile and start entire existing game
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 135s godot --headless --path . --editor --import --quit 2>&1 | tee v054-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v054-import.log; then exit 1; fi
+          timeout 95s godot --headless --path . --quit-after 185 2>&1 | tee v054-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v054-startup.log; then exit 1; fi
+      - name: Regression test existing Seeker play and previous Magnara wards
+        shell: bash
+        run: |
+          set -euo pipefail
+          for item in 'v048_field:V0.48 FIELD MISSION STATE SMOKE PASS' 'v049_companion:V0.49 COMPANION STATE SMOKE PASS' 'v050_expedition:V0.50 MULTI-DAY EXPEDITION SMOKE PASS' 'v051_city:V0.51 DAILY CITY MEMORY SMOKE PASS' 'v052_city:V0.52 MAGNARA CITY GEOMETRY AND INTERIORS PASS' 'v053_city:V0.53 SIX WALKABLE INTERIORS AND CONNECTED STREETS PASS'; do
+            t="${item%%:*}"; expected="${item#*:}"
+            timeout 55s godot --headless --path . "res://tests/${t}_scene.tscn" --quit-after 280 2>&1 | tee "${t}.log"
+            if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' "${t}.log"; then exit 1; fi
+            grep -Fq "${expected}" "${t}.log"
+          done
+      - name: Verify 1:1 ring geometry and bounded 256m terrain streaming
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 90s godot --headless --path . res://tests/v054_geography_scene.tscn --quit-after 300 2>&1 | tee v054-geography.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v054-geography.log; then exit 1; fi
+          grep -Fq 'V0.54 KNOWN WORLD ATLAS AND 1:1 MAGNARA GEOGRAPHY PASS' v054-geography.log
+      - name: Export complete internal browser build
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          timeout 145s godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v054-export.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v054-export.log; then exit 1; fi
+          for ext in html js wasm pck; do test -s "build/web/index.${ext}"; done
+      - name: Keep internal Web artifact for finished-game integration
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v054-known-world-internal
+          path: build/web/
+          if-no-files-found: error
+      - name: Publish failure diagnostics only on validation failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: margerina-v054-world-diagnostics
+          if-no-files-found: ignore
+          path: |
+            v054-import.log
+            v054-startup.log
+            v054-geography.log
+            v054-export.log
+            v048_field.log
+            v049_companion.log
+            v050_expedition.log
+            v051_city.log
+            v052_city.log
+            v053_city.log
