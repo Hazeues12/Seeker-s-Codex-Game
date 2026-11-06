@@ -33,7 +33,8 @@
     "active_tiles_cap": 9,
     "material_swatch_status": "prototype",
     "surface_collision": "triangle_heightfield",
-    "biome_description": "provisional industrial outskirts transitioning to cultivated countryside and rolling inland country"
+    "biome_description": "provisional industrial outskirts transitioning to cultivated countryside and rolling inland country",
+    "biome_kit_reference": "res://world/janoah_environment_kit_v056.gd"
   },
   "stages": [
     {
@@ -104,10 +105,21 @@
   },
   "future": [
     "source-locked Janoah region atlas",
-    "terrain texture and foliage art",
     "carriage travel",
     "rail passenger operation",
     "author-approved travel route locations",
-    "mobile Safari collision and FPS checks"
-  ]
+    "mobile Safari collision and FPS checks",
+    "authored high-fidelity river banks foliage and water physics"
+  ],
+  "hydrology_v056": {
+    "reference": "res://data/janoah_waterways_v056.json",
+    "source_status": "game_only_local_preview",
+    "river_course_tile_x": 60,
+    "crossings": [
+      "road",
+      "freight"
+    ],
+    "terrain_is_collision_backed": true,
+    "swimming_implemented": false
+  }
 }
