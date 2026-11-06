@@ -161,6 +161,14 @@
       "PortalStonePier",
       "QuayBronzeGuardMid",
       "QuayBronzeGuardEast"
-    ]
-  }
+    ],
+    "distance_model_v054": {
+      "one_godot_unit_m": 1,
+      "terrain_tile_m": 256,
+      "magnara_diameter_m_proposed": 26000
+    }
+  },
+  "geography_source_of_truth": "res://data/known_world_v054.json",
+  "geography_status": "legacy local Ring Two layout; canonical metro coordinates remain provisional",
+  "planning_measurements_status": "V0.54 author-supplied editable proposals; not book measurement"
 }
