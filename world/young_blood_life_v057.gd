@@ -24,6 +24,7 @@ var origin_checks: Array[CheckBox] = []
 var perk_checks: Array[CheckBox] = []
 var origins_feedback: Label
 var origins_confirm: Button
+var cached_origin_effects: Dictionary = {}
 var initialized: bool = false
 
 func _ready() -> void:
@@ -42,6 +43,7 @@ func _setup() -> void:
     _make_world()
     _make_ui()
     initialized = true
+    cached_origin_effects = Origins.effects(_current_origin())
     _apply_home_clothing()
 
 func is_open() -> bool:
@@ -239,7 +241,7 @@ func _current_origin() -> Dictionary:
     return Origins.sanitize(profile.get("origin_v058", {}))
 
 func get_origin_effects() -> Dictionary:
-    return Origins.effects(_current_origin())
+    return cached_origin_effects if not cached_origin_effects.is_empty() else Origins.effects(_current_origin())
 
 func _save_origin(data: Dictionary) -> bool:
     if not is_instance_valid(codex) or bool(codex.get("save_blocked")):
@@ -261,7 +263,10 @@ func _save_origin(data: Dictionary) -> bool:
     file.close()
     if typeof(parsed) != TYPE_DICTIONARY:
         return false
-    return Origins.sanitize(parsed.get("origin_v058", {})) == clean
+    var valid: bool = Origins.sanitize(parsed.get("origin_v058", {})) == clean
+    if valid:
+        cached_origin_effects = Origins.effects(clean)
+    return valid
 
 func _apply_home_clothing() -> void:
     if not is_instance_valid(player):
@@ -467,14 +472,37 @@ func _deliver() -> void:
     if next.is_empty():
         _announce("No authorized courier parcel is ready for delivery.")
         return
-    if not _save_life(next):
-        _announce("Unable to save the delivery receipt. No payout issued.")
+    if bool(codex.get("save_blocked")):
+        _announce("Cannot save your Codex safely. No payment issued.")
         return
-    # Save the one-time receipt to the Codex before issuing money. The old
-    # v033 hub save remains authoritative for Tola.
-    GameState.earn_tola(Rules.COURIER_PAY_TOLA)
+    var previous: Dictionary = codex.get("profile")
+    var updated: Dictionary = previous.duplicate(true)
+    var payment: Dictionary = Origins.courier_payment(_current_origin(), Rules.COURIER_PAY_TOLA)
+    updated["life_v057"] = next
+    if not _current_origin().is_empty():
+        updated["origin_v058"] = payment["origin"]
+    # The career receipt and debt deduction travel in ONE Codex save.
+    codex.set("profile", updated)
+    codex.call("_save_profile")
+    var disk := FileAccess.open("user://seeker_profile_v1.json", FileAccess.READ)
+    if disk == null:
+        codex.set("profile", previous)
+        _announce("Could not verify the delivery receipt; no payout issued.")
+        return
+    var raw: Variant = JSON.parse_string(disk.get_as_text())
+    disk.close()
+    if typeof(raw) != TYPE_DICTIONARY or Rules.sanitize(raw.get("life_v057", {})) != next or Origins.sanitize(raw.get("origin_v058", {})) != Origins.sanitize(updated.get("origin_v058", {})):
+        codex.set("profile", previous)
+        _announce("Could not verify the stored shift; no payout issued.")
+        return
+    cached_origin_effects = Origins.effects(payment["origin"])
+    # The existing hub retains coin authority. Cross-file crash recovery
+    # remains a release gate; one receipt per day prevents normal duplication.
+    GameState.earn_tola(int(payment["net"]))
     hub.call("_save_game")
     codex.call("record_event", "v057:courier:day:%d" % _day(),
         "trade_shift_completed", "Completed a civic courier shift",
-        "Delivered the parcel through Magnara Ring Two. Earned %d Tola." % Rules.COURIER_PAY_TOLA)
-    _announce("Courier shift complete. +%d Tola. Your receipt is saved." % Rules.COURIER_PAY_TOLA)
+        "Gross: %d Tola, withheld for debt: %d, take-home: %d." % [
+            int(payment["gross"]), int(payment["withheld"]), int(payment["net"])])
+    _announce("Courier work: +%d Tola after %d debt withholding. Receipt saved." % [
+        int(payment["net"]), int(payment["withheld"])])
