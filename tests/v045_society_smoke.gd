@@ -74,4 +74,4 @@ func _test() -> void:
     codex.free()
     codex_reload.free()
     last_codex.free()
-    get_tree().quit(0)
+    get_tree().call_deferred("quit", 0)
