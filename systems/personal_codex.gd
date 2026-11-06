@@ -321,6 +321,21 @@ func _refresh_view() -> void:
             str(family.get("disclosure", "private")),
             str(family.get("lineage_status", "unverified"))]
         output += "Archive: %s | Restricted ocular access: no\n" % str(family.get("archive_status", "not_requested"))
+    var residential: Dictionary = profile.get("residential_v060", {})
+    var households: Dictionary = residential.get("households", {})
+    if not households.is_empty():
+        output += "MAGNARA NEIGHBORHOOD LIFE\n"
+        var neighborhood_trust: int = 0
+        for resident_id in ["canal_weaver", "freight_technician", "civic_tutor"]:
+            var house: Dictionary = households.get(resident_id, {})
+            if house.is_empty():
+                continue
+            var local_score: int = int(house.get("rapport", 0))
+            neighborhood_trust += local_score
+            output += " - %s | trust %d | help %d | pressure %d\n" % [
+                resident_id.replace("_", " ").capitalize(), local_score,
+                int(house.get("helped", 0)), int(house.get("pressured", 0))]
+        output += "Community trust: %d | Decisions remain attached to their in-game day.\n" % neighborhood_trust
     output += "YOUR ROAD\n%s\n" % ("Not chosen" if life_road.is_empty() else life_road)
     if life_road == "trade":
         var life_work: Dictionary = life_record.get("work", {})
