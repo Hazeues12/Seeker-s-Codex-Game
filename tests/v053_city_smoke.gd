@@ -27,6 +27,12 @@ func _run() -> void:
     if str(plan.get("city", "")) != "Magnara" or (plan.get("enterable_interiors", []) as Array).size() != 6:
         _fail("city manifest must list six real interiors")
         return
+    var centers: Dictionary = {
+        "west_public": Vector2(-70.0, 50.0),
+        "west_professional": Vector2(-70.0, 90.0),
+        "east_public": Vector2(70.0, 50.0),
+        "east_professional": Vector2(70.0, 90.0)
+    }
     var entries: Dictionary = {
         "west_public": [
             {"room":"EnterableCanalServiceHouse", "a":Vector3(-53.0, 1.65, 57.5), "b":Vector3(-43.0, 1.65, 57.5)}],
@@ -42,7 +48,7 @@ func _run() -> void:
     var manifest_rooms: Array = plan.get("enterable_interiors", [])
     var count: int = 0
     for cell_id in entries:
-        var target: Vector2 = city.CELL_CENTERS[cell_id]
+        var target: Vector2 = centers[cell_id]
         visitor.position = Vector3(target.x, 1.10, target.y)
         city.call("_refresh_cells")
         await get_tree().physics_frame
@@ -94,7 +100,7 @@ func _run() -> void:
         return
     for crossing in [-62.0, -88.0]:
         var path_probe := PhysicsRayQueryParameters3D.create(
-            Vector3(float(crossing), 1.60, 42.5),
+            Vector3(float(crossing), 1.60, 43.0),
             Vector3(float(crossing), 1.60, 53.0))
         var blocked: Dictionary = get_world_3d().direct_space_state.intersect_ray(path_probe)
         if not blocked.is_empty():
