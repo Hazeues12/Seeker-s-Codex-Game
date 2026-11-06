@@ -42,7 +42,9 @@ func _check() -> void:
         if ground == null or ground.find_child("MarketWorldCollision", true, false) == null:
             _fail("new connected road lacks a physical collision surface: " + name)
             return
-    for home_id in market.get("HOME_IDS"):
+    for home_id in ["west_worker_one", "west_worker_two",
+        "east_townhouse_one", "east_townhouse_two",
+        "market_lodging_one", "market_lodging_two"]:
         var house: Node3D = market.get_node_or_null("OpenHome_" + home_id) as Node3D
         if not is_instance_valid(house):
             _fail("home is an unbuilt procedural silhouette " + str(home_id))
