@@ -336,6 +336,17 @@ func _refresh_view() -> void:
                 resident_id.replace("_", " ").capitalize(), local_score,
                 int(house.get("helped", 0)), int(house.get("pressured", 0))]
         output += "Community trust: %d | Decisions remain attached to their in-game day.\n" % neighborhood_trust
+    var work: Dictionary = profile.get("workshops_v061", {})
+    if not work.is_empty():
+        output += "MAGNARA WORKING SERVICE QUARTER\n"
+        output += "Shift history: %d | Worker trust: %d | Safe: %d | Rushed: %d | Refused unsafe: %d\n" % [
+            int(work.get("completed", 0)), int(work.get("worker_trust", 0)),
+            int(work.get("safe_jobs", 0)), int(work.get("rushed_jobs", 0)),
+            int(work.get("refused_jobs", 0))]
+        var assignment: Dictionary = work.get("active", {})
+        if not assignment.is_empty():
+            output += "Current: %s / %s\n" % [
+                str(assignment.get("job", "")), str(assignment.get("stage", ""))]
     output += "YOUR ROAD\n%s\n" % ("Not chosen" if life_road.is_empty() else life_road)
     if life_road == "trade":
         var life_work: Dictionary = life_record.get("work", {})
