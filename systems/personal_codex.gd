@@ -293,7 +293,14 @@ func _refresh_view() -> void:
         aura = float(hub.get("aura"))
         stamina = float(hub.get("stamina"))
     var output: String = ""
-    output += "IDENTITY\n%s | Origin: not yet selected | Background: not yet selected\n" % str(identity.get("name", "New Seeker"))
+    var life_record: Dictionary = profile.get("life_v057", {})
+    var life_road: String = str(life_record.get("road", ""))
+    var life_nation: String = str(life_record.get("nation", "unselected"))
+    output += "IDENTITY\n%s | Home Nation: %s | Background: not yet selected\n" % [str(identity.get("name", "New Seeker")), life_nation]
+    output += "YOUR ROAD\n%s\n" % ("Not chosen" if life_road.is_empty() else life_road)
+    if life_road == "trade":
+        var life_work: Dictionary = life_record.get("work", {})
+        output += "Civilian courier shifts: %d | Parcel: %s\n" % [int(life_work.get("completed", 0)), str(life_work.get("stage", "idle"))]
     output += "\nSEEKER CAREER\nRank: %s | Guild: not joined\nTola: %d | XP: %d | Local guild rep: %d\n" % [rank, coins, xp, guild_rep]
     output += "\nAURA & MUTI\nCurrent Aura: %.0f/100 | Stamina: %.0f/100\nMartial drills: prototype only. Seven Spokes training paths are not yet unlocked.\n" % [aura, stamina]
     output += "\nSOCIAL MEMORY\nPeople met: %d | Explored locations: %d\n" % [contacts.size(), locations.size()]
