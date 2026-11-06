@@ -1,0 +1,111 @@
+name: Margerina V0.55 - Janoah Regional Terrain and Road Validation
+on:
+  push:
+    branches: [janoah-world-v055-staging]
+    paths:
+      - '.github/workflows/margerina-v055-janoah.yml'
+      - 'world/janoah_approach_v055.gd'
+      - 'tests/v055_approach_smoke.gd'
+      - 'data/janoah_approach_v055.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-janoah-regional-approach:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout only isolated world-build staging branch
+        uses: actions/checkout@v4
+        with:
+          ref: janoah-world-v055-staging
+      - name: Verify honest geographic records and existing saves
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m json.tool data/known_world_v054.json >/dev/null
+          python3 -m json.tool data/janoah_approach_v055.json >/dev/null
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path("data/known_world_v054.json").read_text())
+          r=json.loads(Path("data/janoah_approach_v055.json").read_text())
+          assert len(a["nations"])==13 and len(a["settlements"])==19
+          assert a["magnara"]["urban_span_m_proposed"]==26000
+          assert r["canon_status"]=="game_only_local_preview"
+          assert r["terrain"]["total_length_m"]==6144
+          assert r["terrain"]["active_tiles_cap"]==9
+          assert not r["road"]["connection_to_named_other_nations"]
+          assert r["safety"]["no_unverified_nation_borders"]
+          assert r["safety"]["no_abyssal_line_crossover"]
+          assert "joystick_finger" in Path("ui/mobile_controls.gd").read_text()
+          assert "wall_running" in Path("characters/player_controller.gd").read_text()
+          assert "margerina_v033.json" in Path("systems/hub_manager.gd").read_text()
+          assert "seeker_profile_v1.json" in Path("systems/personal_codex.gd").read_text()
+          assert 'res://world/janoah_approach_v055.gd' in Path("scenes/main.tscn").read_text()
+          assert Path("docs/V055_JANOAH_REGIONAL_APPROACH.md").is_file()
+          print("V0.55 KNOWN WORLD SAFETY AND EXISTING SAVE PRESERVATION PASS")
+          PY
+      - name: Install Godot 4.4.1 and Web templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+      - name: Validate whole-project scripts and live main scene
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 145s godot --headless --path . --editor --import --quit 2>&1 | tee v055-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v055-import.log; then exit 1; fi
+          timeout 105s godot --headless --path . --quit-after 185 2>&1 | tee v055-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v055-startup.log; then exit 1; fi
+      - name: Run previous mission and city-world regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          for item in 'v048_field:V0.48 FIELD MISSION STATE SMOKE PASS' 'v049_companion:V0.49 COMPANION STATE SMOKE PASS' 'v050_expedition:V0.50 MULTI-DAY EXPEDITION SMOKE PASS' 'v051_city:V0.51 DAILY CITY MEMORY SMOKE PASS' 'v052_city:V0.52 MAGNARA CITY GEOMETRY AND INTERIORS PASS' 'v053_city:V0.53 SIX WALKABLE INTERIORS AND CONNECTED STREETS PASS' 'v054_geography:V0.54 KNOWN WORLD ATLAS AND 1:1 MAGNARA GEOGRAPHY PASS'; do
+            t="${item%%:*}"; expected="${item#*:}"
+            timeout 55s godot --headless --path . "res://tests/${t}_scene.tscn" --quit-after 300 2>&1 | tee "${t}.log"
+            if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' "${t}.log"; then exit 1; fi
+            grep -Fq "${expected}" "${t}.log"
+          done
+      - name: Verify 6.1km actual regional terrain, ground collision and tile streaming
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 105s godot --headless --path . res://tests/v055_approach_scene.tscn --quit-after 320 2>&1 | tee v055-approach.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v055-approach.log; then exit 1; fi
+          grep -Fq 'V0.55 COLLIDABLE JANOAH REGIONAL APPROACH AND STREAMING PASS' v055-approach.log
+      - name: Export internal full Web development game
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          timeout 160s godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v055-export.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v055-export.log; then exit 1; fi
+          for ext in html js wasm pck; do test -s "build/web/index.${ext}"; done
+      - name: Keep build as internal development artifact only
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v055-janoah-internal-web
+          path: build/web/
+          if-no-files-found: error
+      - name: Capture failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: margerina-v055-diagnostics
+          if-no-files-found: ignore
+          path: |
+            v055-import.log
+            v055-startup.log
+            v055-approach.log
+            v055-export.log
+            v048_field.log
+            v049_companion.log
+            v050_expedition.log
+            v051_city.log
+            v052_city.log
+            v053_city.log
+            v054_geography.log
