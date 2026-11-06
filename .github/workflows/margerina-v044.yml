@@ -54,7 +54,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          timeout 40s godot --headless --path . --script res://tests/v044_relationship_smoke.gd --quit-after 200 2>&1 | tee v044-test.log
+          timeout 40s godot --headless --path . res://tests/v044_relationship_scene.tscn --quit-after 200 2>&1 | tee v044-test.log
           if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v044-test.log; then exit 1; fi
           grep -q 'V0.44 SOCIAL MEMORY SMOKE PASS' v044-test.log
 
@@ -75,7 +75,7 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add scenes/main.tscn systems/hub_manager.gd characters/player_controller.gd systems/personal_codex.gd systems/seeker_relationships.gd docs/MARGERINA_MASTER_RPG_DESIGN_BIBLE.md docs/V043_FEATURES.md tests/v043_codex_smoke.gd tests/v044_relationship_smoke.gd
+          git add scenes/main.tscn systems/hub_manager.gd characters/player_controller.gd systems/personal_codex.gd systems/seeker_relationships.gd docs/MARGERINA_MASTER_RPG_DESIGN_BIBLE.md docs/V043_FEATURES.md tests/v043_codex_smoke.gd tests/v044_relationship_smoke.gd tests/v044_relationship_scene.tscn
           if ! git diff --cached --quiet; then
             git commit -m 'V0.44 install Personal Codex and persistent NPC memories'
             git pull --rebase origin codex-modular-v31
