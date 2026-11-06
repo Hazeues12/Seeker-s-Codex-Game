@@ -374,7 +374,7 @@ func _dress_ward(parent: Node3D, key: String, street_x: float) -> void:
     # Stone-and-bronze public arcades: freestanding colonnades keep the roadway
     # open and never close the entrance of the six walk-in interiors.
     var arcade_x: float = -72.0 if west else 72.0
-    var arcade_z: float = 34.8 if public_zone else 85.2
+    var arcade_z: float = 31.5 if public_zone else 85.2
     for bay in range(4):
         var offset: float = float(bay) * 3.6
         _part(parent, "ArcadeColumnBase", Vector3(arcade_x, 0.82, arcade_z + offset),
@@ -406,9 +406,12 @@ func _dress_ward(parent: Node3D, key: String, street_x: float) -> void:
         # raised edge provides a reachable observation perch.
         _part(parent, "CanalQuayPaving", Vector3(-72.0, 0.60, 43.0),
             Vector3(44.0, 0.16, 2.15), sandstone, true)
-        _part(parent, "QuayBronzeGuard", Vector3(-72.0, 1.10, 44.22),
-            Vector3(43.8, 0.82, 0.16), bronze, true)
-        for bollard_x in [-94.0, -83.0, -72.0, -61.0, -50.0]:
+        # Separate quay rail sections leave the two iron bridge approaches open.
+        _part(parent, "QuayBronzeGuardMid", Vector3(-75.0, 1.10, 44.22),
+            Vector3(15.0, 0.82, 0.16), bronze, true)
+        _part(parent, "QuayBronzeGuardEast", Vector3(-53.5, 1.10, 44.22),
+            Vector3(6.5, 0.82, 0.16), bronze, true)
+        for bollard_x in [-94.0, -78.0, -70.0, -50.0]:
             _part(parent, "PublicQuayMooring",
                 Vector3(float(bollard_x), 1.07, 42.5),
                 Vector3(0.42, 0.96, 0.42), stone, true)
