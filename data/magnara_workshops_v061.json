@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "era": "1500 A.S.",
+  "category": "game_only_local_city_extension",
+  "nation": "Janoah",
+  "city": "Magnara",
+  "zone": "Ring Two — public industrial service street",
+  "ring_v_is_separate": true,
+  "source_policy": "Local x/z coordinates, workshop workers, three employer names, wages and cross-street alignment are provisional game-only design data; no canonical position of Nightweave Row, Onikaze Forge, the Iron Cothon or Grand Amphistad is asserted.",
+  "units": "1 Godot unit = 1 meter",
+  "physical_road": {
+    "spine_x_m": -62,
+    "z_min_m": 109,
+    "z_max_m": 248,
+    "west_entry": "V0.52 west professional ward",
+    "residential_cross_avenue_z_m": 207,
+    "residential_link_x_m": 62,
+    "collision_backed": true
+  },
+  "workshops": [
+    {
+      "id": "forge_service",
+      "name": "Forge Service",
+      "x": -96,
+      "z": 142,
+      "interior": true,
+      "doors": "4.9m east opening",
+      "contact_kind": "work_v061_finish_forge_service",
+      "canon_status": "game_only"
+    },
+    {
+      "id": "cloth_repair",
+      "name": "Cloth Repair",
+      "x": -96,
+      "z": 178,
+      "interior": true,
+      "doors": "4.9m east opening",
+      "contact_kind": "work_v061_finish_cloth_repair",
+      "canon_status": "game_only"
+    },
+    {
+      "id": "freight_tally",
+      "name": "Freight Tally",
+      "x": -96,
+      "z": 216,
+      "interior": true,
+      "doors": "4.9m east opening",
+      "contact_kind": "work_v061_finish_freight_tally",
+      "canon_status": "game_only"
+    }
+  ],
+  "employment": {
+    "access": "Life Road / Live a Trade",
+    "steps": [
+      "accept at work board",
+      "collect materials at freight depot",
+      "complete at matching open workshop"
+    ],
+    "outcomes": [
+      "careful",
+      "rush",
+      "refuse"
+    ],
+    "paid_once_per_day": true,
+    "base_wage_tola": 14,
+    "rush_bonus_tola": 3,
+    "neighborhood_reputation_affects_pay": true,
+    "debt_withholding": true,
+    "scope_limitations": [
+      "Wages written to old game save separately from Codex receipt",
+      "No player-owned workshops",
+      "No inventory-backed buying or selling",
+      "No actual rail service",
+      "No real time/seasonal macroeconomy"
+    ]
+  },
+  "asset_safety": {
+    "mobile_prototype_materials": true,
+    "mesh_caching": true,
+    "game_only_workers": true,
+    "legacy_saves_readable": true,
+    "known_world_beyond_abyssal_excluded": true,
+    "author_locked_ring_dimensions_unchanged": true
+  }
+}
