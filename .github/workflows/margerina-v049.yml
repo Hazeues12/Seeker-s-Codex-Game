@@ -63,7 +63,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for spec in 'v044_relationship:V0.44 SOCIAL MEMORY SMOKE PASS' 'v046_muti:V0.46 Muti SAFETY SMOKE PASS' 'v048_field:V0.48 FIELD MISSION STATE SMOKE PASS' 'v049_companion:V0.49 COMPANION STATE SMOKE PASS'; do
+          for spec in 'v044_relationship:V0.44 SOCIAL MEMORY SMOKE PASS' 'v046_muti:V0.46 SEVEN SPOKES SAFETY SMOKE PASS' 'v048_field:V0.48 FIELD MISSION STATE SMOKE PASS' 'v049_companion:V0.49 COMPANION STATE SMOKE PASS'; do
             testname="${spec%%:*}"
             expected="${spec#*:}"
             timeout 45s godot --headless --path . "res://tests/${testname}_scene.tscn" --quit-after 220 2>&1 | tee "${testname}.log"
