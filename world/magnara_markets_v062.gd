@@ -128,6 +128,10 @@ func _make_streets() -> void:
         for side in [-1.0, 1.0]:
             _part(self, "NorthMarketPavement", Vector3(x + side * 7.2, 0.60, 304.0),
                 Vector3(2.7, 0.14, 144.0), Color(0.75, 0.72, 0.64), true)
+    # V0.60's eastern residential road ends near z=211; span the gap to
+    # the new eastern market road so its geometry is actually connected.
+    _part(self, "EastMarketSouthConnector", Vector3(EAST_X, 0.58, 219.0),
+        Vector3(10.5, 0.14, 35.0), Color(0.69, 0.65, 0.59), true)
     # Link x=0's main new north road to V0.61's real east-west route at z=207.
     _part(self, "CommercialRoadSouthConnector", Vector3(0.0, 0.57, 222.5),
         Vector3(10.4, 0.14, 35.0), Color(0.66, 0.65, 0.61), true)
