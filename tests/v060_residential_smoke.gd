@@ -75,7 +75,7 @@ func _run() -> void:
         if sleep_position.distance_to(work_position) < 8.0:
             _fail("schedule changes text but leaves the character stationary " + id)
             return
-        if work_position.y != 0.56:
+        if absf(work_position.y - 0.56) > 0.01:
             _fail("resident is not on real street elevation " + id)
             return
         var shift_1: Vector3 = Rules.position_at(id, 540.0)
