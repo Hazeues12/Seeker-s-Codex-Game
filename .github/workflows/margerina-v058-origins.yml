@@ -1,0 +1,128 @@
+name: Margerina V0.58 - Young Blood Original Seeker Identity
+on:
+  push:
+    branches: [young-blood-origins-v058-staging]
+    paths:
+      - '.github/workflows/margerina-v058-origins.yml'
+      - 'systems/young_blood_origins_v058.gd'
+      - 'world/young_blood_life_v057.gd'
+      - 'characters/procedural_seeker.gd'
+      - 'tests/v058_origin_smoke.gd'
+      - 'tests/v058_world_smoke.gd'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-young-blood-identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 46
+    steps:
+      - name: Checkout protected V0.58 staging build
+        uses: actions/checkout@v4
+        with:
+          ref: young-blood-origins-v058-staging
+      - name: Verify social origin and legacy-save safety
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          atlas=json.loads(Path("data/known_world_v054.json").read_text())
+          assert len(atlas["nations"])==13
+          assert "Zuba" in atlas["scope"]["excluded"]
+          assert all(s["geographic_coordinates"] is None for s in atlas["settlements"])
+          rules=Path("systems/young_blood_origins_v058.gd").read_text()
+          life=Path("world/young_blood_life_v057.gd").read_text()
+          rig=Path("characters/procedural_seeker.gd").read_text()
+          hub=Path("systems/hub_manager.gd").read_text()
+          player=Path("characters/player_controller.gd").read_text()
+          codex=Path("systems/personal_codex.gd").read_text()
+          assert "debt_tola" in rules and "MAX_DISADVANTAGES" in rules
+          assert 'origin_v058' in life and 'may_accept_seeker_contracts' in life
+          assert 'apply_national_outfit' in rig and 'NationalClothing' in rig
+          assert '_origin_effects_v058' in hub
+          assert 'sprint_mult' in player and 'wall_running' in player
+          assert "origin_v058" in codex
+          assert "seeker_profile_v1.json" in codex
+          assert "margerina_v033.json" in hub
+          assert "joystick_finger" in Path("ui/mobile_controls.gd").read_text()
+          assert Path("docs/V058_YOUNG_BLOOD_ORIGIN_CREATOR.md").is_file()
+          print("V0.58 YOUNG BLOOD LORE AND LEGACY GAME AUDIT PASS")
+          PY
+      - name: Install Godot 4.4.1 and Web templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+      - name: Compile and start entire original world
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 160s godot --headless --path . --editor --import --quit 2>&1 | tee v058-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v058-import.log; then exit 1; fi
+          timeout 120s godot --headless --path . --quit-after 220 2>&1 | tee v058-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v058-startup.log; then exit 1; fi
+      - name: World-first regressions and Young Blood V0.57
+        shell: bash
+        run: |
+          set -euo pipefail
+          for item in 'v048_field:V0.48 FIELD MISSION STATE SMOKE PASS' 'v049_companion:V0.49 COMPANION STATE SMOKE PASS' 'v050_expedition:V0.50 MULTI-DAY EXPEDITION SMOKE PASS' 'v051_city:V0.51 DAILY CITY MEMORY SMOKE PASS' 'v052_city:V0.52 MAGNARA CITY GEOMETRY AND INTERIORS PASS' 'v053_city:V0.53 SIX WALKABLE INTERIORS AND CONNECTED STREETS PASS' 'v054_geography:V0.54 KNOWN WORLD ATLAS AND 1:1 MAGNARA GEOGRAPHY PASS' 'v055_janoah:V0.55 PHYSICAL JANOAH APPROACH AND REGIONAL STREAMING PASS' 'v055_approach:V0.55 COLLIDABLE JANOAH REGIONAL APPROACH AND STREAMING PASS' 'v056_waterways:V0.56 JANOAH CARVED RIVER AND TWO WALKABLE BRIDGES PASS' 'v057_life:V0.57 YOUNG BLOOD LIFE PATHS AND PERSISTENT COURIER GUARDS PASS' 'v057_world:V0.57 PHYSICAL LIFE REGISTRAR AND 3D ROUTE INTEGRATION PASS'; do
+            t="${item%%:*}"; expected="${item#*:}"
+            timeout 85s godot --headless --path . "res://tests/${t}_scene.tscn" --quit-after 400 2>&1 | tee "${t}.log"
+            if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' "${t}.log"; then exit 1; fi
+            grep -Fq "${expected}" "${t}.log"
+          done
+      - name: Test sealed origins, drawbacks, perks, debt and saved state
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 100s godot --headless --path . res://tests/v058_origin_scene.tscn --quit-after 400 2>&1 | tee v058-origin.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v058-origin.log; then exit 1; fi
+          grep -Fq 'V0.58 YOUNG BLOOD ORIGINS CONSEQUENCES AND SAVE VALIDATION PASS' v058-origin.log
+      - name: Check national costumes and physical 3D character workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 115s godot --headless --path . res://tests/v058_world_scene.tscn --quit-after 430 2>&1 | tee v058-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v058-world.log; then exit 1; fi
+          grep -Fq 'V0.58 PHYSICAL CREATOR CLOTHING AND CIVILIAN CONSEQUENCES PASS' v058-world.log
+      - name: Export entire browser game
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          timeout 170s godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v058-export.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v058-export.log; then exit 1; fi
+          for ext in html js wasm pck; do test -s "build/web/index.${ext}"; done
+      - name: Archive internal development game only
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v058-young-blood-origins-internal
+          path: build/web/
+          if-no-files-found: error
+      - name: Save diagnostic logs if any check fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v058-origin-diagnostics
+          if-no-files-found: ignore
+          path: |
+            v058-import.log
+            v058-startup.log
+            v058-origin.log
+            v058-world.log
+            v058-export.log
+            v048_field.log
+            v049_companion.log
+            v050_expedition.log
+            v051_city.log
+            v052_city.log
+            v053_city.log
+            v054_geography.log
+            v055_janoah.log
+            v055_approach.log
+            v056_waterways.log
+            v057_life.log
+            v057_world.log
