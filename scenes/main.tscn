@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="PackedScene" path="res://characters/player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://ui/mobile_controls.tscn" id="2"]
@@ -14,6 +14,7 @@
 [ext_resource type="Script" path="res://systems/seeker_dialogues_v045.gd" id="12"]
 [ext_resource type="Script" path="res://systems/seeker_society.gd" id="13"]
 [ext_resource type="Script" path="res://systems/seven_spokes_training.gd" id="14"]
+[ext_resource type="Script" path="res://world/canal_incident.gd" id="15"]
 
 [sub_resource type="BoxMesh" id="GroundMesh"]
 size = Vector3(60, 1, 60)
@@ -82,3 +83,6 @@ script = ExtResource("12")
 
 [node name="SevenSpokesTraining" type="Node" parent="."]
 script = ExtResource("14")
+
+[node name="CanalIncident" type="Node3D" parent="."]
+script = ExtResource("15")

@@ -222,6 +222,45 @@ func _alter_reputation(state: Dictionary, changes: Dictionary) -> void:
             rep[key] = clampi(int(rep.get(key, 0)) + int(changes[key]), -20, 20)
     state["reputation"] = rep
 
+# V0.47: one-time, exclusive public-duty consequence.
+# Reputation and incident resolution are committed in one Personal Codex save.
+func record_civic_response(outcome: String) -> bool:
+    if not _ensure_connections():
+        return false
+    var valid: Array[String] = ["rescue_worker", "recover_cargo", "leave_scene"]
+    if not valid.has(outcome):
+        return false
+    var state: Dictionary = _state()
+    var decisions: Dictionary = state.get("decisions", {})
+    if decisions.has("civic:canal_incident"):
+        return false
+    var events: Dictionary = codex.profile.get("civic_events", {})
+    var incident: Dictionary = events.get("canal_incident", {})
+    if str(incident.get("stage", "unstarted")) != "active":
+        return false
+    var reputation_change: Dictionary = {}
+    var summary: String = ""
+    match outcome:
+        "rescue_worker":
+            reputation_change = {"association_trust": 1, "local_respect": 2}
+            summary = "Assisted the stranded civilian. The shipment remained unattended."
+        "recover_cargo":
+            reputation_change = {"guild_reliability": 2, "local_respect": -1}
+            summary = "Secured the shipment, leaving a civilian still needing help."
+        "leave_scene":
+            reputation_change = {"local_respect": -1, "guild_reliability": -1}
+            summary = "Withdrew from the public emergency without intervening."
+    decisions["civic:canal_incident"] = outcome
+    state["decisions"] = decisions
+    _alter_reputation(state, reputation_change)
+    codex.profile["society"] = state
+    events["canal_incident"] = {"stage": "resolved", "outcome": outcome}
+    codex.profile["civic_events"] = events
+    codex.call("record_event", "incident:canal:outcome", "civic_incident",
+        "Resolved Ring Two canal incident", summary)
+    codex.call("_save_profile")
+    return true
+
 func _record(kind: String, scene_id: String, option_id: String, text: String,
         rapport: int, reputations: Dictionary, details: String = "") -> Dictionary:
     if get_decision(scene_id) != "":

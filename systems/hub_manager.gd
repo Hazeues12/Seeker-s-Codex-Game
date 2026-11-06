@@ -480,7 +480,9 @@ func _any_panel_open() -> bool:
     var codex_open: bool = is_instance_valid(codex) and bool(codex.call("is_open"))
     var relations: Node = get_tree().get_first_node_in_group("seeker_relationships")
     var relations_open: bool = is_instance_valid(relations) and bool(relations.call("is_open"))
-    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
+    var canal: Node = get_tree().get_first_node_in_group("canal_incident")
+    var canal_open: bool = is_instance_valid(canal) and bool(canal.call("is_open"))
+    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
@@ -525,6 +527,10 @@ func _interact() -> void:
                 var life: Node = get_tree().get_first_node_in_group("ring_two_life")
                 if is_instance_valid(life) and life.has_method("interact"):
                     life.call("interact", kind)
+            elif kind.begins_with("incident_"):
+                var civic: Node = get_tree().get_first_node_in_group("canal_incident")
+                if is_instance_valid(civic) and civic.has_method("interact"):
+                    civic.call("interact", kind)
             elif kind.begins_with("herb"):
                 _gather_herb(kind)
     # Log first NPC meetings/known public landmarks after the real interaction.
