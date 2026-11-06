@@ -199,6 +199,17 @@ jobs:
           PYCODE
           python3 -m py_compile install_v045.py
           python3 install_v045.py
+          # V0.45 cleanup fix: defer smoke test termination until the last
+          # method returns so Godot can release script resource references.
+          python3 - <<'PYFIX'
+          from pathlib import Path
+          source=Path('tests/v045_society_smoke.gd')
+          before=source.read_text()
+          needle='    get_tree().quit(0)\n'
+          if before.count(needle) != 1:
+              raise SystemExit('V0.45 smoke shutdown anchor missing; refusing an unsafe patch')
+          source.write_text(before.replace(needle, '    get_tree().call_deferred("quit", 0)\n'))
+          PYFIX
           rm install_v045.py
           grep -q 'SeekerSociety' scenes/main.tscn
           grep -q 'res://systems/seeker_dialogues_v045.gd' scenes/main.tscn
