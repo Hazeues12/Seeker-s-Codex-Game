@@ -38,8 +38,12 @@ static func _read(path: String) -> Dictionary:
     var file := FileAccess.open(path, FileAccess.READ)
     if file == null:
         return {}
-    var parsed: Variant = JSON.parse_string(file.get_as_text())
+    var decoder := JSON.new()
+    var parse_status: int = decoder.parse(file.get_as_text())
     file.close()
+    if parse_status != OK:
+        return {}
+    var parsed: Variant = decoder.data
     return parsed if _valid(parsed) else {}
 
 static func load_best(primary: String = PRIMARY, backup: String = BACKUP) -> Dictionary:
