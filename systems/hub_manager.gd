@@ -754,7 +754,7 @@ func _open_bag(shop_mode: bool) -> void:
     bag_list.add_child(recover)
     if shop_mode:
         var buy := Button.new()
-        buy.text = "BUY ESSENCE TONIC FROM HANAMI - 12 TOLA"
+        buy.text = "BUY ESSENCE TONIC FROM HANAMI - %d TOLA" % int(_origin_effects_v058().get("tonic_price", 12))
         buy.custom_minimum_size.y = 48
         buy.disabled = GameState.tola < int(_origin_effects_v058().get("tonic_price", 12))
         buy.pressed.connect(_buy_tonic)
