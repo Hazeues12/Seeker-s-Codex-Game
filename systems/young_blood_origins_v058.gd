@@ -32,9 +32,9 @@ const MAX_DISADVANTAGES: int = 2
 static func label(id: String) -> String:
     return id.replace("_", " ").capitalize()
 
-static func build(background: String, temperament: String, trait: String,
+static func build(background: String, temperament: String, chosen_trait: String,
         burdens: Array, perks: Array) -> Dictionary:
-    if not BACKGROUNDS.has(background) or not TEMPERAMENTS.has(temperament) or not TRAITS.has(trait):
+    if not BACKGROUNDS.has(background) or not TEMPERAMENTS.has(temperament) or not TRAITS.has(chosen_trait):
         return {}
     if burdens.size() > MAX_DISADVANTAGES or perks.size() > 3:
         return {}
@@ -58,7 +58,7 @@ static func build(background: String, temperament: String, trait: String,
         "status": "player_original_game_only",
         "background": background,
         "temperament": temperament,
-        "trait": trait,
+        "trait": chosen_trait,
         "burdens": burden_list,
         "perks": perk_list,
         "debt_tola": DEBT_INITIAL if burden_list.has("debt") else 0
@@ -81,10 +81,10 @@ static func sanitize(value: Variant) -> Dictionary:
     return clean
 
 static func choose_once(previous: Variant, background: String, temperament: String,
-        trait: String, burdens: Array, perks: Array) -> Dictionary:
+        chosen_trait: String, burdens: Array, perks: Array) -> Dictionary:
     if not sanitize(previous).is_empty():
         return {}
-    return build(background, temperament, trait, burdens, perks)
+    return build(background, temperament, chosen_trait, burdens, perks)
 
 static func effects(value: Variant) -> Dictionary:
     var output: Dictionary = {
