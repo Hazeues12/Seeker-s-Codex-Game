@@ -347,6 +347,17 @@ func _refresh_view() -> void:
         if not assignment.is_empty():
             output += "Current: %s / %s\n" % [
                 str(assignment.get("job", "")), str(assignment.get("stage", ""))]
+    var market_social: Dictionary = profile.get("market_v062", {})
+    var vendors: Dictionary = market_social.get("vendors", {})
+    if not vendors.is_empty():
+        output += "MAGNARA PUBLIC MARKET\n"
+        for vendor_id in ["provisions", "textiles", "hardware"]:
+            var merchant: Dictionary = vendors.get(vendor_id, {})
+            if merchant.is_empty():
+                continue
+            var market_days: Dictionary = merchant.get("days", {})
+            output += " - %s | Rapport %d | Daily visits %d\n" % [
+                vendor_id.capitalize(), int(merchant.get("rapport", 0)), market_days.size()]
     output += "YOUR ROAD\n%s\n" % ("Not chosen" if life_road.is_empty() else life_road)
     if life_road == "trade":
         var life_work: Dictionary = life_record.get("work", {})
