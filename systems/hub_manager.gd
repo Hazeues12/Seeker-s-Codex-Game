@@ -895,7 +895,7 @@ func _load_game(show_feedback: bool) -> void:
     var position_data: Variant = data.get("position", [])
     if typeof(position_data) == TYPE_ARRAY and position_data.size() == 3:
         var new_pos := Vector3(float(position_data[0]), float(position_data[1]), float(position_data[2]))
-        if absf(new_pos.x) < 33.5 and new_pos.z > -29.5 and new_pos.z < 129.0:
+        if (absf(new_pos.x) < 33.5 and new_pos.z > -29.5 and new_pos.z < 129.0) or (absf(new_pos.x) < 105.5 and new_pos.z >= 30.0 and new_pos.z < 109.5):
             player.global_position = new_pos
             player.velocity = Vector3.ZERO
     var yaw: float = float(data.get("camera_yaw", 0.0))
