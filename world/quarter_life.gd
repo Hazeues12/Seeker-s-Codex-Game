@@ -1,5 +1,7 @@
 extends Node3D
 
+const CityRoutines = preload("res://systems/city_routines_v051.gd")
+
 # V0.38 small NPC conversations and simulated daily movement in Magnara Ring Two.
 # All merchant inventories/dialogue and roles are provisional gameplay stand-ins.
 var people: Array[Node3D] = []
@@ -43,25 +45,24 @@ func _process(delta: float) -> void:
     if people.is_empty():
         return
     time_elapsed += delta
-    var minute_of_day: int = 480
+    var clock: float = 480.0
     if is_instance_valid(hub):
-        minute_of_day = int(float(hub.get("world_minutes"))) % 1440
+        clock = float(hub.get("world_minutes"))
     for i in range(people.size()):
         var npc: Node3D = people[i]
         if not is_instance_valid(npc):
             continue
-        # The seller keeps daytime hours; the scout patrols all day; the canal guide rests late.
-        var is_present: bool = true
-        if i == 1:
-            is_present = minute_of_day >= 420 and minute_of_day < 1200
-        elif i == 0:
-            is_present = minute_of_day >= 360 and minute_of_day < 1320
-        npc.visible = is_present
-        if not is_present:
+        var plan: Dictionary = CityRoutines.assignment(ROLES[i], clock)
+        npc.visible = bool(plan["present"])
+        if not npc.visible:
+            npc.position = home_positions[i] + (plan["offset"] as Vector3)
             continue
-        var phase: float = time_elapsed * (0.36 + float(i) * 0.06) + float(i) * 1.8
-        npc.position = home_positions[i] + Vector3(sin(phase) * 0.95, 0.0, cos(phase) * 0.55)
-        npc.rotation.y = sin(phase) * 0.35
+        var destination: Vector3 = home_positions[i] + (plan["offset"] as Vector3)
+        var previous: Vector3 = npc.position
+        npc.position = previous.move_toward(destination, 1.7 * delta)
+        var step: Vector3 = destination - previous
+        if step.length_squared() > 0.03:
+            npc.rotation.y = atan2(step.x, step.z)
 
 func _body(npc: Node3D, role: int) -> void:
     var coat: Array[Color] = [Color(0.24, 0.58, 0.64), Color(0.67, 0.39, 0.25), Color(0.22, 0.36, 0.53)]

@@ -487,7 +487,9 @@ func _any_panel_open() -> bool:
     var field_open: bool = is_instance_valid(field) and bool(field.call("is_open"))
     var expedition: Node = get_tree().get_first_node_in_group("multi_day_expedition_v050")
     var expedition_busy: bool = is_instance_valid(expedition) and (bool(expedition.call("is_open")) or bool(expedition.call("is_riding")))
-    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or (is_instance_valid(editor) and bool(editor.call("is_open")))
+    var bulletin: Node = get_tree().get_first_node_in_group("daily_events_v051")
+    var bulletin_open: bool = is_instance_valid(bulletin) and bool(bulletin.call("is_open"))
+    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
@@ -544,6 +546,10 @@ func _interact() -> void:
                 var expedition: Node = get_tree().get_first_node_in_group("multi_day_expedition_v050")
                 if is_instance_valid(expedition) and expedition.has_method("interact"):
                     expedition.call("interact", kind)
+            elif kind == "daily_v051_bulletin":
+                var city_events: Node = get_tree().get_first_node_in_group("daily_events_v051")
+                if is_instance_valid(city_events) and city_events.has_method("interact"):
+                    city_events.call("interact", kind)
             elif kind.begins_with("herb"):
                 _gather_herb(kind)
     # Log first NPC meetings/known public landmarks after the real interaction.

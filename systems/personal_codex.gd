@@ -343,6 +343,15 @@ func _refresh_view() -> void:
         output += "Departed day %d | Rest day %d | Paid: %s\n" % [
             int(expedition_record.get("departure_day", 0)), int(expedition_record.get("rest_day", 0)),
             "Yes" if bool(expedition_record.get("paid", false)) else "No"]
+    var city_events: Dictionary = profile.get("daily_bulletin_v051", {})
+    var answered_days: Dictionary = city_events.get("days", {})
+    if answered_days.size() > 0:
+        output += "\nDAILY CITY EVENTS\nDays with decisions: %d\n" % answered_days.size()
+        var recent: Array = answered_days.keys()
+        recent.sort()
+        for entry_day in recent.slice(maxi(0, recent.size() - 3), recent.size()):
+            var civic_event: Dictionary = answered_days[entry_day]
+            output += "%s | %s | %s\n" % [str(entry_day), str(civic_event.get("context", "routine")), str(civic_event.get("choice", ""))]
     output += "\nLIFE CHRONICLE  (%d saved events)\n" % entries.size()
     var first: int = maxi(0, entries.size() - 14)
     for i in range(entries.size() - 1, first - 1, -1):

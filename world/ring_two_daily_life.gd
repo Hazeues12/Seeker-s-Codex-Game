@@ -1,5 +1,7 @@
 extends Node3D
 
+const CityRoutines = preload("res://systems/city_routines_v051.gd")
+
 # V0.41 — Public/professional life, based on the published Chapter 90 geography.
 # All employee identities, schedules and orientation tasks are GAME-ONLY prototypes.
 # This is not a canonical examination or rank-promotion process.
@@ -46,6 +48,14 @@ func _setup() -> void:
         add_child(resident)
         _build_person(resident, item["coat"])
         _tag(resident, str(item["name"]), Vector3(0.0, 2.45, 0.0), 30)
+        var duty_label := Label3D.new()
+        duty_label.name = "DutyStatus"
+        duty_label.position = Vector3(0.0, 2.85, 0.0)
+        duty_label.font_size = 25
+        duty_label.pixel_size = 0.005
+        duty_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+        duty_label.no_depth_test = true
+        resident.add_child(duty_label)
         people.append(resident)
         locations.append(resident.position)
         if hub.has_method("_add_location"):
@@ -56,23 +66,34 @@ func _setup() -> void:
     _refresh_visibility()
 
 func _process(delta: float) -> void:
-    if not is_instance_valid(player):
+    if not is_instance_valid(player) or not is_instance_valid(hub):
         return
     time_elapsed += delta
     refresh_clock += delta
-    if refresh_clock < 0.12:
+    if refresh_clock < 0.18:
         return
+    var elapsed: float = refresh_clock
     refresh_clock = 0.0
+    var clock: float = float(hub.get("world_minutes"))
     for i in range(people.size()):
-        var npc := people[i]
-        var home: Vector3 = locations[i]
-        var distance: float = player.global_position.distance_to(home)
-        npc.visible = distance < 56.0 and _on_shift(i)
-        if not npc.visible:
+        var npc: Node3D = people[i]
+        if not is_instance_valid(npc):
             continue
-        var phase: float = time_elapsed * (0.43 + float(i % 3) * 0.08) + float(i) * 1.6
-        npc.position = home + Vector3(sin(phase) * 0.48, 0.0, cos(phase) * 0.32)
-        npc.rotation.y = sin(phase) * 0.22
+        var plan: Dictionary = CityRoutines.assignment(str(ROLES[i]["id"]), clock)
+        var destination: Vector3 = locations[i] + (plan["offset"] as Vector3)
+        var nearby: bool = player.global_position.distance_to(destination) < 56.0
+        npc.visible = nearby and bool(plan["present"])
+        if not npc.visible:
+            npc.position = destination
+            continue
+        var old_position: Vector3 = npc.position
+        npc.position = old_position.move_toward(destination, 1.6 * elapsed)
+        var heading: Vector3 = destination - old_position
+        if heading.length_squared() > 0.025:
+            npc.rotation.y = atan2(heading.x, heading.z)
+        var duty_label: Label3D = npc.get_node_or_null("DutyStatus") as Label3D
+        if is_instance_valid(duty_label):
+            duty_label.text = str(plan["duty"]).to_upper()
     for i in range(silver_team.size()):
         var teammate := silver_team[i]
         teammate.visible = player.global_position.distance_to(silver_origins[i]) < 50.0
@@ -251,6 +272,13 @@ func _refresh_journal() -> void:
     for i in range(chapters.size()):
         content += ("[DONE]  " if i < stage else "[NEXT]  " if i == stage else "[LATER]  ") + str(chapters[i]) + "\n"
     content += "\nThese are provisional game orientation visits, NOT canon Seeker examination requirements.\nRin's Chapter 90 box location stays undisclosed."
+    if is_instance_valid(hub):
+        var now: float = float(hub.get("world_minutes"))
+        content += "\n\nDAY %d — LIVE PUBLIC DUTIES\n" % (int(floor(now / 1440.0)) + 1)
+        for item in ROLES:
+            var duty: Dictionary = CityRoutines.assignment(str(item["id"]), now)
+            content += "%s: %s\n" % [str(item["name"]), str(duty["duty"])]
+        content += "Shifts are game-only and reflect the current in-game clock."
     journal_text.text = content
 
 func _load_progress() -> void:

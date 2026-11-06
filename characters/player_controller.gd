@@ -117,6 +117,9 @@ func _physics_process(delta: float) -> void:
         editing = editing or bool(expedition.call("is_open"))
     if is_instance_valid(expedition) and expedition.has_method("is_riding"):
         editing = editing or bool(expedition.call("is_riding"))
+    var bulletin: Node = get_tree().get_first_node_in_group("daily_events_v051")
+    if is_instance_valid(bulletin) and bulletin.has_method("is_open"):
+        editing = editing or bool(bulletin.call("is_open"))
     if editing:
         input_dir = Vector2.ZERO
     var direction: Vector3 = (right * input_dir.x - forward * input_dir.y).normalized()
