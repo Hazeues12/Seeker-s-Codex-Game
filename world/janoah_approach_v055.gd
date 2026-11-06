@@ -39,7 +39,7 @@ func _initialize() -> void:
 func get_manifest() -> Dictionary:
     return {
         "region": "Janoah / Magnara approach",
-        "status": "game_only_local_alignment",
+        "status": "game_only_local_preview",
         "physical_heightfield": true,
         "tile_width_m": Geo.CELL_SIZE,
         "first_tile": FIRST_TILE_X,
