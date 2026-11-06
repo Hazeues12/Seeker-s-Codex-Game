@@ -504,7 +504,9 @@ func _any_panel_open() -> bool:
     var bulletin_open: bool = is_instance_valid(bulletin) and bool(bulletin.call("is_open"))
     var young_life: Node = get_tree().get_first_node_in_group("young_blood_life_v057")
     var life_open: bool = is_instance_valid(young_life) and bool(young_life.call("is_open"))
-    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
+    var homes: Node = get_tree().get_first_node_in_group("residential_life_v060")
+    var homes_open: bool = is_instance_valid(homes) and bool(homes.call("is_open"))
+    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
@@ -561,6 +563,10 @@ func _interact() -> void:
                 var expedition: Node = get_tree().get_first_node_in_group("multi_day_expedition_v050")
                 if is_instance_valid(expedition) and expedition.has_method("interact"):
                     expedition.call("interact", kind)
+            elif kind.begins_with("npc_v060_"):
+                var residential: Node = get_tree().get_first_node_in_group("residential_life_v060")
+                if is_instance_valid(residential) and residential.has_method("interact"):
+                    residential.call("interact", kind)
             elif kind.begins_with("yb_v057_") or kind == "yb_v059_archive":
                 var life_road: Node = get_tree().get_first_node_in_group("young_blood_life_v057")
                 if is_instance_valid(life_road) and life_road.has_method("interact"):
