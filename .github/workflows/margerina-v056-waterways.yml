@@ -1,0 +1,114 @@
+name: Margerina V0.56 - Janoah River and Bridge World Validation
+on:
+  push:
+    branches: [janoah-waterways-v056-staging]
+    paths:
+      - '.github/workflows/margerina-v056-waterways.yml'
+      - 'world/janoah_approach_v055.gd'
+      - 'world/janoah_waterways_v056.gd'
+      - 'world/janoah_environment_kit_v056.gd'
+      - 'tests/v056_waterways_smoke.gd'
+      - 'data/janoah_waterways_v056.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-regional-waterways:
+    runs-on: ubuntu-latest
+    timeout-minutes: 38
+    steps:
+      - name: Checkout isolated world staging branch
+        uses: actions/checkout@v4
+        with:
+          ref: janoah-waterways-v056-staging
+      - name: Validate source registry and preserve old saves
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          master=json.loads(Path("data/known_world_v054.json").read_text())
+          region=json.loads(Path("data/janoah_approach_v055.json").read_text())
+          water=json.loads(Path("data/janoah_waterways_v056.json").read_text())
+          assert len(master["nations"])==13 and len(master["settlements"])==19
+          assert "Zuba" in master["scope"]["excluded"]
+          assert all(x["geographic_coordinates"] is None for x in master["settlements"])
+          assert water["canon_status"]=="game_only_local_preview"
+          assert water["river"]["tile_column_x"]==60
+          assert len(water["crossings"])==2 and all(x["deck_collision"] for x in water["crossings"])
+          assert water["runtime"]["max_active_cells"]==9
+          assert region["hydrology_v056"]["source_status"]=="game_only_local_preview"
+          assert region["terrain"]["total_length_m"]==6144
+          assert "joystick_finger" in Path("ui/mobile_controls.gd").read_text()
+          assert "wall_running" in Path("characters/player_controller.gd").read_text()
+          assert "margerina_v033.json" in Path("systems/hub_manager.gd").read_text()
+          assert "seeker_profile_v1.json" in Path("systems/personal_codex.gd").read_text()
+          assert Path("docs/V056_JANOAH_WATERWAYS.md").is_file()
+          print("V0.56 JANOAH RIVER CANON AND SAVE AUDIT PASS")
+          PY
+      - name: Install Godot 4.4.1 and HTML5 export templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+      - name: Import all Godot scripts and start existing full game
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 145s godot --headless --path . --editor --import --quit 2>&1 | tee v056-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v056-import.log; then exit 1; fi
+          timeout 110s godot --headless --path . --quit-after 195 2>&1 | tee v056-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v056-startup.log; then exit 1; fi
+      - name: Check old missions, city streets, saves and Janoah corridor
+        shell: bash
+        run: |
+          set -euo pipefail
+          for item in 'v048_field:V0.48 FIELD MISSION STATE SMOKE PASS' 'v049_companion:V0.49 COMPANION STATE SMOKE PASS' 'v050_expedition:V0.50 MULTI-DAY EXPEDITION SMOKE PASS' 'v051_city:V0.51 DAILY CITY MEMORY SMOKE PASS' 'v052_city:V0.52 MAGNARA CITY GEOMETRY AND INTERIORS PASS' 'v053_city:V0.53 SIX WALKABLE INTERIORS AND CONNECTED STREETS PASS' 'v054_geography:V0.54 KNOWN WORLD ATLAS AND 1:1 MAGNARA GEOGRAPHY PASS' 'v055_janoah:V0.55 PHYSICAL JANOAH APPROACH AND REGIONAL STREAMING PASS' 'v055_approach:V0.55 COLLIDABLE JANOAH REGIONAL APPROACH AND STREAMING PASS'; do
+            t="${item%%:*}"; expected="${item#*:}"
+            timeout 65s godot --headless --path . "res://tests/${t}_scene.tscn" --quit-after 340 2>&1 | tee "${t}.log"
+            if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' "${t}.log"; then exit 1; fi
+            grep -Fq "${expected}" "${t}.log"
+          done
+      - name: Validate carved riverbed and dual physical bridges
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 110s godot --headless --path . res://tests/v056_waterways_scene.tscn --quit-after 360 2>&1 | tee v056-waterways.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v056-waterways.log; then exit 1; fi
+          grep -Fq 'V0.56 JANOAH CARVED RIVER AND TWO WALKABLE BRIDGES PASS' v056-waterways.log
+      - name: Export full internal browser development build
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          timeout 160s godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v056-export.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v056-export.log; then exit 1; fi
+          for ext in html js wasm pck; do test -s "build/web/index.${ext}"; done
+      - name: Retain development artifact but do not publish game
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v056-janoah-waterways-internal
+          path: build/web/
+          if-no-files-found: error
+      - name: Retain diagnostics on validation failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: janoah-v056-waterway-debug-logs
+          if-no-files-found: ignore
+          path: |
+            v056-import.log
+            v056-startup.log
+            v056-waterways.log
+            v056-export.log
+            v048_field.log
+            v049_companion.log
+            v050_expedition.log
+            v051_city.log
+            v052_city.log
+            v053_city.log
+            v054_geography.log
+            v055_janoah.log
+            v055_approach.log
