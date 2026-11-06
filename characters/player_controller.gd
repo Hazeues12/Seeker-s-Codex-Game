@@ -112,6 +112,11 @@ func _physics_process(delta: float) -> void:
     var field_mission: Node = get_tree().get_first_node_in_group("field_mission_v048")
     if is_instance_valid(field_mission) and field_mission.has_method("is_open"):
         editing = editing or bool(field_mission.call("is_open"))
+    var expedition: Node = get_tree().get_first_node_in_group("multi_day_expedition_v050")
+    if is_instance_valid(expedition) and expedition.has_method("is_open"):
+        editing = editing or bool(expedition.call("is_open"))
+    if is_instance_valid(expedition) and expedition.has_method("is_riding"):
+        editing = editing or bool(expedition.call("is_riding"))
     if editing:
         input_dir = Vector2.ZERO
     var direction: Vector3 = (right * input_dir.x - forward * input_dir.y).normalized()

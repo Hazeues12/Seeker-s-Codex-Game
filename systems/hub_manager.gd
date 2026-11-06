@@ -485,7 +485,9 @@ func _any_panel_open() -> bool:
     var canal_open: bool = is_instance_valid(canal) and bool(canal.call("is_open"))
     var field: Node = get_tree().get_first_node_in_group("field_mission_v048")
     var field_open: bool = is_instance_valid(field) and bool(field.call("is_open"))
-    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
+    var expedition: Node = get_tree().get_first_node_in_group("multi_day_expedition_v050")
+    var expedition_busy: bool = is_instance_valid(expedition) and (bool(expedition.call("is_open")) or bool(expedition.call("is_riding")))
+    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
@@ -498,7 +500,7 @@ func _nearest_location() -> Dictionary:
         if key.begins_with("herb") and (active_contract != 1 or gathered.has(key)):
             continue
         var spot_node: Node3D = spot["node"] as Node3D
-        if (key.begins_with("npc_") or key.begins_with("field_v048_")) and (not is_instance_valid(spot_node) or not spot_node.visible):
+        if (key.begins_with("npc_") or key.begins_with("field_v048_") or key.begins_with("exp_v050_")) and (not is_instance_valid(spot_node) or not spot_node.visible):
             continue
         var place: Vector3 = spot_node.global_position if key.begins_with("npc_") else spot["position"]
         var distance: float = player.global_position.distance_to(place)
@@ -538,6 +540,10 @@ func _interact() -> void:
                 var field: Node = get_tree().get_first_node_in_group("field_mission_v048")
                 if is_instance_valid(field) and field.has_method("interact"):
                     field.call("interact", kind)
+            elif kind.begins_with("exp_v050_"):
+                var expedition: Node = get_tree().get_first_node_in_group("multi_day_expedition_v050")
+                if is_instance_valid(expedition) and expedition.has_method("interact"):
+                    expedition.call("interact", kind)
             elif kind.begins_with("herb"):
                 _gather_herb(kind)
     # Log first NPC meetings/known public landmarks after the real interaction.
@@ -787,7 +793,8 @@ func _announce(message: String) -> void:
 
 # V0.48: one-time prototype field pay, kept in the existing version-1 save.
 func award_field_payout_once(receipt_id: String, amount: int) -> bool:
-    if receipt_id != "public_quarter_field_watch" or amount != 22:
+    var allowed_receipts: Dictionary = {"public_quarter_field_watch": 22, "waystation_convoy_v050": 30}
+    if not allowed_receipts.has(receipt_id) or int(allowed_receipts[receipt_id]) != amount:
         return false
     if field_reward_receipts.has(receipt_id):
         return false

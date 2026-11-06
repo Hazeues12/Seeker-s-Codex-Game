@@ -333,6 +333,16 @@ func _refresh_view() -> void:
         output += "Trust: %d | Injury: %d/100 | Interceptions: %d\n" % [
             int(companion.get("loyalty", 0)), int(companion.get("injury", 0)), int(companion.get("interventions", 0))]
         output += "Last field outcome: %s\n" % str(companion.get("outcome", "unresolved"))
+    var expedition_record: Dictionary = profile.get("expedition_v050", {})
+    if not expedition_record.is_empty():
+        output += "\nMULTI-DAY WAYSTATION ASSIGNMENT / GAME-ONLY\n"
+        output += "Stage: %s | Preparation: %s | Outcome: %s\n" % [
+            str(expedition_record.get("stage", "available")),
+            str(expedition_record.get("preparation", "not chosen")),
+            str(expedition_record.get("outcome", "pending"))]
+        output += "Departed day %d | Rest day %d | Paid: %s\n" % [
+            int(expedition_record.get("departure_day", 0)), int(expedition_record.get("rest_day", 0)),
+            "Yes" if bool(expedition_record.get("paid", false)) else "No"]
     output += "\nLIFE CHRONICLE  (%d saved events)\n" % entries.size()
     var first: int = maxi(0, entries.size() - 14)
     for i in range(entries.size() - 1, first - 1, -1):
