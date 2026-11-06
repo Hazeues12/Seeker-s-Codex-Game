@@ -131,8 +131,10 @@ func _run() -> void:
         return
     var stored: Variant = JSON.parse_string(disk.get_as_text())
     disk.close()
-    if typeof(stored) != TYPE_DICTIONARY or
-        OriginRules.sanitize(stored.get("origin_v058", {})) != reduced:
+    if typeof(stored) != TYPE_DICTIONARY:
+        _fail("saved profile is corrupted")
+        return
+    if OriginRules.sanitize(stored.get("origin_v058", {})) != reduced:
         _fail("origin consequences did not survive real save")
         return
     print("V0.58 PHYSICAL CREATOR CLOTHING AND CIVILIAN CONSEQUENCES PASS")
