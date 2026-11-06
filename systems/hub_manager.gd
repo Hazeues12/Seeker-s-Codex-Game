@@ -561,7 +561,7 @@ func _interact() -> void:
                 var expedition: Node = get_tree().get_first_node_in_group("multi_day_expedition_v050")
                 if is_instance_valid(expedition) and expedition.has_method("interact"):
                     expedition.call("interact", kind)
-            elif kind.begins_with("yb_v057_"):
+            elif kind.begins_with("yb_v057_") or kind == "yb_v059_archive":
                 var life_road: Node = get_tree().get_first_node_in_group("young_blood_life_v057")
                 if is_instance_valid(life_road) and life_road.has_method("interact"):
                     life_road.call("interact", kind)
