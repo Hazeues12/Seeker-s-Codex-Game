@@ -491,7 +491,9 @@ func _any_panel_open() -> bool:
     var expedition_busy: bool = is_instance_valid(expedition) and (bool(expedition.call("is_open")) or bool(expedition.call("is_riding")))
     var bulletin: Node = get_tree().get_first_node_in_group("daily_events_v051")
     var bulletin_open: bool = is_instance_valid(bulletin) and bool(bulletin.call("is_open"))
-    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
+    var young_life: Node = get_tree().get_first_node_in_group("young_blood_life_v057")
+    var life_open: bool = is_instance_valid(young_life) and bool(young_life.call("is_open"))
+    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
@@ -548,6 +550,10 @@ func _interact() -> void:
                 var expedition: Node = get_tree().get_first_node_in_group("multi_day_expedition_v050")
                 if is_instance_valid(expedition) and expedition.has_method("interact"):
                     expedition.call("interact", kind)
+            elif kind.begins_with("yb_v057_"):
+                var life_road: Node = get_tree().get_first_node_in_group("young_blood_life_v057")
+                if is_instance_valid(life_road) and life_road.has_method("interact"):
+                    life_road.call("interact", kind)
             elif kind == "daily_v051_bulletin":
                 var city_events: Node = get_tree().get_first_node_in_group("daily_events_v051")
                 if is_instance_valid(city_events) and city_events.has_method("interact"):
@@ -578,11 +584,17 @@ func _open_board() -> void:
     bag_panel.hide()
     _clear_list(board_list)
     _label(board_list, "Magnara Seeker Quarters - Provisional contracts (Stray)", 18)
+    var life_road: Node = get_tree().get_first_node_in_group("young_blood_life_v057")
+    var not_licensed: bool = is_instance_valid(life_road) and life_road.has_method("may_accept_seeker_contracts") and not bool(life_road.call("may_accept_seeker_contracts"))
+    if not_licensed:
+        _label(board_list, "Your current civilian life road does not grant licensed Seeker work. Register through official qualification in a later chapter.", 17)
     for index in range(CONTRACTS.size()):
         var button := Button.new()
         button.custom_minimum_size = Vector2(0, 66)
         button.add_theme_font_size_override("font_size", 19)
         var title_text: String = CONTRACTS[index]
+        if not_licensed:
+            button.disabled = true
         var award: String = "%d Tola / %d XP" % [REWARDS[index], XP_REWARDS[index]]
         if contract_finished[index]:
             button.text = "COMPLETE - " + title_text + "\n" + award
@@ -607,6 +619,10 @@ func _goal_for(index: int) -> int:
 
 
 func _choose_contract(index: int) -> void:
+    var life_road: Node = get_tree().get_first_node_in_group("young_blood_life_v057")
+    if is_instance_valid(life_road) and life_road.has_method("may_accept_seeker_contracts") and not bool(life_road.call("may_accept_seeker_contracts")):
+        _announce("A civilian life road does not grant a Seeker work licence.")
+        return
     if contract_finished[index]:
         return
     if active_contract == index:
