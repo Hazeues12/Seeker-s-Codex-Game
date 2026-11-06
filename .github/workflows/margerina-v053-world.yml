@@ -1,0 +1,104 @@
+name: Margerina V0.53 World First - Six Walk-In Buildings
+on:
+  push:
+    branches: [magnara-world-v053-staging]
+    paths:
+      - '.github/workflows/margerina-v053-world.yml'
+      - 'world/magnara_city_v052.gd'
+      - 'tests/v053_city_smoke.gd'
+      - 'tests/v053_city_scene.tscn'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-ring-two-architecture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 32
+    steps:
+      - name: Checkout exact staging branch
+        uses: actions/checkout@v4
+        with:
+          ref: magnara-world-v053-staging
+      - name: Check source, canon status and local-save preservation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m json.tool data/magnara_atlas_v052.json >/dev/null
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          atlas=json.loads(Path("data/magnara_atlas_v052.json").read_text())
+          entries=atlas["game_only_map"]["actual_enterable_interiors"]
+          assert len(set(entries)) == 6
+          assert atlas["rings"][1]["ring"] == 2
+          assert atlas["rings"][1]["name"] == "Seeker Quarters"
+          assert atlas["rings"][3]["planning_status"] == "partial_canon"
+          assert atlas["rings"][4]["planning_status"] == "partial_canon"
+          assert "joystick_finger" in Path("ui/mobile_controls.gd").read_text()
+          assert "margerina_v033.json" in Path("systems/hub_manager.gd").read_text()
+          assert "seeker_profile_v1.json" in Path("systems/personal_codex.gd").read_text()
+          assert Path("docs/V053_MAGNARA_STREETS_INTERIORS.md").is_file()
+          print("V0.53 CANON AND LEGACY SAVE AUDIT PASS")
+          PY
+      - name: Set up Godot 4.4.1 and Web templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+      - name: Whole-project import and main scene startup
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 130s godot --headless --path . --editor --import --quit 2>&1 | tee v053-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v053-import.log; then exit 1; fi
+          timeout 90s godot --headless --path . --quit-after 170 2>&1 | tee v053-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v053-startup.log; then exit 1; fi
+      - name: Run old career and Ring Two world regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          for spec in 'v048_field:V0.48 FIELD MISSION STATE SMOKE PASS' 'v049_companion:V0.49 COMPANION STATE SMOKE PASS' 'v050_expedition:V0.50 MULTI-DAY EXPEDITION SMOKE PASS' 'v051_city:V0.51 DAILY CITY MEMORY SMOKE PASS' 'v052_city:V0.52 MAGNARA CITY GEOMETRY AND INTERIORS PASS'; do
+            t="${spec%%:*}"
+            expected="${spec#*:}"
+            timeout 50s godot --headless --path . "res://tests/${t}_scene.tscn" --quit-after 260 2>&1 | tee "${t}.log"
+            if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' "${t}.log"; then exit 1; fi
+            grep -Fq "${expected}" "${t}.log"
+          done
+      - name: Verify six walk-in doorways, rooftops, streets, bridges and streaming
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 80s godot --headless --path . res://tests/v053_city_scene.tscn --quit-after 300 2>&1 | tee v053-city.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v053-city.log; then exit 1; fi
+          grep -Fq 'V0.53 SIX WALKABLE INTERIORS AND CONNECTED STREETS PASS' v053-city.log
+      - name: Export full Godot Web development build
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          timeout 140s godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v053-export.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v053-export.log; then exit 1; fi
+          for ext in html js wasm pck; do test -s "build/web/index.${ext}"; done
+      - name: Store internal development artifact for future release
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-magnara-v053-internal-web
+          path: build/web/
+          if-no-files-found: error
+      - name: Preserve diagnostics if a world check fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: margerina-v053-world-diagnostics
+          if-no-files-found: ignore
+          path: |
+            v053-import.log
+            v053-startup.log
+            v053-city.log
+            v053-export.log
+            v048_field.log
+            v049_companion.log
+            v050_expedition.log
+            v051_city.log
+            v052_city.log
