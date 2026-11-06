@@ -23,6 +23,8 @@ func _check() -> void:
         push_error("V0.44 save reload test failed")
         get_tree().quit(1)
         return
+    loaded.free()
+    codex.free()
     print("V0.44 SOCIAL MEMORY SMOKE PASS")
     DirAccess.remove_absolute(ProjectSettings.globalize_path("user://seeker_profile_v1.json"))
     DirAccess.remove_absolute(ProjectSettings.globalize_path("user://seeker_profile_v1.pending.json"))
