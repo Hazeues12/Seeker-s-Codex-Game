@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "world": "Margerina",
+  "nation": "Janoah",
+  "city": "Magnara",
+  "ring_count": 7,
+  "city_plan_status": "in_progress",
+  "canon_status": "mixed_confirmed_and_game_only",
+  "source_note": "Author's Seeker's Codex lore, Chapter 90 and Magnara canon blueprint; placements are provisional unless confirmed.",
+  "rings": [
+    {
+      "ring": 1,
+      "name": null,
+      "planning_status": "unassigned",
+      "canonical_features": []
+    },
+    {
+      "ring": 2,
+      "name": "Seeker Quarters",
+      "planning_status": "first_urban_expansion",
+      "canonical_features": [
+        "public residential precinct",
+        "professional Seeker precinct",
+        "secured Seeker Citadel",
+        "black-and-gold hexagonal citadel with thirteen towers"
+      ],
+      "implemented_cells": [
+        "central_hub",
+        "central_public",
+        "central_professional",
+        "central_citadel_approach",
+        "west_public",
+        "west_professional",
+        "east_public",
+        "east_professional"
+      ]
+    },
+    {
+      "ring": 3,
+      "name": null,
+      "planning_status": "unassigned",
+      "canonical_features": []
+    },
+    {
+      "ring": 4,
+      "name": null,
+      "planning_status": "partial_canon",
+      "canonical_features": [
+        "banking",
+        "trade"
+      ]
+    },
+    {
+      "ring": 5,
+      "name": null,
+      "planning_status": "partial_canon",
+      "canonical_features": [
+        "forges",
+        "manufacturing"
+      ]
+    },
+    {
+      "ring": 6,
+      "name": null,
+      "planning_status": "unassigned",
+      "canonical_features": []
+    },
+    {
+      "ring": 7,
+      "name": null,
+      "planning_status": "unassigned",
+      "canonical_features": []
+    }
+  ],
+  "landmarks_without_locked_positions": [
+    "Steel Flame Tower",
+    "Iron Cothon",
+    "The Talking Boar",
+    "Grand Amphistad",
+    "Mercy Deck",
+    "Founders' Bridge",
+    "Forgehouse",
+    "Nightweave Row",
+    "Hollow Thread Atelier",
+    "Onikaze Forge"
+  ],
+  "game_only_map": {
+    "coordinate_frame": "local prototype axes; no canon compass bearing",
+    "ring_two_centerline": "existing original hub and V0.40 +Z corridor",
+    "new_streamed_cells": [
+      {
+        "id": "west_public",
+        "center": [
+          -70,
+          50
+        ],
+        "size": [
+          72,
+          40
+        ]
+      },
+      {
+        "id": "west_professional",
+        "center": [
+          -70,
+          90
+        ],
+        "size": [
+          72,
+          40
+        ]
+      },
+      {
+        "id": "east_public",
+        "center": [
+          70,
+          50
+        ],
+        "size": [
+          72,
+          40
+        ]
+      },
+      {
+        "id": "east_professional",
+        "center": [
+          70,
+          90
+        ],
+        "size": [
+          72,
+          40
+        ]
+      }
+    ],
+    "actual_enterable_interiors": [
+      "EnterablePublicRestHouse",
+      "EnterableSeekerRecordsHall"
+    ],
+    "unbuilt": [
+      "other six rings",
+      "Citadel interior",
+      "real tram boarding",
+      "permanent city street numbering"
+    ]
+  }
+}
