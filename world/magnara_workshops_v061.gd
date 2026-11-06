@@ -6,8 +6,8 @@ const Rules = preload("res://systems/magnara_workshop_rules_v061.gd")
 const Origins = preload("res://systems/young_blood_origins_v058.gd")
 const Residential = preload("res://systems/residential_life_v060.gd")
 const WORKING_LANE_X: float = -62.0
-const BOARD_POSITION: Vector3 = Vector3(-62.0, 0.62, 119.0)
-const DEPOT_POSITION: Vector3 = Vector3(-46.0, 0.62, 201.0)
+const BOARD_POSITION: Vector3 = Vector3(-73.0, 0.62, 119.0)
+const DEPOT_POSITION: Vector3 = Vector3(-46.0, 0.62, 195.0)
 const OFFICE_HOUR_START: int = 480
 const OFFICE_HOUR_END: int = 1140
 
@@ -192,6 +192,7 @@ func _make_worker(id: String, index: int) -> void:
             Vector3(0.22, 0.85, 0.27), Color(0.25, 0.31, 0.32))
         _part(actor, "WorkmanArm", Vector3(side * 0.45, 1.35, 0),
             Vector3(0.2, 0.76, 0.28), coat)
+    hub.call("_add_location", "npc_v061_" + id, Rules.job_label(id) + " Worker", actor.global_position, actor)
     workers[id] = actor
 
 func _build_district() -> void:
@@ -217,7 +218,7 @@ func _build_district() -> void:
         Vector3(10.0, 0.04, 7.4), Color(0.76, 0.74, 0.68))
     _part(self, "WorkingYardGravel", Vector3(-44.0, 0.59, 151.0),
         Vector3(19.0, 0.13, 28.0), Color(0.51, 0.50, 0.47), true)
-    _part(self, "FreightLoadingPlatform", Vector3(-45.5, 0.90, 201.0),
+    _part(self, "FreightLoadingPlatform", Vector3(-45.5, 0.90, 195.0),
         Vector3(8.8, 0.65, 10.0), Color(0.55, 0.56, 0.53), true)
     _part(self, "NonOperatingRailBed", Vector3(-39.4, 0.65, 173.0),
         Vector3(5.3, 0.19, 81.0), Color(0.39, 0.41, 0.43), true)
@@ -359,12 +360,12 @@ func _button(caption: String, key: String, enabled: bool = true) -> void:
     choices.add_child(button)
 
 func interact(id: String) -> void:
-    if not initialized or not id.begins_with("work_v061_"):
+    if not initialized or (not id.begins_with("work_v061_") and not id.begins_with("npc_v061_")):
         return
     if bool(codex.get("save_blocked")):
         hub.call("_announce", "The Personal Codex isn't writable. Work is paused to protect your record.")
         return
-    current_station = id.trim_prefix("work_v061_")
+    current_station = "worker_" + id.trim_prefix("npc_v061_") if id.begins_with("npc_v061_") else id.trim_prefix("work_v061_")
     feedback.text = ""
     _refresh()
     panel.show()
@@ -396,6 +397,9 @@ func _refresh() -> void:
             _button("COLLECT THE ASSIGNED WORK MATERIALS", "collect")
         else:
             description_label.text += "\nMaterials are only issued against an accepted order."
+    elif current_station.begins_with("worker_"):
+        var worker_id: String = current_station.trim_prefix("worker_")
+        description_label.text += "\n" + Rules.job_label(worker_id) + " crew: The shift foreman expects verified orders, materials and safe work."
     elif current_station.begins_with("finish_"):
         var job_id: String = current_station.trim_prefix("finish_")
         if str(active.get("job", "")) == job_id and str(active.get("stage", "")) == "carrying":
