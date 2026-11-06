@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "system": "Janoah local hydrology and road crossings",
+  "era": "1500 A.S.",
+  "canon_status": "game_only_local_preview",
+  "source_policy": "Rivercourse, bridge positions, inland course, water color and road alignment are provisional engineering/layout proposals. No named canonical river, geographical border, or verified coast is asserted.",
+  "region_id": "janoah_magnara_provisional_approach_v055",
+  "engine_coordinate_frame": "1 Godot unit = 1 meter; 256m regional cells",
+  "river": {
+    "id": "janoah_game_only_floodplain_river",
+    "canonical_name": null,
+    "river_center_x_m_at_route": 15360,
+    "meander_amplitude_m": 14,
+    "course_z_m_prototype": 70,
+    "inner_half_width_m": 17,
+    "outer_bank_half_width_m": 43,
+    "water_y_m": -1.75,
+    "bed_y_m": -3.1,
+    "tile_column_x": 60,
+    "rendering": "continuous surface mesh in 3 adjacent regional cells along the z axis",
+    "terrain_collision": "deterministically carved triangle-collision heightfield",
+    "water_interactions": "not yet swim-or-boat-enabled"
+  },
+  "crossings": [
+    {
+      "id": "janoah_road_bridge_game_only",
+      "kind": "road",
+      "deck_span_m": 112,
+      "deck_collision": true,
+      "tile_x": 60,
+      "side_tile_rows": [
+        -1,
+        0,
+        1
+      ],
+      "safe_pedestrian_guard": true,
+      "access_status": "walkable"
+    },
+    {
+      "id": "janoah_freight_trestle_game_only",
+      "kind": "freight_rail",
+      "deck_span_m": 112,
+      "deck_collision": true,
+      "tile_x": 60,
+      "side_tile_rows": [
+        -1,
+        0,
+        1
+      ],
+      "transport_service_operational": false
+    }
+  ],
+  "nearby_land_use": {
+    "country_palette": "res://world/janoah_environment_kit_v056.gd",
+    "work": [
+      "industrial_outskirts",
+      "farmed_countryside",
+      "rolling_interior_route"
+    ],
+    "floodplain": [
+      "riverbank walk",
+      "bank stone outcrops",
+      "low plant clumps"
+    ],
+    "future_water_network_approved": false
+  },
+  "runtime": {
+    "full_region_length_m": 6144,
+    "terrain_cell_m": 256,
+    "max_active_cells": 9,
+    "river_cells_added": 3,
+    "world_coordinates_planning_only": true,
+    "legacy_saves_schema_changed": false
+  },
+  "not_yet_done": [
+    "water swimming",
+    "watercraft physics",
+    "fish and wildlife systems",
+    "weather",
+    "water particle effects",
+    "authored river settlement",
+    "approved coastal position",
+    "real passenger rail service",
+    "device-verified iPhone performance"
+  ]
+}
