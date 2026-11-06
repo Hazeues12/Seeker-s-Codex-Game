@@ -117,7 +117,7 @@ func _run() -> void:
         return
     var center_cell: Node3D = active["60:0"]
     var freight: MeshInstance3D = center_cell.find_child("FreightTrestleBridgeDeck", true, false) as MeshInstance3D
-    if freight.find_child("CollisionShape3D", true, false) == null:
+    if freight.find_child("RegionalBlockCollider", true, false) == null:
         _fail("rail trestle deck has no collision")
         return
     # Crossings are interrupted nowhere by decorative guard rails.
