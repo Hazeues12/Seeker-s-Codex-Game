@@ -92,7 +92,9 @@ func _run() -> void:
             _fail("actual regional geometry missing " + entity)
             return
     await get_tree().physics_frame
-    var road_ray := PhysicsRayQueryParameters3D.create(Vector3(11520.0, 9.0, 70.0), Vector3(11520.0, -2.0, 70.0))
+    await get_tree().physics_frame
+    # Probe inside a terrain triangle, away from the 16m heightfield grid seams.
+    var road_ray := PhysicsRayQueryParameters3D.create(Vector3(11524.0, 9.0, 74.0), Vector3(11524.0, -2.0, 74.0))
     var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(road_ray)
     if hit.is_empty():
         _fail("no real collision beneath the route")
