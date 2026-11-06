@@ -38,7 +38,7 @@ func _refresh_regions() -> void:
         return
     for id in REGIONS:
         var target_z: float = float(REGIONS[id])
-        var distance: float = absf(player.global_position.z - target_z)
+        var distance: float = Vector2(player.global_position.x, player.global_position.z).distance_to(Vector2(0.0, target_z))
         if not active_regions.has(id) and distance < LOAD_DISTANCE:
             var section := Node3D.new()
             section.name = "Region_" + str(id)
