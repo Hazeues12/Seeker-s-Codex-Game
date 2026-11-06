@@ -6,6 +6,7 @@ extends Node3D
 # Terrain is height-field mesh + actual triangle collision, not a flat picture.
 const Geo = preload("res://systems/known_world_geometry_v054.gd")
 const Hydro = preload("res://world/janoah_waterways_v056.gd")
+const RegionKit = preload("res://world/janoah_environment_kit_v056.gd")
 const FIRST_TILE_X: int = 45
 const LAST_TILE_X: int = 68
 const MAX_SIDE_TILE: int = 1
@@ -200,10 +201,7 @@ func _terrain(parent: Node3D, tile: Vector2i) -> void:
     physics.add_child(collision)
 
 func _terrain_tint(phase: String) -> Color:
-    match phase:
-        "industrial_outskirts": return Color(0.46, 0.47, 0.41)
-        "farmed_countryside": return Color(0.42, 0.52, 0.35)
-        _: return Color(0.40, 0.47, 0.39)
+    return RegionKit.ground_color(phase)
 
 func _label(parent: Node3D, msg: String, at: Vector3) -> void:
     var display := Label3D.new()
