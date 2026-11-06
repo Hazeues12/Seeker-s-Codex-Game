@@ -214,6 +214,11 @@ func _build_tile(parent: Node3D, tile: Vector2i) -> void:
         Vector2(-61.0, -65.0), Vector2(61.0, -65.0),
         Vector2(-61.0, 65.0), Vector2(61.0, 65.0)
     ]
+    # V0.60/V0.61 have actual authored homes, workshops and streets in
+    # the first northern survey tile (0:1). Do not spawn generic *solid*
+    # massing over these hand-built accessible spaces.
+    if tile == Vector2i(0, 1):
+        return
     for n in range(positions.size()):
         var offset: Vector2 = positions[n]
         _building(parent, ring, center + Vector3(offset.x, 0.0, offset.y), n)
