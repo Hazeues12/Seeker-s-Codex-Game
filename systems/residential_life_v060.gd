@@ -27,6 +27,8 @@ static func sanitize(raw: Variant) -> Dictionary:
     if typeof(households) != TYPE_DICTIONARY:
         return result
     for id in IDS:
+        if not households.has(id):
+            continue
         var original: Variant = households.get(id, {})
         if typeof(original) != TYPE_DICTIONARY:
             continue
