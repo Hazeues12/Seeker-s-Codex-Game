@@ -45,7 +45,13 @@ func get_manifest() -> Dictionary:
         "district": "Ring Two / Seeker Quarters",
         "streamed_cells": CELL_CENTERS.keys(),
         "confirmed": ["seven-ring city", "public living quarter", "professional Seeker facilities", "secured Citadel"],
-        "game_only": ["four ward coordinates", "public rest house", "records hall", "local tram alignment"],
+        "game_only": ["four ward coordinates", "six provisional interiors", "public arcades", "quay and service yards", "local tram alignment"],
+        "enterable_interiors": [
+            "EnterablePublicRestHouse", "EnterableSeekerRecordsHall",
+            "EnterableCanalServiceHouse", "EnterableCivicDiningHall",
+            "EnterableSeekerMedicalAnnex", "EnterableSupplyInspectionHall"],
+        "street_spaces": ["CanalQuayPaving", "CivicSquareStoneTiles",
+            "ProfessionalPavingCourt", "TramWorkshopYard"],
         "source": CELL_SOURCE
     }
 
