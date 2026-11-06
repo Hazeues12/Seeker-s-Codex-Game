@@ -309,7 +309,7 @@ func _refresh_view() -> void:
         var perks: Array = origin_data.get("perks", [])
         output += "Temperament: %s | Trait: %s\n" % [temperament.capitalize(), trait.replace("_", " ").capitalize()]
         output += "Burdens: %s | Perks: %s | Remaining debt: %d Tola\n" % [
-            ", ".join(burdens) if burdens.size() else "none",
+            ", ".join(PackedStringArray(burdens)) if burdens.size() else "none",
             ", ".join(perks) if perks.size() else "none",
             int(origin_data.get("debt_tola", 0))]
     output += "YOUR ROAD\n%s\n" % ("Not chosen" if life_road.is_empty() else life_road)
