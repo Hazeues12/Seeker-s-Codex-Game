@@ -174,7 +174,7 @@ func _city_house(parent: Node3D, name: String, x: float, z: float, floors: int, 
         Vector3(0.70, 1.5, 0.70), Color(0.38, 0.39, 0.43))
 
 func _open_house(parent: Node3D, name: String, x: float, z: float,
-        entry_face: float, professional: bool) -> void:
+        entry_face: float, professional: bool, sign_text: String = "") -> void:
     # Hollow, collidable room: door gap is real open space, not a texture.
     var room := Node3D.new()
     room.name = "Enterable" + name
@@ -213,8 +213,8 @@ func _open_house(parent: Node3D, name: String, x: float, z: float,
     for side in [-1.0, 1.0]:
         _part(room, "HangingLantern", Vector3(0.0, 3.9, side * 3.15),
             Vector3(0.45, 0.55, 0.45), Color(0.83, 0.70, 0.43), false, false, true)
-    _tag(room, "PUBLIC SEEKER RECORDS / GAME-ONLY" if professional else
-        "PUBLIC REST HOUSE / GAME-ONLY",
+    var room_sign: String = ("PUBLIC SEEKER RECORDS" if professional else "PUBLIC REST HOUSE") if sign_text.is_empty() else sign_text
+    _tag(room, room_sign + " / GAME-ONLY",
         Vector3(entry_face * 6.9, 6.25, 0.0), 29)
     # Rooftop access: physically collidable climbing platforms in a side alley.
     # Steps stay off the entrance centerline; double jump remains available.
@@ -293,8 +293,28 @@ func _build_cell(key: String, parent: Node3D) -> void:
         else:
             _city_house(parent, key + "Outer_%d" % j, outer_x, zz, 2 + j,
                 Color(0.66, 0.60, 0.55) if public else Color(0.49, 0.55, 0.59))
-        _city_house(parent, key + "Inner_%d" % j, inner_x, zz, 2 + (j + 1) % 2,
-            Color(0.61, 0.57, 0.56) if public else Color(0.55, 0.58, 0.63))
+        # Four additional physical interiors: no fake entrance decals.
+        # Their occupations and coordinates are provisional game-only content.
+        var interior_name: String = ""
+        var interior_sign: String = ""
+        if key == "west_public" and j == 1:
+            interior_name = "CanalServiceHouse"
+            interior_sign = "CANAL SERVICE HOUSE"
+        elif key == "east_public" and j == 1:
+            interior_name = "CivicDiningHall"
+            interior_sign = "PUBLIC DINING HALL"
+        elif key == "west_professional" and j == 0:
+            interior_name = "SeekerMedicalAnnex"
+            interior_sign = "MEDICAL ANNEX"
+        elif key == "east_professional" and j == 1:
+            interior_name = "SupplyInspectionHall"
+            interior_sign = "SUPPLY INSPECTION"
+        if not interior_name.is_empty():
+            _open_house(parent, interior_name, inner_x, zz,
+                -1.0 if west else 1.0, not public, interior_sign)
+        else:
+            _city_house(parent, key + "Inner_%d" % j, inner_x, zz, 2 + (j + 1) % 2,
+                Color(0.61, 0.57, 0.56) if public else Color(0.55, 0.58, 0.63))
     if key == "west_public":
         _market(parent, -53.0, 33.6, "CanalWard")
         _tag(parent, "SEEKER QUARTERS / CANAL WALK", Vector3(-61.0, 5.3, 35.0), 30)
@@ -322,6 +342,7 @@ func _build_cell(key: String, parent: Node3D) -> void:
                 Vector3(0.25, 2.75, 0.25), Color(0.46, 0.38, 0.24))
         _part(parent, "ServiceCourtyard", Vector3(70.5, 0.61, 97.0),
             Vector3(10.5, 0.15, 9.0), Color(0.42, 0.51, 0.57))
+    _dress_ward(parent, key, street_x)
     # Visible distant urban silhouette; not fake traversable districts.
     for n in range(4):
         var sx: float = (-111.0 if west else 111.0) + (-float(n) if west else float(n)) * 4.5
@@ -329,6 +350,98 @@ func _build_cell(key: String, parent: Node3D) -> void:
         var high: float = 13.0 + float(n % 3) * 5.0
         _part(parent, "UnbuiltCitySkyline", Vector3(sx, 0.5 + high * 0.5, sz),
             Vector3(5.8, high, 7.1), Color(0.28, 0.33, 0.39))
+
+
+# V0.53 architecture and pedestrian continuity: these elements are genuine
+# scene geometry instead of menu-only or image-only city dressing.
+func _dress_ward(parent: Node3D, key: String, street_x: float) -> void:
+    var west: bool = key.begins_with("west")
+    var public_zone: bool = key.ends_with("public")
+    var start_z: float = 30.4 if public_zone else 71.6
+    var sandstone := Color(0.67, 0.65, 0.61)
+    var bronze := Color(0.62, 0.44, 0.27)
+    var stone := Color(0.48, 0.53, 0.57)
+    var street_inner_x: float = street_x + (8.15 if west else -8.15)
+    # Continuous pavement outside the vehicle street; a safe pedestrian strip
+    # from the north edge through the entire ward.
+    _part(parent, "ContinuousPedestrianPromenade",
+        Vector3(street_inner_x, 0.58, start_z + 18.8),
+        Vector3(2.65, 0.15, 37.6), sandstone, true)
+    for n in range(7):
+        var zz: float = start_z + 3.2 + float(n) * 5.4
+        _part(parent, "BronzePavementInset", Vector3(street_inner_x, 0.675, zz),
+            Vector3(2.5, 0.02, 0.12), bronze)
+    # Stone-and-bronze public arcades: freestanding colonnades keep the roadway
+    # open and never close the entrance of the six walk-in interiors.
+    var arcade_x: float = -72.0 if west else 72.0
+    var arcade_z: float = 34.8 if public_zone else 85.2
+    for bay in range(4):
+        var offset: float = float(bay) * 3.6
+        _part(parent, "ArcadeColumnBase", Vector3(arcade_x, 0.82, arcade_z + offset),
+            Vector3(0.78, 0.54, 0.78), sandstone, true)
+        _part(parent, "ArcadeBronzeColumn", Vector3(arcade_x, 2.23, arcade_z + offset),
+            Vector3(0.35, 2.32, 0.35), bronze, true)
+        _part(parent, "ArcadeCapital", Vector3(arcade_x, 3.46, arcade_z + offset),
+            Vector3(0.86, 0.20, 0.86), sandstone)
+    _part(parent, "ArcadeContinuousCanopy",
+        Vector3(arcade_x, 3.68, arcade_z + 5.4),
+        Vector3(2.70, 0.26, 13.4), stone, true)
+    _part(parent, "CanopyBronzeRidge",
+        Vector3(arcade_x, 3.90, arcade_z + 5.4),
+        Vector3(2.74, 0.12, 13.5), bronze)
+    # Slender arches beside the sidewalks give the Janoan precinct a distinct
+    # engineered silhouette while preserving at-grade traversal.
+    for gate_index in range(2):
+        var gate_z: float = start_z + 10.0 + float(gate_index) * 17.0
+        var arch_x: float = street_x + (-6.7 if west else 6.7)
+        for side in [-1.0, 1.0]:
+            _part(parent, "PortalStonePier",
+                Vector3(arch_x + side * 1.0, 1.86, gate_z),
+                Vector3(0.44, 2.55, 0.50), sandstone, true)
+        _part(parent, "PortalBronzeLintel",
+            Vector3(arch_x, 3.23, gate_z),
+            Vector3(2.65, 0.28, 0.66), bronze, true)
+    if key == "west_public":
+        # Public quay along the blue-resonance water channel. A physically
+        # raised edge provides a reachable observation perch.
+        _part(parent, "CanalQuayPaving", Vector3(-72.0, 0.60, 43.0),
+            Vector3(44.0, 0.16, 2.15), sandstone, true)
+        _part(parent, "QuayBronzeGuard", Vector3(-72.0, 1.10, 44.22),
+            Vector3(43.8, 0.82, 0.16), bronze, true)
+        for bollard_x in [-94.0, -83.0, -72.0, -61.0, -50.0]:
+            _part(parent, "PublicQuayMooring",
+                Vector3(float(bollard_x), 1.07, 42.5),
+                Vector3(0.42, 0.96, 0.42), stone, true)
+        _tag(parent, "CANAL QUAY / IRON BRIDGES",
+            Vector3(-72.0, 4.28, 42.2), 27)
+    elif key == "east_public":
+        _part(parent, "CivicSquareStoneTiles",
+            Vector3(70.5, 0.62, 60.7), Vector3(17.0, 0.13, 5.5),
+            Color(0.74, 0.69, 0.60), true)
+        for bench_x in [66.0, 75.0]:
+            _part(parent, "PublicSquareBench", Vector3(float(bench_x), 0.94, 62.5),
+                Vector3(3.0, 0.48, 0.68), Color(0.34, 0.28, 0.23), true)
+        _tag(parent, "PUBLIC SQUARE / RESIDENTIAL SERVICES",
+            Vector3(70.5, 4.35, 64.0), 25)
+    elif key == "west_professional":
+        _part(parent, "ProfessionalPavingCourt", Vector3(-72.0, 0.62, 103.6),
+            Vector3(15.0, 0.12, 8.5), sandstone, true)
+        for lx in [-75.0, -69.0]:
+            _part(parent, "TrainingPillar", Vector3(float(lx), 1.75, 104.0),
+                Vector3(0.46, 2.45, 0.46), stone, true)
+        _tag(parent, "RECORDS / MEDICAL SERVICE COURT",
+            Vector3(-72.0, 4.5, 107.0), 25)
+    elif key == "east_professional":
+        _part(parent, "TramWorkshopYard", Vector3(71.0, 0.66, 93.0),
+            Vector3(15.0, 0.16, 9.0), sandstone, true)
+        _part(parent, "WorkshopCargoPlatform", Vector3(74.0, 1.20, 94.3),
+            Vector3(5.6, 1.00, 2.4), stone, true)
+        for rail_idx in range(3):
+            _part(parent, "StationCargoCrate",
+                Vector3(72.0 + float(rail_idx) * 1.6, 1.90, 94.2),
+                Vector3(1.10, 0.65, 1.05), bronze, true)
+        _tag(parent, "TRAM SERVICE YARD / GAME-ONLY",
+            Vector3(71.0, 4.7, 92.0), 25)
 
 func _build_tram() -> void:
     tram = Node3D.new()
