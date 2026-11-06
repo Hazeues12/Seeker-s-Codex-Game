@@ -123,6 +123,9 @@ func _physics_process(delta: float) -> void:
     var residential_life: Node = get_tree().get_first_node_in_group("residential_life_v060")
     if is_instance_valid(residential_life) and residential_life.has_method("is_open"):
         editing = editing or bool(residential_life.call("is_open"))
+    var working_quarter: Node = get_tree().get_first_node_in_group("magnara_workshops_v061")
+    if is_instance_valid(working_quarter) and working_quarter.has_method("is_open"):
+        editing = editing or bool(working_quarter.call("is_open"))
     var bulletin: Node = get_tree().get_first_node_in_group("daily_events_v051")
     if is_instance_valid(bulletin) and bulletin.has_method("is_open"):
         editing = editing or bool(bulletin.call("is_open"))
