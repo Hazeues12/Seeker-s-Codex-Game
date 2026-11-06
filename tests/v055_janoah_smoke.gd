@@ -23,7 +23,7 @@ func _run() -> void:
     var atlas: Dictionary = atlas_data
     var location: Dictionary = atlas.get("terrain", {})
     var root_scope: Dictionary = atlas.get("safety", {})
-    if atlas.get("nation") != "Janoah" or atlas.get("canon_status") != "game_only_local_alignment":
+    if atlas.get("nation") != "Janoah" or atlas.get("canon_status") != "game_only_local_preview":
         _fail("landscape inadvertently marked as canonical terrain")
         return
     if int(location.get("total_length_m", -1)) != 6144 or int(location.get("corridor_width_m", -1)) != 768:
