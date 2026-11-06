@@ -297,7 +297,11 @@ func _build_cell(key: String, parent: Node3D) -> void:
         elif key == "west_professional" and j == 1:
             _open_house(parent, "SeekerRecordsHall", outer_x, zz, 1.0, true)
         else:
-            _city_house(parent, key + "Outer_%d" % j, outer_x, zz, 2 + j,
+            # The second west-canal residence is set farther back so a
+            # pedestrian leaving the western iron bridge is never trapped
+            # between the solid facade and the water.
+            var building_x: float = -100.0 if key == "west_public" and j == 1 else outer_x
+            _city_house(parent, key + "Outer_%d" % j, building_x, zz, 2 + j,
                 Color(0.66, 0.60, 0.55) if public else Color(0.49, 0.55, 0.59))
         # Four additional physical interiors: no fake entrance decals.
         # Their occupations and coordinates are provisional game-only content.
