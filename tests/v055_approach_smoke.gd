@@ -93,13 +93,20 @@ func _run() -> void:
             or cell.find_child("FreightRail", true, false) == null:
             _fail("real terrain, road or freight structures missing at " + str(tile_x))
             return
-        var collision: CollisionShape3D = cell.find_child("CollisionShape3D", true, false) as CollisionShape3D
+        var terrain_body: StaticBody3D = cell.find_child("JanoahTerrainCollision", true, false) as StaticBody3D
+        var collision: CollisionShape3D = terrain_body.get_node_or_null("CollisionShape3D") as CollisionShape3D if terrain_body != null else null
         if collision == null or not (collision.shape is ConcavePolygonShape3D):
             _fail("collision terrain is not a triangle heightfield at " + str(tile_x))
             return
+        var shape_faces: PackedVector3Array = (collision.shape as ConcavePolygonShape3D).get_faces()
+        if shape_faces.size() < 1200:
+            _fail("heightfield triangle count unexpectedly small at " + str(tile_x))
+            return
+        # Exact grid vertices may give unstable ray hits; sample triangle
+        # interiors, while still requiring actual collidable terrain.
         var ray := PhysicsRayQueryParameters3D.create(
-            player.position + Vector3(0.0, 6.0, 0.0),
-            player.position + Vector3(0.0, -3.0, 0.0))
+            player.position + Vector3(3.3, 6.0, 4.2),
+            player.position + Vector3(3.3, -3.0, 4.2))
         var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(ray)
         if hit.is_empty():
             _fail("player could fall through Janoah terrain at " + str(tile_x))
