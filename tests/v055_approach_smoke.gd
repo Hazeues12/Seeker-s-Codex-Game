@@ -94,7 +94,7 @@ func _run() -> void:
             _fail("real terrain, road or freight structures missing at " + str(tile_x))
             return
         var terrain_body: StaticBody3D = cell.find_child("JanoahTerrainCollision", true, false) as StaticBody3D
-        var collision: CollisionShape3D = terrain_body.get_node_or_null("CollisionShape3D") as CollisionShape3D if terrain_body != null else null
+        var collision: CollisionShape3D = terrain_body.get_node_or_null("JanoahTerrainTriangleShape") as CollisionShape3D if terrain_body != null else null
         if collision == null or not (collision.shape is ConcavePolygonShape3D):
             _fail("collision terrain is not a triangle heightfield at " + str(tile_x))
             return
