@@ -283,7 +283,7 @@ func _build_cell(key: String, parent: Node3D) -> void:
         _lamp(parent, Vector3(street_x + (6.0 if west else -6.0), 0.0, zlamp))
     var outer_x: float = -89.0 if west else 89.0
     var inner_x: float = -43.0 if west else 43.0
-    var zlist: Array[float] = [38.0, 57.5] if public else [82.0, 101.0]
+    var zlist: Array = [38.0, 57.5] if public else [82.0, 101.0]
     for j in range(2):
         var zz: float = zlist[j]
         if key == "east_public" and j == 0:
