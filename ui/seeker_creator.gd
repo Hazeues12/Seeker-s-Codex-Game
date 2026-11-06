@@ -164,6 +164,12 @@ func _apply_preview() -> void:
     var rig: Node = player.get_node_or_null("AnimatedSeeker")
     if is_instance_valid(rig) and rig.has_method("apply_player_appearance"):
         rig.call("apply_player_appearance", skin_option.selected, hair_option.selected, coat_option.selected, aura_option.selected)
+        var codex: Node = get_tree().get_first_node_in_group("personal_codex")
+        if is_instance_valid(codex):
+            var saved: Dictionary = codex.get("profile")
+            var life: Dictionary = saved.get("life_v057", {})
+            if rig.has_method("apply_national_outfit") and not life.is_empty():
+                rig.call("apply_national_outfit", str(life.get("nation", "")))
     GameState.player_name = _clean_name(name_edit.text)
 
 func _clean_name(value: String) -> String:
