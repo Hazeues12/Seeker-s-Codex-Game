@@ -309,6 +309,12 @@ func _build_cell(key: String, parent: Node3D) -> void:
             Vector3(2.5, 1.80, 0.26), Color(0.34, 0.45, 0.51))
     elif key == "east_professional":
         _tag(parent, "PROFESSIONAL PRECINCT / TRAM CONNECTION", Vector3(65.0, 5.2, 84.0), 29)
+        _part(parent, "RaisedTramStationDeck", Vector3(72.0, 0.68, 76.0),
+            Vector3(9.6, 0.24, 3.2), Color(0.58, 0.56, 0.53), true)
+        _part(parent, "SolidTransitWaitingBench", Vector3(69.0, 1.12, 76.8),
+            Vector3(2.2, 0.60, 0.62), Color(0.38, 0.29, 0.22), true)
+        _part(parent, "StationEdgeSafetyRail", Vector3(72.0, 1.40, 77.70),
+            Vector3(9.2, 0.92, 0.18), Color(0.38, 0.36, 0.34), true)
         _part(parent, "TramShelterRoof", Vector3(72.0, 3.0, 76.0),
             Vector3(9.1, 0.19, 3.2), Color(0.30, 0.38, 0.43))
         for post in [-4.0, 4.0]:
