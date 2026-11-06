@@ -38,6 +38,9 @@ func _setup() -> void:
 func is_open() -> bool:
     return is_instance_valid(panel) and panel.visible
 
+func may_accept_seeker_contracts() -> bool:
+    return Rules.can_take_seeker_contract(_current_life())
+
 func _material(color: Color) -> StandardMaterial3D:
     var result := StandardMaterial3D.new()
     result.albedo_color = color
@@ -181,14 +184,31 @@ func _day() -> int:
     return maxi(1, int(floor(float(hub.get("world_minutes")) / 1440.0)) + 1)
 
 func _current_life() -> Dictionary:
-    return Rules.sanitize(codex.profile.get("life_v057", {}))
+    if not is_instance_valid(codex):
+        return {}
+    var current_profile: Dictionary = codex.get("profile")
+    return Rules.sanitize(current_profile.get("life_v057", {}))
 
 func _save_life(record: Dictionary) -> bool:
     if not is_instance_valid(codex) or bool(codex.get("save_blocked")):
         return false
-    codex.profile["life_v057"] = Rules.sanitize(record)
+    var profile: Dictionary = codex.get("profile")
+    var clean: Dictionary = Rules.sanitize(record)
+    if clean.is_empty():
+        return false
+    profile["life_v057"] = clean
+    codex.set("profile", profile)
     codex.call("_save_profile")
-    return true
+    # Do not announce successful registration/pickup or pay money unless
+    # the actual on-disk Codex receipt can be read back.
+    var verify := FileAccess.open("user://seeker_profile_v1.json", FileAccess.READ)
+    if verify == null:
+        return false
+    var stored: Variant = JSON.parse_string(verify.get_as_text())
+    verify.close()
+    if typeof(stored) != TYPE_DICTIONARY:
+        return false
+    return Rules.sanitize(stored.get("life_v057", {})) == clean
 
 func _announce(message: String) -> void:
     if is_instance_valid(hub):
@@ -257,16 +277,18 @@ func _choose_path(path: String) -> void:
     if not _save_life(next):
         notice.text = "Could not save your starting road."
         return
-    var identity: Dictionary = codex.profile.get("identity", {})
+    var profile: Dictionary = codex.get("profile")
+    var identity: Dictionary = profile.get("identity", {})
     identity["origin_id"] = nation
-    codex.profile["identity"] = identity
+    profile["identity"] = identity
     if path == Rules.ROAD_SWORN:
-        var career: Dictionary = codex.profile.get("career", {})
+        var career: Dictionary = profile.get("career", {})
         career["license_backstory"] = "Iron / existing prior qualification / game_only"
-        codex.profile["career"] = career
+        profile["career"] = career
         if GameState.seeker_rank == "Stray":
             GameState.set_rank("Iron")
             hub.call("_save_game")
+    codex.set("profile", profile)
     codex.call("_save_profile")
     codex.call("record_event", "v057:life_road", "life_road_chosen",
         "Registered a life road: " + Rules.path_label(path),
