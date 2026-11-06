@@ -1,0 +1,127 @@
+name: Margerina V0.57 - Young Blood Life Roads and 3D World Validation
+on:
+  push:
+    branches: [young-blood-life-v057-staging]
+    paths:
+      - '.github/workflows/margerina-v057-life.yml'
+      - 'systems/young_blood_life_rules_v057.gd'
+      - 'world/young_blood_life_v057.gd'
+      - 'tests/v057_life_smoke.gd'
+      - 'tests/v057_world_smoke.gd'
+      - 'scenes/main.tscn'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-life-and-world:
+    runs-on: ubuntu-latest
+    timeout-minutes: 42
+    steps:
+      - name: Checkout isolated Young Blood 3D integration
+        uses: actions/checkout@v4
+        with:
+          ref: young-blood-life-v057-staging
+      - name: Verify canon and original game integration boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          sources={p:Path(p).read_text() for p in [
+            "systems/young_blood_life_rules_v057.gd",
+            "world/young_blood_life_v057.gd",
+            "systems/hub_manager.gd","characters/player_controller.gd",
+            "systems/personal_codex.gd","scenes/main.tscn"]}
+          assert 'res://world/young_blood_life_v057.gd' in sources["scenes/main.tscn"]
+          assert 'yb_v057_registrar' in sources["world/young_blood_life_v057.gd"]
+          assert 'yb_v057_pickup' in sources["world/young_blood_life_v057.gd"]
+          assert 'yb_v057_delivery' in sources["world/young_blood_life_v057.gd"]
+          assert 'kind.begins_with("yb_v057_")' in sources["systems/hub_manager.gd"]
+          assert 'may_accept_seeker_contracts' in sources["systems/hub_manager.gd"]
+          assert 'young_blood_life_v057' in sources["characters/player_controller.gd"]
+          assert 'life_v057' in sources["systems/personal_codex.gd"]
+          assert 'seeker_profile_v1.json' in sources["systems/personal_codex.gd"]
+          assert 'margerina_v033.json' in sources["systems/hub_manager.gd"]
+          assert 'joystick_finger' in Path("ui/mobile_controls.gd").read_text()
+          assert 'wall_running' in sources["characters/player_controller.gd"]
+          assert 'celestial' not in sources["world/young_blood_life_v057.gd"].lower()
+          assert Path("docs/V057_YOUNG_BLOOD_3D_LIFE_ROADS.md").is_file()
+          atlas=json.loads(Path("data/known_world_v054.json").read_text())
+          assert "Zuba" in atlas["scope"]["excluded"]
+          print("V0.57 LORE, MOBILE AND SAVE COMPATIBILITY AUDIT PASS")
+          PY
+      - name: Install Godot 4.4.1 and HTML5 export templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+      - name: Import all Godot scripts and start original main game
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 150s godot --headless --path . --editor --import --quit 2>&1 | tee v057-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v057-import.log; then exit 1; fi
+          timeout 115s godot --headless --path . --quit-after 210 2>&1 | tee v057-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v057-startup.log; then exit 1; fi
+      - name: Run old Seeker and complete region regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          for item in 'v048_field:V0.48 FIELD MISSION STATE SMOKE PASS' 'v049_companion:V0.49 COMPANION STATE SMOKE PASS' 'v050_expedition:V0.50 MULTI-DAY EXPEDITION SMOKE PASS' 'v051_city:V0.51 DAILY CITY MEMORY SMOKE PASS' 'v052_city:V0.52 MAGNARA CITY GEOMETRY AND INTERIORS PASS' 'v053_city:V0.53 SIX WALKABLE INTERIORS AND CONNECTED STREETS PASS' 'v054_geography:V0.54 KNOWN WORLD ATLAS AND 1:1 MAGNARA GEOGRAPHY PASS' 'v055_janoah:V0.55 PHYSICAL JANOAH APPROACH AND REGIONAL STREAMING PASS' 'v055_approach:V0.55 COLLIDABLE JANOAH REGIONAL APPROACH AND STREAMING PASS' 'v056_waterways:V0.56 JANOAH CARVED RIVER AND TWO WALKABLE BRIDGES PASS'; do
+            t="${item%%:*}"; expected="${item#*:}"
+            timeout 70s godot --headless --path . "res://tests/${t}_scene.tscn" --quit-after 380 2>&1 | tee "${t}.log"
+            if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' "${t}.log"; then exit 1; fi
+            grep -Fq "${expected}" "${t}.log"
+          done
+      - name: Test Young Blood's three life paths and persistent civic courier state
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 80s godot --headless --path . res://tests/v057_life_scene.tscn --quit-after 340 2>&1 | tee v057-life.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v057-life.log; then exit 1; fi
+          grep -Fq 'V0.57 YOUNG BLOOD LIFE PATHS AND PERSISTENT COURIER GUARDS PASS' v057-life.log
+      - name: Test the real physical life registrar and mobile modal integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 95s godot --headless --path . res://tests/v057_world_scene.tscn --quit-after 380 2>&1 | tee v057-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v057-world.log; then exit 1; fi
+          grep -Fq 'V0.57 PHYSICAL LIFE REGISTRAR AND 3D ROUTE INTEGRATION PASS' v057-world.log
+      - name: Export entire browser game with the Young Blood life integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          timeout 165s godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v057-export.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v057-export.log; then exit 1; fi
+          for ext in html js wasm pck; do test -s "build/web/index.${ext}"; done
+      - name: Archive internal browser build without publishing it
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v057-young-blood-life-internal
+          path: build/web/
+          if-no-files-found: error
+      - name: Preserve validation diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: margerina-v057-life-debug-logs
+          if-no-files-found: ignore
+          path: |
+            v057-import.log
+            v057-startup.log
+            v057-life.log
+            v057-world.log
+            v057-export.log
+            v048_field.log
+            v049_companion.log
+            v050_expedition.log
+            v051_city.log
+            v052_city.log
+            v053_city.log
+            v054_geography.log
+            v055_janoah.log
+            v055_approach.log
+            v056_waterways.log
