@@ -451,11 +451,24 @@ func _trade(mode: String) -> void:
     hub.call("_save_game")
     var disk := FileAccess.open("user://margerina_v033.json", FileAccess.READ)
     var good: bool = false
+    var diagnostic: String = "file missing"
     if disk != null:
         var raw: Variant = JSON.parse_string(disk.get_as_text())
         disk.close()
-        good = typeof(raw) == TYPE_DICTIONARY and int(raw.get("tola", -1)) == GameState.tola and raw.get("inventory", {}) == next_inventory and Rules.sanitize_stock(raw.get("market_stock_v062", {})) == next_stock
+        if typeof(raw) == TYPE_DICTIONARY:
+            var coin_ok: bool = int(raw.get("tola", -1)) == GameState.tola
+            var bag_ok: bool = raw.get("inventory", {}) == next_inventory
+            var stock_disk: Dictionary = Rules.sanitize_stock(raw.get("market_stock_v062", {}))
+            var stock_ok: bool = stock_disk == next_stock
+            good = coin_ok and bag_ok and stock_ok
+            diagnostic = "coin_ok=%s bag_ok=%s stock_ok=%s disk_coin=%s expected_coin=%s disk_bag=%s expected_bag=%s disk_stock=%s expected_stock=%s" % [
+                str(coin_ok), str(bag_ok), str(stock_ok), str(raw.get("tola", "?")),
+                str(GameState.tola), JSON.stringify(raw.get("inventory", {})),
+                JSON.stringify(next_inventory), JSON.stringify(stock_disk), JSON.stringify(next_stock)]
+        else:
+            diagnostic = "saved JSON is not a dictionary"
     if not good:
+        print("V0.62 TRANSACTION SAVE DIAGNOSTIC: " + diagnostic)
         GameState.tola = previous_cash
         hub.set("inventory", old_inventory)
         hub.set("market_stock_v062", old_ledger)
