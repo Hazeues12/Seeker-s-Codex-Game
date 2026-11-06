@@ -1,4 +1,5 @@
 extends Node
+const FamilyV059 = preload("res://systems/young_blood_family_v059.gd")
 
 # V0.45 GAME-ONLY social simulation and professional reputation.
 # Canon institutions are respected; no official rank, restricted access,
@@ -92,6 +93,10 @@ func get_npc_reaction(kind: String) -> String:
         return "People here recognize your questionable conduct and keep their distance."
     if kind == "npc_ring2_trainer" and get_reputation("guild_reliability") >= 2:
         return "The Silver instructor remembers your reliable field work."
+    var family: Dictionary = codex.profile.get("family_v059", {})
+    var family_response: String = FamilyV059.relationship_response(family, kind)
+    if not family_response.is_empty():
+        return family_response
     return "Your actions and conversation history affect their response."
 
 func get_reputation(key: String) -> int:
