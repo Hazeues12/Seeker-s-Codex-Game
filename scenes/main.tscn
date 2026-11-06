@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="PackedScene" path="res://characters/player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://ui/mobile_controls.tscn" id="2"]
@@ -18,6 +18,7 @@
 [ext_resource type="Script" path="res://systems/field_mission_v048.gd" id="16"]
 [ext_resource type="Script" path="res://world/multi_day_expedition_v050.gd" id="17"]
 [ext_resource type="Script" path="res://world/daily_events_v051.gd" id="18"]
+[ext_resource type="Script" path="res://world/magnara_city_v052.gd" id="19"]
 
 [sub_resource type="BoxMesh" id="GroundMesh"]
 size = Vector3(60, 1, 60)
@@ -98,3 +99,6 @@ script = ExtResource("17")
 
 [node name="DailyCityEventsV051" type="Node3D" parent="."]
 script = ExtResource("18")
+
+[node name="MagnaraCityV052" type="Node3D" parent="."]
+script = ExtResource("19")
