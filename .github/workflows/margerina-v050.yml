@@ -160,6 +160,19 @@ jobs:
                   dest.parent.mkdir(parents=True,exist_ok=True)
                   dest.write_bytes(content)
           PYINSTALL
+          python3 - <<'PYANCHOR'
+          from pathlib import Path
+          installer = Path('install_v050.py')
+          source = installer.read_text()
+          old = 'if key.begins_with("npc_") and (not is_instance_valid(spot_node) or not spot_node.visible):'
+          actual = 'if (key.begins_with("npc_") or key.begins_with("field_v048_")) and (not is_instance_valid(spot_node) or not spot_node.visible):'
+          new_old = 'if (key.begins_with("npc_") or key.begins_with("exp_v050_")) and (not is_instance_valid(spot_node) or not spot_node.visible):'
+          new_final = 'if (key.begins_with("npc_") or key.begins_with("field_v048_") or key.begins_with("exp_v050_")) and (not is_instance_valid(spot_node) or not spot_node.visible):'
+          if source.count(old)!=1 or source.count(new_old)!=1:
+              raise SystemExit('V0.50 marker version check is not patchable')
+          source = source.replace(old,actual).replace(new_old,new_final)
+          installer.write_text(source)
+          PYANCHOR
           python3 -m py_compile install_v050.py
           python3 install_v050.py
           rm install_v050.py
