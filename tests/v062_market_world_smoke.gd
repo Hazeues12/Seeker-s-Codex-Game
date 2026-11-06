@@ -95,7 +95,12 @@ func _check() -> void:
     var expected_buy: int = MarketRules.price("provisions", 1, {}, 0, 0)
     market.call("_choose", "buy")
     if GameState.tola != old_cash - expected_buy:
-        _fail("Tola was not charged at the advertised dynamic price")
+        var debug_quote: int = market.call("_quote", "provisions")
+        var shown_message: String = str(market.get("feedback").text)
+        var state_stock: Dictionary = hub.get("market_stock_v062")
+        _fail("Purchase balance mismatch: before=%d actual=%d expected=%d quote=%d day=%d stock=%s feedback=%s" % [
+            old_cash, GameState.tola, old_cash - expected_buy, debug_quote,
+            int(market.call("_day")), JSON.stringify(state_stock), shown_message])
         return
     var after_purchase: Dictionary = hub.get("inventory")
     if int(after_purchase.get("Travel Rations", 0)) != int(old_inventory.get("Travel Rations", 0)) + 1:
