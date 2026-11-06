@@ -12,6 +12,7 @@ var player: CharacterBody3D
 var player_health: int = PLAYER_MAX_HEALTH
 var hurt_grace: float = 0.0
 var ko_timer: float = 0.0
+var alchemy_shield_time: float = 0.0
 var last_strike_time: float = -100.0
 var combo: int = 0
 var enemies: Array[CharacterBody3D] = []
@@ -50,6 +51,7 @@ func _finish_setup() -> void:
 
 func _process(delta: float) -> void:
     hurt_grace = maxf(0.0, hurt_grace - delta)
+    alchemy_shield_time = maxf(0.0, alchemy_shield_time - delta)
     combat_notice_timer = maxf(0.0, combat_notice_timer - delta)
     if ko_timer > 0.0:
         ko_timer -= delta
@@ -100,6 +102,113 @@ func player_strike(facing: Vector3) -> void:
         combo = mini(combo + 1, 3)
         _announce("HIT  -%d enemy HP  |  Martial combo %d/3" % [damage, combo], 1.35)
 
+# Supervised basic-Spoke practice: this never grants permanent character powers.
+# Each practice technique has its own real combat/defensive effect.
+func _training_target(forward: Vector3, max_range: float) -> CharacterBody3D:
+    if not is_instance_valid(player):
+        return null
+    var selected: CharacterBody3D = null
+    var nearest: float = max_range
+    for fighter in enemies:
+        if not is_instance_valid(fighter) or not bool(fighter.call("is_active")):
+            continue
+        var offset: Vector3 = fighter.global_position - player.global_position
+        offset.y = 0.0
+        var range_now: float = offset.length()
+        if range_now > 0.01 and range_now < nearest and forward.dot(offset.normalized()) >= 0.20:
+            selected = fighter
+            nearest = range_now
+    return selected
+
+func training_spoke_effect(spoke: String, facing: Vector3) -> Dictionary:
+    if not is_instance_valid(player) or ko_timer > 0.0:
+        return {"ok": false, "message": "Recover before practicing another Art."}
+    var forward: Vector3 = facing
+    forward.y = 0.0
+    forward = forward.normalized()
+    if forward.length_squared() < 0.01:
+        return {"ok": false, "message": "Choose a direction first."}
+    if spoke == "Spirit":
+        if player_health >= PLAYER_MAX_HEALTH:
+            return {"ok": false, "message": "HP already full; no healing needed."}
+        player_health = mini(PLAYER_MAX_HEALTH, player_health + 16)
+        _training_flash(player.global_position + Vector3.UP * 1.3, Color(0.40, 0.90, 0.61))
+        _refresh_hud()
+        return {"ok": true, "message": "Restorative practice restored 16 HP."}
+    if spoke == "Alchemy":
+        alchemy_shield_time = 4.5
+        _training_flash(player.global_position + Vector3.UP * 1.3, Color(0.92, 0.76, 0.40))
+        return {"ok": true, "message": "Temporary ward ready to absorb one hit."}
+    if spoke == "Spatial":
+        var start: Vector3 = player.global_position + Vector3.UP * 1.1
+        var target: Vector3 = player.global_position + forward * 3.0
+        if absf(target.x) >= 9.3 or target.z < -28.0 or target.z > -17.0:
+            return {"ok": false, "message": "Shift stays within the supervised training court."}
+        var ray := PhysicsRayQueryParameters3D.create(start, target + Vector3.UP * 1.1)
+        ray.exclude = [player.get_rid()]
+        var obstacle: Dictionary = get_world_3d().direct_space_state.intersect_ray(ray)
+        if not obstacle.is_empty():
+            return {"ok": false, "message": "A solid obstacle blocks the shift."}
+        _training_flash(player.global_position + Vector3.UP, Color(0.62, 0.75, 1.0))
+        player.global_position = target
+        player.velocity.x = 0.0
+        player.velocity.z = 0.0
+        _training_flash(player.global_position + Vector3.UP, Color(0.62, 0.75, 1.0))
+        return {"ok": true, "message": "Moved 3 m within the courtyard."}
+    var range_now: float = 3.2
+    if spoke == "Elemental":
+        range_now = 8.0
+    elif spoke == "Psychic":
+        range_now = 7.0
+    elif spoke == "Abyssal":
+        range_now = 3.6
+    var target_fighter: CharacterBody3D = _training_target(forward, range_now)
+    if not is_instance_valid(target_fighter):
+        return {"ok": false, "message": "Face a live sparring construct in range."}
+    if spoke == "Psychic":
+        target_fighter.call("apply_psychic_disruption", 2.5)
+        _training_flash(target_fighter.global_position + Vector3.UP * 1.4, Color(0.76, 0.52, 1.0))
+        return {"ok": true, "message": "Interrupted a construct for 2.5 s."}
+    var damage: int = 22
+    var color: Color = Color(0.34, 0.77, 1.0)
+    if spoke == "Elemental":
+        damage = 16
+        color = Color(1.0, 0.47, 0.22)
+    elif spoke == "Abyssal":
+        damage = 30
+        color = Color(0.42, 0.20, 0.60)
+    elif spoke != "Martial":
+        return {"ok": false, "message": "Unknown training technique."}
+    var connected: bool = bool(target_fighter.call("take_strike", damage, player.global_position))
+    if not connected:
+        return {"ok": false, "message": "Construct could not be hit."}
+    _training_flash(target_fighter.global_position + Vector3.UP * 1.3, color)
+    if spoke == "Abyssal":
+        player_health = maxi(1, player_health - 7)
+        _refresh_hud()
+        return {"ok": true, "message": "Heavy impact, 7 HP strain."}
+    return {"ok": true, "message": "Hit the construct for up to %d damage." % damage}
+
+func _training_flash(at: Vector3, color: Color) -> void:
+    var marker := MeshInstance3D.new()
+    marker.name = "SpokePracticeFlash"
+    var sphere := SphereMesh.new()
+    sphere.radius = 0.30
+    sphere.height = 0.60
+    marker.mesh = sphere
+    var glow := StandardMaterial3D.new()
+    glow.albedo_color = color
+    glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    marker.material_override = glow
+    marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+    add_child(marker)
+    marker.global_position = at
+    marker.scale = Vector3(0.3, 0.3, 0.3)
+    var pulse := create_tween()
+    pulse.tween_property(marker, "scale", Vector3(2.1, 2.1, 2.1), 0.24)
+    pulse.tween_callback(marker.queue_free)
+
+
 func _receive_enemy_attack(amount: int) -> void:
     if ko_timer > 0.0 or not is_instance_valid(player):
         return
@@ -108,6 +217,10 @@ func _receive_enemy_attack(amount: int) -> void:
         _announce("DODGED! Counterattack with STRIKE.", 1.4)
         return
     if hurt_grace > 0.0:
+        return
+    if alchemy_shield_time > 0.0:
+        alchemy_shield_time = 0.0
+        _announce("ALCHEMY: your temporary ward absorbed a sparring hit.", 2.0)
         return
     var guarded: bool = false
     if bool(player.get("guard_active")):

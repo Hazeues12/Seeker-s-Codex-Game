@@ -229,6 +229,15 @@ func _walk_toward(destination: Vector3, speed: float) -> void:
     velocity.x = step.x
     velocity.z = step.z
 
+# Psychic training demonstration: interrupts current action; no permanent control.
+func apply_psychic_disruption(duration: float) -> void:
+    if not active:
+        return
+    state = "stagger"
+    state_timer = maxf(state_timer, clampf(duration, 0.2, 3.0))
+    velocity.x = 0.0
+    velocity.z = 0.0
+
 func take_strike(damage: int, attacker_position: Vector3) -> bool:
     if not active:
         return false
