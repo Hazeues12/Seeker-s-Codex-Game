@@ -415,6 +415,18 @@ func _save_social(next: Dictionary) -> bool:
         codex.set("profile", original)
     return good
 
+func _inventory_counts(value: Variant) -> Dictionary:
+    # JSON.parse_string converts saved numeric counts to float values in
+    # Godot's Variant representation. Normalize to integer item quantities
+    # before comparing a stored bag to the live Dictionary.
+    var counts: Dictionary = {}
+    if typeof(value) != TYPE_DICTIONARY:
+        return counts
+    var raw: Dictionary = value
+    for key in raw:
+        counts[str(key)] = int(raw[key])
+    return counts
+
 func _trade(mode: String) -> void:
     if not Rules.is_open(float(hub.get("world_minutes"))):
         feedback.text = "The stall is closed. The day market has regular hours."
@@ -425,7 +437,7 @@ func _trade(mode: String) -> void:
     var old_inventory: Dictionary = hub.get("inventory").duplicate(true)
     var old_ledger: Dictionary = _stock()
     var previous_cash: int = GameState.tola
-    var next_inventory: Dictionary = old_inventory.duplicate(true)
+    var next_inventory: Dictionary = _inventory_counts(old_inventory)
     var next_stock: Dictionary = old_ledger.duplicate(true)
     if mode == "buy":
         if Rules.remaining_stock(shop, _day(), old_ledger) < 1 or GameState.tola < price:
@@ -457,7 +469,7 @@ func _trade(mode: String) -> void:
         disk.close()
         if typeof(raw) == TYPE_DICTIONARY:
             var coin_ok: bool = int(raw.get("tola", -1)) == GameState.tola
-            var bag_ok: bool = raw.get("inventory", {}) == next_inventory
+            var bag_ok: bool = _inventory_counts(raw.get("inventory", {})) == _inventory_counts(next_inventory)
             var stock_disk: Dictionary = Rules.sanitize_stock(raw.get("market_stock_v062", {}))
             var stock_ok: bool = stock_disk == next_stock
             good = coin_ok and bag_ok and stock_ok
