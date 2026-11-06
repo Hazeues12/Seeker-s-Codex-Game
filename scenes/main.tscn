@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3]
+[gd_scene load_steps=27 format=3]
 
 [ext_resource type="PackedScene" path="res://characters/player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://ui/mobile_controls.tscn" id="2"]
@@ -22,6 +22,7 @@
 [ext_resource type="Script" path="res://world/magnara_geography_v054.gd" id="20"]
 [ext_resource type="Script" path="res://world/janoah_approach_v055.gd" id="21"]
 [ext_resource type="Script" path="res://world/young_blood_life_v057.gd" id="22"]
+[ext_resource type="Script" path="res://world/magnara_residential_v060.gd" id="23"]
 
 [sub_resource type="BoxMesh" id="GroundMesh"]
 size = Vector3(60, 1, 60)
@@ -114,3 +115,6 @@ script = ExtResource("21")
 
 [node name="YoungBloodLifeV057" type="Node3D" parent="."]
 script = ExtResource("22")
+
+[node name="MagnaraResidentialV060" type="Node3D" parent="."]
+script = ExtResource("23")
