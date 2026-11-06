@@ -1,0 +1,108 @@
+name: Margerina V0.55 - Physical Janoah Hinterland Validation
+on:
+  push:
+    branches: [janoah-world-v055-staging]
+    paths:
+      - '.github/workflows/margerina-v055-hinterland.yml'
+      - 'world/janoah_approach_v055.gd'
+      - 'tests/v055_janoah_smoke.gd'
+      - 'data/janoah_approach_v055.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-hinterland:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout staging branch with original gameplay untouched
+        uses: actions/checkout@v4
+        with:
+          ref: janoah-world-v055-staging
+      - name: Verify regional atlas and save/multitouch preservation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          master=json.loads(Path("data/known_world_v054.json").read_text())
+          region=json.loads(Path("data/janoah_approach_v055.json").read_text())
+          assert len(master["nations"])==13
+          assert len(master["settlements"])==19
+          assert region["terrain"]["total_length_m"]==6144
+          assert region["terrain"]["corridor_width_m"]==768
+          assert region["canon_status"]=="game_only_local_alignment"
+          assert "Zuba" in master["scope"]["excluded"]
+          assert "San Ciana" in master["scope"]["boundary_unverified"]
+          assert all(x["geographic_coordinates"] is None for x in master["settlements"])
+          assert "joystick_finger" in Path("ui/mobile_controls.gd").read_text()
+          assert "wall_running" in Path("characters/player_controller.gd").read_text()
+          assert "margerina_v033.json" in Path("systems/hub_manager.gd").read_text()
+          assert "seeker_profile_v1.json" in Path("systems/personal_codex.gd").read_text()
+          assert "res://world/janoah_approach_v055.gd" in Path("scenes/main.tscn").read_text()
+          print("V0.55 WORLD AND LEGACY SAVE POLICY PASS")
+          PY
+      - name: Install Godot 4.4.1 and Web templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+      - name: Validate whole-game import and main scene
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 140s godot --headless --path . --editor --import --quit 2>&1 | tee v055-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v055-import.log; then exit 1; fi
+          timeout 100s godot --headless --path . --quit-after 180 2>&1 | tee v055-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v055-startup.log; then exit 1; fi
+      - name: Existing city and RPG mechanics regression test
+        shell: bash
+        run: |
+          set -euo pipefail
+          for item in 'v048_field:V0.48 FIELD MISSION STATE SMOKE PASS' 'v049_companion:V0.49 COMPANION STATE SMOKE PASS' 'v050_expedition:V0.50 MULTI-DAY EXPEDITION SMOKE PASS' 'v051_city:V0.51 DAILY CITY MEMORY SMOKE PASS' 'v052_city:V0.52 MAGNARA CITY GEOMETRY AND INTERIORS PASS' 'v053_city:V0.53 SIX WALKABLE INTERIORS AND CONNECTED STREETS PASS' 'v054_geography:V0.54 KNOWN WORLD ATLAS AND 1:1 MAGNARA GEOGRAPHY PASS'; do
+            t="${item%%:*}"; expected="${item#*:}"
+            timeout 65s godot --headless --path . "res://tests/${t}_scene.tscn" --quit-after 350 2>&1 | tee "${t}.log"
+            if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' "${t}.log"; then exit 1; fi
+            grep -Fq "${expected}" "${t}.log"
+          done
+      - name: Test countryside terrain collision and world-edge continuity
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 110s godot --headless --path . res://tests/v055_janoah_scene.tscn --quit-after 380 2>&1 | tee v055-terrain.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v055-terrain.log; then exit 1; fi
+          grep -Fq 'V0.55 PHYSICAL JANOAH APPROACH AND REGIONAL STREAMING PASS' v055-terrain.log
+      - name: Verify full Web export for internal development
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          timeout 145s godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v055-export.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v055-export.log; then exit 1; fi
+          for ext in html js wasm pck; do test -s "build/web/index.${ext}"; done
+      - name: Store internal browser build, not a public release
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v055-janoah-internal
+          path: build/web/
+          if-no-files-found: error
+      - name: Preserve diagnostics on any error
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: janoah-v055-terrain-diagnostics
+          if-no-files-found: ignore
+          path: |
+            v055-import.log
+            v055-startup.log
+            v055-terrain.log
+            v055-export.log
+            v048_field.log
+            v049_companion.log
+            v050_expedition.log
+            v051_city.log
+            v052_city.log
+            v053_city.log
+            v054_geography.log
