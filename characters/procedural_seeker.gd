@@ -19,6 +19,8 @@ var right_pant: MeshInstance3D
 var cape_trim: MeshInstance3D
 var aura_gem: MeshInstance3D
 var accent: Color = Color(0.30, 0.72, 0.98)
+var national_nation: String = ""
+var national_accessories: Node3D
 
 func configure(look: String = "seeker") -> void:
     appearance = look
@@ -117,6 +119,89 @@ func _apply_colors() -> void:
     for item in [left_pant, right_pant]:
         (item.material_override as StandardMaterial3D).albedo_color = pants
     (aura_gem.material_override as StandardMaterial3D).albedo_color = accent
+
+func apply_national_outfit(nation: String) -> void:
+    # 3D game costume silhouettes inspired by the author's Young Blood guide.
+    # Cosmetic only: no canon military status, rank or inherited abilities.
+    if appearance != "seeker":
+        return
+    if not is_instance_valid(body_root):
+        _build_rig()
+        _apply_colors()
+    if national_nation == nation and is_instance_valid(national_accessories):
+        return
+    national_nation = nation
+    if is_instance_valid(national_accessories):
+        national_accessories.queue_free()
+    national_accessories = Node3D.new()
+    national_accessories.name = "NationalClothing"
+    body_root.add_child(national_accessories)
+    var outfit: Node3D = national_accessories
+    match nation:
+        "Janoah":
+            _box(outfit, "WorkVest", Vector3(0.0, 1.28, -0.225),
+                Vector3(0.69, 0.53, 0.08), Color(0.43, 0.42, 0.39))
+            _box(outfit, "UtilityPocket", Vector3(0.21, 1.09, -0.28),
+                Vector3(0.23, 0.18, 0.07), Color(0.28, 0.35, 0.41))
+        "Rajistan":
+            var sash := _box(outfit, "SaffronDrapedWrap", Vector3(-0.07, 1.36, -0.31),
+                Vector3(0.22, 0.91, 0.09), Color(0.88, 0.55, 0.17))
+            sash.rotation.z = -0.40
+            _box(outfit, "TempleWaistCloth", Vector3(0.0, 0.86, -0.29),
+                Vector3(0.75, 0.20, 0.12), Color(0.70, 0.41, 0.14))
+        "Chun":
+            var cross_left := _box(outfit, "LeftCrossCollar", Vector3(-0.13, 1.67, -0.27),
+                Vector3(0.15, 0.43, 0.09), Color(0.64, 0.21, 0.22))
+            cross_left.rotation.z = -0.55
+            var cross_right := _box(outfit, "RightCrossCollar", Vector3(0.13, 1.67, -0.28),
+                Vector3(0.15, 0.43, 0.09), Color(0.20, 0.44, 0.42))
+            cross_right.rotation.z = 0.55
+            _box(outfit, "RobeOverpanel", Vector3(0.08, 1.22, -0.285),
+                Vector3(0.34, 0.54, 0.06), Color(0.25, 0.36, 0.39))
+        "Vinlan":
+            _box(outfit, "FurMantle", Vector3(0.0, 1.76, 0.02),
+                Vector3(1.15, 0.26, 0.57), Color(0.76, 0.72, 0.65))
+            _box(outfit, "WinterClasp", Vector3(0.0, 1.70, -0.36),
+                Vector3(0.24, 0.16, 0.11), Color(0.54, 0.64, 0.68))
+        "Britannia":
+            _box(outfit, "OathTabard", Vector3(0.0, 1.22, -0.285),
+                Vector3(0.45, 0.98, 0.08), Color(0.84, 0.81, 0.67))
+            _box(outfit, "SunHeraldicBand", Vector3(0.0, 1.43, -0.345),
+                Vector3(0.30, 0.19, 0.07), Color(0.88, 0.67, 0.25))
+            _box(outfit, "CapeShoulderClasp", Vector3(0.0, 1.81, 0.22),
+                Vector3(0.79, 0.13, 0.10), Color(0.67, 0.52, 0.32))
+        "Germania":
+            _box(outfit, "GreatcoatFrontLeft", Vector3(-0.20, 0.78, -0.235),
+                Vector3(0.30, 0.60, 0.12), Color(0.25, 0.30, 0.33))
+            _box(outfit, "GreatcoatFrontRight", Vector3(0.20, 0.78, -0.235),
+                Vector3(0.30, 0.60, 0.12), Color(0.25, 0.30, 0.33))
+            _box(outfit, "HighCollar", Vector3(0.0, 1.87, -0.19),
+                Vector3(0.67, 0.24, 0.16), Color(0.37, 0.34, 0.32))
+        "Tsar Empire":
+            _box(outfit, "FurTrimmedCollar", Vector3(0.0, 1.80, 0.04),
+                Vector3(1.05, 0.22, 0.60), Color(0.83, 0.84, 0.82))
+            _box(outfit, "WinterBuckle", Vector3(0.0, 1.29, -0.28),
+                Vector3(0.27, 0.23, 0.12), Color(0.49, 0.57, 0.66))
+        "Zirael":
+            _box(outfit, "WaterproofHood", Vector3(0.0, 2.30, 0.10),
+                Vector3(0.80, 0.63, 0.52), Color(0.28, 0.42, 0.54))
+            _box(outfit, "FaceWrap", Vector3(0.0, 2.01, -0.29),
+                Vector3(0.58, 0.15, 0.11), Color(0.36, 0.55, 0.63))
+        "Africanus":
+            var mantle := _box(outfit, "WovenShoulderWrap", Vector3(0.31, 1.39, -0.17),
+                Vector3(0.33, 0.92, 0.30), Color(0.74, 0.47, 0.20))
+            mantle.rotation.z = -0.20
+            _box(outfit, "WeavePatternBand", Vector3(0.30, 1.49, -0.35),
+                Vector3(0.36, 0.11, 0.08), Color(0.31, 0.56, 0.49))
+        "Americana":
+            _box(outfit, "DusterTail", Vector3(0.0, 0.71, 0.24),
+                Vector3(0.84, 0.80, 0.11), Color(0.53, 0.42, 0.31))
+            var scarf := _box(outfit, "DusterNeckerchief", Vector3(0.0, 1.78, -0.25),
+                Vector3(0.57, 0.17, 0.12), Color(0.61, 0.25, 0.19))
+            scarf.rotation.z = -0.11
+        _:
+            # Unknown or unset origin: do not invent a national costume.
+            pass
 
 func trigger_attack() -> void:
     attack_time = 0.32
