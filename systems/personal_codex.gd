@@ -296,7 +296,22 @@ func _refresh_view() -> void:
     var life_record: Dictionary = profile.get("life_v057", {})
     var life_road: String = str(life_record.get("road", ""))
     var life_nation: String = str(life_record.get("nation", "unselected"))
-    output += "IDENTITY\n%s | Home Nation: %s | Background: not yet selected\n" % [str(identity.get("name", "New Seeker")), life_nation]
+    var origin_data: Dictionary = profile.get("origin_v058", {})
+    var background_label: String = "not yet selected"
+    if typeof(origin_data) == TYPE_DICTIONARY and not origin_data.is_empty():
+        background_label = str(origin_data.get("background", "unknown")).replace("_", " ").capitalize()
+    output += "IDENTITY\n%s | Home Nation: %s | Background: %s\n" % [
+        str(identity.get("name", "New Seeker")), life_nation, background_label]
+    if not origin_data.is_empty():
+        var temperament: String = str(origin_data.get("temperament", ""))
+        var trait: String = str(origin_data.get("trait", ""))
+        var burdens: Array = origin_data.get("burdens", [])
+        var perks: Array = origin_data.get("perks", [])
+        output += "Temperament: %s | Trait: %s\n" % [temperament.capitalize(), trait.replace("_", " ").capitalize()]
+        output += "Burdens: %s | Perks: %s | Remaining debt: %d Tola\n" % [
+            ", ".join(burdens) if burdens.size() else "none",
+            ", ".join(perks) if perks.size() else "none",
+            int(origin_data.get("debt_tola", 0))]
     output += "YOUR ROAD\n%s\n" % ("Not chosen" if life_road.is_empty() else life_road)
     if life_road == "trade":
         var life_work: Dictionary = life_record.get("work", {})
