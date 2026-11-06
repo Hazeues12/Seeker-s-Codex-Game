@@ -1,0 +1,110 @@
+name: Margerina V0.63 - Verified Game Save Integrity
+
+on:
+  push:
+    branches: [margerina-v063-save-staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-resilient-save:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout staging branch
+        uses: actions/checkout@v4
+        with:
+          ref: margerina-v063-save-staging
+      - name: Check old-save compatibility and protected files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          hub=Path("systems/hub_manager.gd").read_text()
+          integrity=Path("systems/game_save_integrity_v063.gd").read_text()
+          market=Path("world/magnara_markets_v062.gd").read_text()
+          assert 'margerina_v033.json' in hub
+          assert 'SaveIntegrityV063.write_verified(data)' in hub
+          assert 'SaveIntegrityV063.load_best()' in hub
+          assert 'SaveIntegrityV063.restore_backup()' in hub
+          assert 'margerina_v033.pending.json' in integrity
+          assert 'margerina_v033.backup.json' in integrity
+          assert 'rename_absolute' in integrity and 'copy_absolute' in integrity
+          assert 'market_stock_v062' in hub and 'market_stock_v062' in market
+          assert 'seeker_profile_v1.json' in Path("systems/personal_codex.gd").read_text()
+          assert 'MagnaraMarketsV062' in Path("scenes/main.tscn").read_text()
+          assert 'MagnaraWorkshopsV061' in Path("scenes/main.tscn").read_text()
+          assert Path("docs/V063_WORLD_SAVE_INTEGRITY.md").is_file()
+          print("V0.63 LEGACY SAVE NAMES AND MARKET TRANSACTION WIRING PASS")
+          PY
+      - name: Install Godot 4.4.1 and HTML5 export templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+      - name: Import scripts and boot the full world
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 160s godot --headless --path . --editor --import --quit 2>&1 | tee v063-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v063-import.log; then exit 1; fi
+          timeout 120s godot --headless --path . --quit-after 180 2>&1 | tee v063-start.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v063-start.log; then exit 1; fi
+      - name: Validate two-generation saves and corrupted-write recovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v063-integrity"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 95s godot --headless --path . res://tests/v063_save_integrity_scene.tscn --quit-after 400 2>&1 | tee v063-save.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v063-save.log; then exit 1; fi
+          grep -Fq 'V0.63 VERIFIED BACKUP ATOMIC GAME SAVE AND INTERRUPTED-WRITE RECOVERY PASS' v063-save.log
+      - name: Regression test V0.62 real housing and market buying/selling
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v063-market"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 135s godot --headless --path . res://tests/v062_market_world_scene.tscn --quit-after 520 2>&1 | tee v062-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v062-world.log; then exit 1; fi
+          grep -Fq 'V0.62 ENTERABLE HOUSING STAFFED MARKET AND PERSISTENT TRADES PASS' v062-world.log
+      - name: Regression test V0.61 actual employment and physical interiors
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v063-workshops"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 130s godot --headless --path . res://tests/v061_workshop_world_scene.tscn --quit-after 520 2>&1 | tee v061-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v061-world.log; then exit 1; fi
+          grep -Fq 'V0.61 PHYSICAL WORKING STREETS SAFE EMPLOYMENT AND PERSISTENT WAGES PASS' v061-world.log
+      - name: Export Web prototype for regression validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          timeout 175s godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v063-export.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v063-export.log; then exit 1; fi
+          for ext in html js wasm pck; do test -s "build/web/index.${ext}"; done
+      - name: Save development artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v063-verified-game-saves-staging
+          path: build/web/
+          if-no-files-found: error
+      - name: Save failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v063-game-save-diagnostics
+          if-no-files-found: ignore
+          path: |
+            v063-import.log
+            v063-start.log
+            v063-save.log
+            v062-world.log
+            v061-world.log
+            v063-export.log
