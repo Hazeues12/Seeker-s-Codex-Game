@@ -4,7 +4,7 @@
   "nation": "Janoah",
   "city": "Magnara",
   "ring_count": 7,
-  "city_plan_status": "in_progress",
+  "city_plan_status": "ring_two_ward_interior_expansion_in_progress",
   "canon_status": "mixed_confirmed_and_game_only",
   "source_note": "Author's Seeker's Codex lore, Chapter 90 and Magnara canon blueprint; placements are provisional unless confirmed.",
   "rings": [
@@ -135,13 +135,32 @@
     ],
     "actual_enterable_interiors": [
       "EnterablePublicRestHouse",
-      "EnterableSeekerRecordsHall"
+      "EnterableSeekerRecordsHall",
+      "EnterableCanalServiceHouse",
+      "EnterableCivicDiningHall",
+      "EnterableSeekerMedicalAnnex",
+      "EnterableSupplyInspectionHall"
     ],
     "unbuilt": [
       "other six rings",
       "Citadel interior",
       "real tram boarding",
-      "permanent city street numbering"
+      "author-approved permanent street naming",
+      "high-fidelity environment art",
+      "physical iPhone performance validation"
+    ],
+    "new_civic_spaces": [
+      "CanalQuayPaving",
+      "CivicSquareStoneTiles",
+      "ProfessionalPavingCourt",
+      "TramWorkshopYard"
+    ],
+    "pedestrian_infrastructure": [
+      "ContinuousPedestrianPromenade",
+      "ArcadeContinuousCanopy",
+      "PortalStonePier",
+      "QuayBronzeGuardMid",
+      "QuayBronzeGuardEast"
     ]
   }
 }
