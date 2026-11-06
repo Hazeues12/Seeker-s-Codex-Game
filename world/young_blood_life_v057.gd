@@ -3,6 +3,7 @@ extends Node3D
 # Game-only starting history and paid courier trial. The longer 36-step exam,
 # nine trades, nation origin scenes, traits, and family lineages follow later.
 const Rules = preload("res://systems/young_blood_life_rules_v057.gd")
+const Origins = preload("res://systems/young_blood_origins_v058.gd")
 const REGISTRAR: Vector3 = Vector3(-8.5, 0.56, 69.0)
 const PICKUP: Vector3 = Vector3(11.5, 0.56, 60.0)
 const DELIVERY: Vector3 = Vector3(-18.0, 0.56, 90.0)
@@ -16,6 +17,13 @@ var current_road: Label
 var nation_option: OptionButton
 var road_buttons: Array[Button] = []
 var shift_button: Button
+var background_option: OptionButton
+var temperament_option: OptionButton
+var trait_option: OptionButton
+var origin_checks: Array[CheckBox] = []
+var perk_checks: Array[CheckBox] = []
+var origins_feedback: Label
+var origins_confirm: Button
 var initialized: bool = false
 
 func _ready() -> void:
@@ -34,6 +42,7 @@ func _setup() -> void:
     _make_world()
     _make_ui()
     initialized = true
+    _apply_home_clothing()
 
 func is_open() -> bool:
     return is_instance_valid(panel) and panel.visible
@@ -173,12 +182,146 @@ func _make_ui() -> void:
     shift_button.custom_minimum_size.y = 53
     shift_button.pressed.connect(_accept_shift)
     column.add_child(shift_button)
+    _text(column, "YOUR HISTORY / YOUNG BLOOD ORIGINS", 20)
+    _text(column, "Choose after registering your road. These nine backgrounds and bonuses are provisional game-only adaptations.", 15)
+    background_option = _origin_choice(column, "SOCIAL ORIGIN", Origins.BACKGROUND_NAMES)
+    temperament_option = _origin_choice(column, "TEMPERAMENT", Origins.TEMPERAMENTS)
+    trait_option = _origin_choice(column, "ONE TRAIT", Origins.TRAITS)
+    _text(column, "DISADVANTAGES (UP TO 2; EACH GIVES 1 EXTRA PERK POINT)", 16)
+    for id in Origins.DISADVANTAGES:
+        var item := CheckBox.new()
+        item.text = Origins.label(id)
+        item.custom_minimum_size.y = 38
+        item.toggled.connect(_refresh_origin_controls)
+        column.add_child(item)
+        origin_checks.append(item)
+    _text(column, "PERKS (1 FREE POINT + 1 PER DISADVANTAGE)", 16)
+    for id in Origins.PERKS:
+        var perk := CheckBox.new()
+        perk.text = Origins.label(id)
+        perk.custom_minimum_size.y = 38
+        perk.toggled.connect(_refresh_origin_controls)
+        column.add_child(perk)
+        perk_checks.append(perk)
+    origins_feedback = _text(column, "Choose a starting road first.", 15)
+    origins_confirm = Button.new()
+    origins_confirm.text = "SEAL ORIGINAL SEEKER HISTORY"
+    origins_confirm.custom_minimum_size.y = 52
+    origins_confirm.pressed.connect(_register_origin)
+    column.add_child(origins_confirm)
     notice = _text(column, "", 16)
     var close := Button.new()
     close.text = "RETURN TO MARGERINA"
     close.custom_minimum_size.y = 52
     close.pressed.connect(_close_panel)
     column.add_child(close)
+
+func _origin_choice(parent: VBoxContainer, caption: String, choices: Array[String]) -> OptionButton:
+    _text(parent, caption, 16)
+    var option := OptionButton.new()
+    option.custom_minimum_size.y = 46
+    for entry in choices:
+        option.add_item(Origins.label(entry))
+    parent.add_child(option)
+    return option
+
+func _selected_keys(items: Array[CheckBox], keys: Array[String]) -> Array:
+    var selected: Array = []
+    for i in range(items.size()):
+        if items[i].button_pressed:
+            selected.append(keys[i])
+    return selected
+
+func _current_origin() -> Dictionary:
+    if not is_instance_valid(codex):
+        return {}
+    var profile: Dictionary = codex.get("profile")
+    return Origins.sanitize(profile.get("origin_v058", {}))
+
+func get_origin_effects() -> Dictionary:
+    return Origins.effects(_current_origin())
+
+func _save_origin(data: Dictionary) -> bool:
+    if not is_instance_valid(codex) or bool(codex.get("save_blocked")):
+        return false
+    var clean: Dictionary = Origins.sanitize(data)
+    if clean.is_empty():
+        return false
+    var profile: Dictionary = codex.get("profile")
+    profile["origin_v058"] = clean
+    var identity: Dictionary = profile.get("identity", {})
+    identity["background_id"] = str(clean["background"])
+    profile["identity"] = identity
+    codex.set("profile", profile)
+    codex.call("_save_profile")
+    var file := FileAccess.open("user://seeker_profile_v1.json", FileAccess.READ)
+    if file == null:
+        return false
+    var parsed: Variant = JSON.parse_string(file.get_as_text())
+    file.close()
+    if typeof(parsed) != TYPE_DICTIONARY:
+        return false
+    return Origins.sanitize(parsed.get("origin_v058", {})) == clean
+
+func _apply_home_clothing() -> void:
+    if not is_instance_valid(player):
+        return
+    var record: Dictionary = _current_life()
+    if record.is_empty():
+        return
+    var rig: Node = player.get_node_or_null("AnimatedSeeker")
+    if is_instance_valid(rig) and rig.has_method("apply_national_outfit"):
+        rig.call("apply_national_outfit", str(record.get("nation", "")))
+
+func _refresh_origin_controls(_unused: Variant = null) -> void:
+    if not is_instance_valid(origins_feedback):
+        return
+    var existing: Dictionary = _current_origin()
+    var locked: bool = not existing.is_empty()
+    var has_road: bool = not _current_life().is_empty()
+    for option in [background_option, temperament_option, trait_option]:
+        option.disabled = locked or not has_road
+    for item in origin_checks:
+        item.disabled = locked or not has_road
+    for item in perk_checks:
+        item.disabled = locked or not has_road
+    var selected_burdens: Array = _selected_keys(origin_checks, Origins.DISADVANTAGES)
+    var selected_perks: Array = _selected_keys(perk_checks, Origins.PERKS)
+    var budget: int = 1 + selected_burdens.size()
+    var can_register: bool = has_road and not locked and not bool(codex.get("save_blocked")) \
+        and selected_burdens.size() <= Origins.MAX_DISADVANTAGES and selected_perks.size() <= budget
+    origins_confirm.disabled = not can_register
+    if locked:
+        origins_feedback.text = Origins.summary(existing) + " | History sealed for this save."
+    elif not has_road:
+        origins_feedback.text = "Register a starting life road first."
+    else:
+        origins_feedback.text = "Perk points: %d/%d | Disadvantages: %d/2" % [
+            selected_perks.size(), budget, selected_burdens.size()]
+        if not can_register:
+            origins_feedback.text += " | Resolve overspent points before saving."
+
+func _register_origin() -> void:
+    if not _current_origin().is_empty() or _current_life().is_empty():
+        _refresh_origin_controls()
+        return
+    var background: String = Origins.BACKGROUNDS[background_option.selected]
+    var temperament: String = Origins.TEMPERAMENTS[temperament_option.selected]
+    var trait: String = Origins.TRAITS[trait_option.selected]
+    var burdens: Array = _selected_keys(origin_checks, Origins.DISADVANTAGES)
+    var perks: Array = _selected_keys(perk_checks, Origins.PERKS)
+    var result: Dictionary = Origins.choose_once({}, background, temperament, trait, burdens, perks)
+    if result.is_empty():
+        origins_feedback.text = "Invalid or overspent origin; revise your choices."
+        return
+    if not _save_origin(result):
+        origins_feedback.text = "Cannot verify saved background; no origin registered."
+        return
+    codex.call("record_event", "v058:origin", "original_seeker_history",
+        "Sealed your original Seeker history",
+        Origins.summary(result) + ". Game-only background, no canon secret or lineage unlocked.")
+    _announce("Your temperament, trait and origin are recorded in the Personal Codex.")
+    _refresh_origin_controls()
 
 func _day() -> int:
     return maxi(1, int(floor(float(hub.get("world_minutes")) / 1440.0)) + 1)
@@ -245,6 +388,7 @@ func _refresh_ui() -> void:
         notice.text = "%s | %s | %s" % [Rules.path_label(str(selected["road"])), str(selected["nation"]), Rules.next_step(selected)]
     else:
         notice.text = "Exam = candidate; Sworn = an existing Iron licence in your backstory; Trade = unlicensed civilian work."
+    _refresh_origin_controls()
 
 func interact(spot: String) -> void:
     if not initialized:
@@ -293,6 +437,7 @@ func _choose_path(path: String) -> void:
     codex.call("record_event", "v057:life_road", "life_road_chosen",
         "Registered a life road: " + Rules.path_label(path),
         "Home nation: %s. Starting road is a player-created backstory, not an alteration of published canon." % nation)
+    _apply_home_clothing()
     _announce("Your road is registered in the Personal Codex.")
     _refresh_ui()
 
