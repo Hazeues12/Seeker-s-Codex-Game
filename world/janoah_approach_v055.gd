@@ -158,6 +158,7 @@ func _block(parent: Node3D, label: String, local_at: Vector3, size: Vector3, sha
         body.name = label + "Solid"
         visual.add_child(body)
         var collision := CollisionShape3D.new()
+        collision.name = "RegionalBlockCollider"
         var volume := BoxShape3D.new()
         volume.size = size
         collision.shape = volume
