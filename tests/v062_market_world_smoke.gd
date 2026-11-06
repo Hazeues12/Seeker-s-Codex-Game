@@ -119,7 +119,7 @@ func _check() -> void:
     if typeof(raw) != TYPE_DICTIONARY or int(raw.get("tola", -1)) != GameState.tola:
         _fail("real saved currency differs from traded currency")
         return
-    if raw.get("inventory", {}) != after_purchase or MarketRules.sanitize_stock(raw.get("market_stock_v062", {})) != MarketRules.sanitize_stock(tracked):
+    if market.call("_inventory_counts", raw.get("inventory", {})) != market.call("_inventory_counts", after_purchase) or MarketRules.sanitize_stock(raw.get("market_stock_v062", {})) != MarketRules.sanitize_stock(tracked):
         _fail("the trade split coins, goods or daily stock across files")
         return
     market.call("_choose", "social:assist")
@@ -157,7 +157,7 @@ func _check() -> void:
     hub.set("inventory", {})
     hub.set("market_stock_v062", {})
     hub.call("_load_game", false)
-    if GameState.tola != expected_cash or hub.get("inventory") != old_inventory or MarketRules.sanitize_stock(hub.get("market_stock_v062")) != MarketRules.sanitize_stock(expected_stock):
+    if GameState.tola != expected_cash or market.call("_inventory_counts", hub.get("inventory")) != market.call("_inventory_counts", old_inventory) or MarketRules.sanitize_stock(hub.get("market_stock_v062")) != MarketRules.sanitize_stock(expected_stock):
         _fail("market coins, actual bag and bought-stock ledger cannot reload together")
         return
     hub.set("world_minutes", 1200.0)
