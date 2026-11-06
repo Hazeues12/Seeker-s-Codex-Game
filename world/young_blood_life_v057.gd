@@ -312,10 +312,10 @@ func _register_origin() -> void:
         return
     var background: String = Origins.BACKGROUNDS[background_option.selected]
     var temperament: String = Origins.TEMPERAMENTS[temperament_option.selected]
-    var trait: String = Origins.TRAITS[trait_option.selected]
+    var chosen_trait: String = Origins.TRAITS[trait_option.selected]
     var burdens: Array = _selected_keys(origin_checks, Origins.DISADVANTAGES)
     var perks: Array = _selected_keys(perk_checks, Origins.PERKS)
-    var result: Dictionary = Origins.choose_once({}, background, temperament, trait, burdens, perks)
+    var result: Dictionary = Origins.choose_once({}, background, temperament, chosen_trait, burdens, perks)
     if result.is_empty():
         origins_feedback.text = "Invalid or overspent origin; revise your choices."
         return
