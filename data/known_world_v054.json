@@ -709,7 +709,15 @@
       }
     ],
     "ocean_routes_unplaced": true,
-    "curan_island_no_invented_land_bridge": true
+    "curan_island_no_invented_land_bridge": true,
+    "scenic_route_progress_v055": {
+      "name": "Magnara Janoah local outward approach",
+      "local_only": true,
+      "implemented_length_m": 6144,
+      "access": "connected traversable 1:1 corridor",
+      "other_countries_placed": false,
+      "no_full_continent_claim": true
+    }
   },
   "historical_variants": [
     {
@@ -736,5 +744,20 @@
       "Zirael"
     ],
     "city_populations": "unapproved"
-  }
+  },
+  "implemented_local_geographic_regions": [
+    {
+      "id": "janoah_magnara_provisional_approach_v055",
+      "nation": "Janoah",
+      "geom_reference": "res://data/janoah_approach_v055.json",
+      "code_reference": "res://world/janoah_approach_v055.gd",
+      "status": "game_only_prototype",
+      "continuous_from": "Magnara outer Ring VII planning boundary",
+      "local_span_m": [
+        11392,
+        17536
+      ],
+      "not_canon_alignment": true
+    }
+  ]
 }
