@@ -1,0 +1,260 @@
+name: Margerina V0.62 - Public Markets and Mixed-Income Housing
+on:
+  push:
+    branches: [magnara-markets-v062-staging]
+    paths:
+      - '.github/workflows/margerina-v062-markets.yml'
+      - 'systems/magnara_market_rules_v062.gd'
+      - 'world/magnara_markets_v062.gd'
+      - 'data/magnara_market_registry_v062.json'
+      - 'tests/v062_market_rules_smoke.gd'
+      - 'tests/v062_market_world_smoke.gd'
+      - 'systems/magnara_workshop_rules_v061.gd'
+      - 'world/magnara_workshops_v061.gd'
+      - 'world/magnara_geography_v054.gd'
+      - 'data/magnara_workshops_v061.json'
+      - 'tests/v061_workshop_rules_smoke.gd'
+      - 'tests/v061_workshop_world_smoke.gd'
+      - 'systems/residential_life_v060.gd'
+      - 'world/magnara_residential_v060.gd'
+      - 'tests/v060_residential_smoke.gd'
+      - 'tests/v060_residential_world_smoke.gd'
+      - 'scenes/main.tscn'
+      - 'systems/young_blood_family_v059.gd'
+      - 'world/young_blood_life_v057.gd'
+      - 'systems/seeker_society.gd'
+      - 'systems/personal_codex.gd'
+      - 'tests/v059_family_smoke.gd'
+      - 'tests/v059_family_world_smoke.gd'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-family-world:
+    runs-on: ubuntu-latest
+    timeout-minutes: 58
+    steps:
+      - name: Checkout protected Magnara mixed-income market staging
+        uses: actions/checkout@v4
+        with:
+          ref: magnara-markets-v062-staging
+      - name: Verify lore, legacy saves and interaction wiring
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          rules=Path("systems/young_blood_family_v059.gd").read_text()
+          life=Path("world/young_blood_life_v057.gd").read_text()
+          hub=Path("systems/hub_manager.gd").read_text()
+          society=Path("systems/seeker_society.gd").read_text()
+          codex=Path("systems/personal_codex.gd").read_text()
+          assert "kairo_black_clan_claim" in rules and "viatra_access" in rules
+          assert "bloodline_confirmed" in rules and 'false' in rules
+          assert "family_v059" in life and "yb_v059_archive" in life
+          assert 'kind == "yb_v059_archive"' in hub
+          assert "FamilyV059.relationship_response" in society
+          assert 'family_v059' in codex
+          assert "seeker_profile_v1.json" in codex
+          assert "margerina_v033.json" in hub
+          assert "joystick_finger" in Path("ui/mobile_controls.gd").read_text()
+          assert "wall_running" in Path("characters/player_controller.gd").read_text()
+          atlas=json.loads(Path("data/known_world_v054.json").read_text())
+          assert "Zuba" in atlas["scope"]["excluded"]
+          assert all(x["geographic_coordinates"] is None for x in atlas["settlements"])
+          assert Path("docs/V059_FAMILY_CLAIMS_ARCHIVE.md").is_file()
+          residential=Path("world/magnara_residential_v060.gd").read_text()
+          routines=Path("systems/residential_life_v060.gd").read_text()
+          main=Path("scenes/main.tscn").read_text()
+          assert "MagnaraResidentialV060" in main
+          assert "OpenHouse_" in residential and "ResidentBody" in residential
+          assert "npc_v060_" in residential and "HouseholdTrustLantern" in residential
+          assert 'residential_life_v060' in hub and 'npc_v060_' in hub
+          assert 'residential_life_v060' in Path("characters/player_controller.gd").read_text()
+          assert "residential_v060" in codex
+          assert "day_key" in routines and "position_at" in routines
+          assert Path("docs/V060_LIVING_HOUSEHOLDS.md").is_file()
+          new_work=Path("world/magnara_workshops_v061.gd").read_text()
+          new_rules=Path("systems/magnara_workshop_rules_v061.gd").read_text()
+          new_registry=json.loads(Path("data/magnara_workshops_v061.json").read_text())
+          assert new_registry["source_policy"].startswith("Local x/z coordinates")
+          assert new_registry["zone"]=="Ring Two — public industrial service street"
+          assert len(new_registry["workshops"])==3
+          assert new_registry["employment"]["paid_once_per_day"]
+          assert "OpenWorkshop_" in new_work and "InterQuarterConnectorAvenue" in new_work
+          assert "FreightLoadingPlatform" in new_work and "WorkingDistrictCollision" in new_work
+          assert "work_v061_" in new_work and "npc_v061_" in new_work
+          assert 'workshops_v061' in codex
+          assert "magnara_workshops_v061" in hub
+          assert "magnara_workshops_v061" in Path("characters/player_controller.gd").read_text()
+          assert "MagnaraWorkshopsV061" in main
+          assert "tile == Vector2i(0, 1)" in Path("world/magnara_geography_v054.gd").read_text()
+          assert "BASE_PAY" in new_rules and "worker_trust" in new_rules
+          assert Path("docs/V061_MAGNARA_WORKING_DISTRICT.md").is_file()
+          market=Path("world/magnara_markets_v062.gd").read_text()
+          market_rules=Path("systems/magnara_market_rules_v062.gd").read_text()
+          registry=json.loads(Path("data/magnara_market_registry_v062.json").read_text())
+          assert registry["source_status"]=="game_only_local_city_extension"
+          assert len(registry["housing"])==6 and len(registry["public_market"])==3
+          assert registry["continuity"]["never_relocate_canon_ring_iv"]
+          assert "OpenHome_" in market and "PublicStall_" in market
+          assert "EastMarketSouthConnector" in market and "CommercialRoadSouthConnector" in market
+          assert "MarketWorldCollision" in market
+          assert "Travel Rations" in market_rules and "market_stock_v062" in hub
+          assert "market_v062" in codex and "magnara_markets_v062" in hub
+          assert "magnara_markets_v062" in Path("characters/player_controller.gd").read_text()
+          assert "MagnaraMarketsV062" in main
+          assert "margerina_v033.json" in market
+          assert Path("docs/V062_MAGNARA_MARKET_AND_HOUSING.md").is_file()
+          print("V0.62 PHYSICAL MARKET MIXED HOUSING AND CANON BOUNDARY AUDIT PASS")
+          PY
+      - name: Install Godot 4.4.1 and HTML5 templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+      - name: Import and boot the full established Margerina game
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 160s godot --headless --path . --editor --import --quit 2>&1 | tee v059-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v059-import.log; then exit 1; fi
+          timeout 120s godot --headless --path . --quit-after 220 2>&1 | tee v059-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v059-startup.log; then exit 1; fi
+      - name: Confirm old world, quests, travel, and Young Blood creator
+        shell: bash
+        run: |
+          set -euo pipefail
+          for item in 'v048_field:V0.48 FIELD MISSION STATE SMOKE PASS' 'v049_companion:V0.49 COMPANION STATE SMOKE PASS' 'v050_expedition:V0.50 MULTI-DAY EXPEDITION SMOKE PASS' 'v051_city:V0.51 DAILY CITY MEMORY SMOKE PASS' 'v052_city:V0.52 MAGNARA CITY GEOMETRY AND INTERIORS PASS' 'v053_city:V0.53 SIX WALKABLE INTERIORS AND CONNECTED STREETS PASS' 'v054_geography:V0.54 KNOWN WORLD ATLAS AND 1:1 MAGNARA GEOGRAPHY PASS' 'v055_janoah:V0.55 PHYSICAL JANOAH APPROACH AND REGIONAL STREAMING PASS' 'v055_approach:V0.55 COLLIDABLE JANOAH REGIONAL APPROACH AND STREAMING PASS' 'v056_waterways:V0.56 JANOAH CARVED RIVER AND TWO WALKABLE BRIDGES PASS' 'v057_life:V0.57 YOUNG BLOOD LIFE PATHS AND PERSISTENT COURIER GUARDS PASS' 'v057_world:V0.57 PHYSICAL LIFE REGISTRAR AND 3D ROUTE INTEGRATION PASS' 'v058_origin:V0.58 YOUNG BLOOD ORIGINS CONSEQUENCES AND SAVE VALIDATION PASS'; do
+            t="${item%%:*}"; expected="${item#*:}"
+            timeout 85s godot --headless --path . "res://tests/${t}_scene.tscn" --quit-after 400 2>&1 | tee "${t}.log"
+            if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' "${t}.log"; then exit 1; fi
+            grep -Fq "${expected}" "${t}.log"
+          done
+      - name: Validate prior V0.58 physical creator in a clean game save
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v059-prior-world"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 125s godot --headless --path . res://tests/v058_world_scene.tscn --quit-after 450 2>&1 | tee v058-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v058-world.log; then exit 1; fi
+          grep -Fq 'V0.58 PHYSICAL CREATOR CLOTHING AND CIVILIAN CONSEQUENCES PASS' v058-world.log
+      - name: Verify six family claims and restricted-eye proof protection
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 90s godot --headless --path . res://tests/v059_family_scene.tscn --quit-after 400 2>&1 | tee v059-family.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v059-family.log; then exit 1; fi
+          grep -Fq 'V0.59 FAMILY PRIVACY INSTITUTIONAL CONSEQUENCES AND SAVE RULES PASS' v059-family.log
+      - name: Test physical family archive and contextual NPC choices
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v059-family-world"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 125s godot --headless --path . res://tests/v059_family_world_scene.tscn --quit-after 450 2>&1 | tee v059-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v059-world.log; then exit 1; fi
+          grep -Fq 'V0.59 PHYSICAL FAMILY ARCHIVE NPC REACTIONS AND COURIER CONSEQUENCES PASS' v059-world.log
+      - name: Verify daily neighborhood choices and deterministic resident schedules
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v060-rules"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 95s godot --headless --path . res://tests/v060_residential_scene.tscn --quit-after 410 2>&1 | tee v060-rules.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v060-rules.log; then exit 1; fi
+          grep -Fq 'V0.60 NEIGHBORHOOD SCHEDULES HOUSEHOLD CONSEQUENCES AND SAVE RULES PASS' v060-rules.log
+      - name: Test three physical open homes, moving residents and stored choices
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v060-world"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 130s godot --headless --path . res://tests/v060_residential_world_scene.tscn --quit-after 480 2>&1 | tee v060-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v060-world.log; then exit 1; fi
+          grep -Fq 'V0.60 ENTERABLE HOMES MOVING NEIGHBORS AND SAVED CONSEQUENCES PASS' v060-world.log
+      - name: Verify actual paid shift state, safety consequences, daily limits and disk
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v061-rules"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 100s godot --headless --path . res://tests/v061_workshop_rules_scene.tscn --quit-after 430 2>&1 | tee v061-rules.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v061-rules.log; then exit 1; fi
+          grep -Fq 'V0.61 WORKSHOP ECONOMY CHOICE CONSEQUENCES AND SAVE RULES PASS' v061-rules.log
+      - name: Verify real 3D workshop interiors, street continuity and paid work
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v061-world"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 135s godot --headless --path . res://tests/v061_workshop_world_scene.tscn --quit-after 500 2>&1 | tee v061-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v061-world.log; then exit 1; fi
+          grep -Fq 'V0.61 PHYSICAL WORKING STREETS SAFE EMPLOYMENT AND PERSISTENT WAGES PASS' v061-world.log
+      - name: Validate public market stock, pricing, merchant memory and JSON
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v062-rules"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 95s godot --headless --path . res://tests/v062_market_rules_scene.tscn --quit-after 420 2>&1 | tee v062-rules.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v062-rules.log; then exit 1; fi
+          grep -Fq 'V0.62 DAILY MARKET INVENTORY PRICES SOCIAL MEMORY AND SAVE RULES PASS' v062-rules.log
+      - name: Validate six enterable homes, working physical market, real game currency and save reload
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v062-world"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 135s godot --headless --path . res://tests/v062_market_world_scene.tscn --quit-after 500 2>&1 | tee v062-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v062-world.log; then exit 1; fi
+          grep -Fq 'V0.62 ENTERABLE HOUSING STAFFED MARKET AND PERSISTENT TRADES PASS' v062-world.log
+      - name: Export verified internal Web build
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          timeout 170s godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v059-export.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v059-export.log; then exit 1; fi
+          for ext in html js wasm pck; do test -s "build/web/index.${ext}"; done
+      - name: Keep browser development artifact internal
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v062-physical-markets-internal
+          path: build/web/
+          if-no-files-found: error
+      - name: Preserve useful logs on failed validation
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v062-market-diagnostics
+          if-no-files-found: ignore
+          path: |
+            v059-import.log
+            v059-startup.log
+            v059-family.log
+            v059-world.log
+            v060-rules.log
+            v060-world.log
+            v061-rules.log
+            v061-world.log
+            v062-rules.log
+            v062-world.log
+            v059-export.log
+            v058-world.log
+            v048_field.log
+            v049_companion.log
+            v050_expedition.log
+            v051_city.log
+            v052_city.log
+            v053_city.log
+            v054_geography.log
+            v055_janoah.log
+            v055_approach.log
+            v056_waterways.log
+            v057_life.log
+            v057_world.log
+            v058_origin.log
