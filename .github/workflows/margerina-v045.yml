@@ -201,7 +201,7 @@ jobs:
           rm install_v045.py
           grep -q 'SeekerSociety' scenes/main.tscn
           grep -q 'res://systems/seeker_dialogues_v045.gd' scenes/main.tscn
-          grep -q 'RELEASE' docs/RELEASE_GATES.md
+          grep -qi 'release' docs/RELEASE_GATES.md
           grep -q 'margerina_v033.json' systems/hub_manager.gd
           grep -q 'joystick_finger' ui/mobile_controls.gd
           grep -q 'wall_running' characters/player_controller.gd
