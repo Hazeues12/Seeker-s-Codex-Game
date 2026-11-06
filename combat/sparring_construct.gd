@@ -10,6 +10,10 @@ const MAX_HEALTH: int = 64
 const AGGRO_RANGE: float = 9.0
 const LEASH_RANGE: float = 12.0
 const STRIKE_RANGE: float = 2.15
+var patrol_min_x: float = -9.8
+var patrol_max_x: float = 9.8
+var patrol_min_z: float = -28.4
+var patrol_max_z: float = -16.5
 
 var target_player: CharacterBody3D
 var spawn_point: Vector3
@@ -108,6 +112,13 @@ func configure(player: CharacterBody3D, label_text: String, where: Vector3, phas
         model_mat.albedo_color = _base_color()
     _update_label()
 
+# Different supervised field zone; original sparring bounds remain the default.
+func set_patrol_bounds(horizontal: Vector2, longitudinal: Vector2) -> void:
+    patrol_min_x = minf(horizontal.x, horizontal.y)
+    patrol_max_x = maxf(horizontal.x, horizontal.y)
+    patrol_min_z = minf(longitudinal.x, longitudinal.y)
+    patrol_max_z = maxf(longitudinal.x, longitudinal.y)
+
 func is_active() -> bool:
     return active
 
@@ -185,8 +196,8 @@ func _physics_process(delta: float) -> void:
         velocity.y = 0.0
     move_and_slide()
     # Keep the fight away from the original guild board, merchants and herbs.
-    global_position.x = clampf(global_position.x, -9.8, 9.8)
-    global_position.z = clampf(global_position.z, -28.4, -16.5)
+    global_position.x = clampf(global_position.x, patrol_min_x, patrol_max_x)
+    global_position.z = clampf(global_position.z, patrol_min_z, patrol_max_z)
     if distance > 0.12:
         var look_point := Vector3(target_player.global_position.x, global_position.y, target_player.global_position.z)
         if global_position.distance_to(look_point) > 0.1:

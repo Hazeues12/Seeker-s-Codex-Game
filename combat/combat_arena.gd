@@ -16,6 +16,7 @@ var alchemy_shield_time: float = 0.0
 var last_strike_time: float = -100.0
 var combo: int = 0
 var enemies: Array[CharacterBody3D] = []
+var field_enemies: Array[CharacterBody3D] = []
 var respawn_timers: Array[float] = []
 var player_health_bar: ProgressBar
 var player_health_text: Label
@@ -69,6 +70,15 @@ func _process(delta: float) -> void:
             respawn_timers[i] = 0.0
     _refresh_hud()
 
+# External field encounters use the same real hit detection without arena respawns.
+func register_field_enemy(fighter: CharacterBody3D) -> void:
+    if is_instance_valid(fighter) and not field_enemies.has(fighter):
+        field_enemies.append(fighter)
+        fighter.connect("attack_connected", _receive_enemy_attack)
+
+func unregister_field_enemy(fighter: CharacterBody3D) -> void:
+    field_enemies.erase(fighter)
+
 func player_strike(facing: Vector3) -> void:
     if not is_instance_valid(player) or ko_timer > 0.0:
         return
@@ -83,7 +93,7 @@ func player_strike(facing: Vector3) -> void:
         return
     var chosen: CharacterBody3D = null
     var nearest: float = 3.05
-    for enemy in enemies:
+    for enemy in enemies + field_enemies:
         if not is_instance_valid(enemy) or not bool(enemy.call("is_active")):
             continue
         var offset: Vector3 = enemy.global_position - player.global_position

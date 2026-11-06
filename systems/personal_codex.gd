@@ -324,6 +324,9 @@ func _refresh_view() -> void:
         for resident in romance:
             output += "Adult relationship: %s — %s\n" % [str(resident), str(romance[resident])]
     output += "Soul Bloom / Spirit Bloom: separate, unrevealed.\nEidolon / Ryōiki / rare Eyes: no unlock recorded.\n"
+    var field: Dictionary = profile.get("field_mission_v048", {})
+    if not field.is_empty():
+        output += "\nFIELD WATCH\nStage: %s | Decision: %s\n" % [str(field.get("stage", "available")), str(field.get("choice", "not chosen"))]
     output += "\nLIFE CHRONICLE  (%d saved events)\n" % entries.size()
     var first: int = maxi(0, entries.size() - 14)
     for i in range(entries.size() - 1, first - 1, -1):
