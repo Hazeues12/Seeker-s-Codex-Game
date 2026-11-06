@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "region_id": "janoah_magnara_provisional_approach_v055",
+  "world": "Margerina",
+  "nation": "Janoah",
+  "era": "1500 A.S.",
+  "canon_status": "game_only_local_preview",
+  "source_policy": "Janoah is industrial and has international Seeker infrastructure. Terrain corridor, outward bearing, shelters and rail route are provisional game placements rather than locked novel geography.",
+  "coordinate_system": "local Godot X/Z with 1 unit=1 meter; x increases out from proposed Magnara radius on a provisional eastward axis",
+  "nexus": {
+    "city_id": "magnara",
+    "ring_id": 7,
+    "city_center_local_x_m": -1700,
+    "city_center_local_z_m": 70,
+    "outer_radius_m_proposed": 13000,
+    "transition_x_m": 11392,
+    "transition_z_m": 70
+  },
+  "terrain": {
+    "tile_size_m": 256,
+    "first_tile_x": 45,
+    "last_tile_x": 68,
+    "side_tiles": [
+      -1,
+      0,
+      1
+    ],
+    "local_x_start_m": 11392,
+    "local_x_end_m": 17536,
+    "central_z_m": 70,
+    "corridor_width_m": 768,
+    "total_length_m": 6144,
+    "active_tiles_cap": 9,
+    "material_swatch_status": "prototype",
+    "surface_collision": "triangle_heightfield",
+    "biome_description": "provisional industrial outskirts transitioning to cultivated countryside and rolling inland country"
+  },
+  "stages": [
+    {
+      "id": "industrial_outskirts",
+      "tile_x_min": 45,
+      "tile_x_max": 48,
+      "terrain_character": [
+        "freight stacks",
+        "retaining yards",
+        "outer-route road and rail"
+      ]
+    },
+    {
+      "id": "farmed_countryside",
+      "tile_x_min": 49,
+      "tile_x_max": 56,
+      "terrain_character": [
+        "cultivated plots",
+        "roadside trees",
+        "transit shelter"
+      ]
+    },
+    {
+      "id": "rolling_interior_route",
+      "tile_x_min": 57,
+      "tile_x_max": 68,
+      "terrain_character": [
+        "low hills",
+        "tree clusters",
+        "roadside rock outcrops"
+      ]
+    }
+  ],
+  "road": {
+    "id": "janoah_approach_road_game_only",
+    "topology": "Magnara outer ring to a Janoah provisional rural corridor",
+    "geometry_status": "engine_only",
+    "travel_distance_m_implemented": 6144,
+    "connection_to_named_other_nations": false,
+    "designed_for": [
+      "foot",
+      "carriage"
+    ],
+    "operating_transport": false
+  },
+  "rail": {
+    "id": "freight_rail_visual_game_only",
+    "description": "Continuous physical railway infrastructure with rails and sleepers, but no train service",
+    "transport_service_implemented": false
+  },
+  "waystations": {
+    "tile_x": [
+      48,
+      55,
+      63
+    ],
+    "fictional_identity_status": "game_only",
+    "is_named_canonical_settlement": false,
+    "player_services_implemented": false
+  },
+  "safety": {
+    "no_abyssal_line_crossover": true,
+    "no_unverified_nation_borders": true,
+    "unapproved_coastline_not_generated": true,
+    "unknown_capitals_still_unplaced": true,
+    "not_a_finished_region": true,
+    "main_branch_unchanged": true
+  },
+  "future": [
+    "source-locked Janoah region atlas",
+    "terrain texture and foliage art",
+    "carriage travel",
+    "rail passenger operation",
+    "author-approved travel route locations",
+    "mobile Safari collision and FPS checks"
+  ]
+}
