@@ -476,7 +476,11 @@ func _any_panel_open() -> bool:
     var editor: Node = get_tree().get_first_node_in_group("seeker_creator")
     var ring_journal: Node = get_tree().get_first_node_in_group("ring_two_life")
     var journal_open: bool = is_instance_valid(ring_journal) and bool(ring_journal.call("is_open"))
-    return board_panel.visible or bag_panel.visible or journal_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
+    var codex: Node = get_tree().get_first_node_in_group("personal_codex")
+    var codex_open: bool = is_instance_valid(codex) and bool(codex.call("is_open"))
+    var relations: Node = get_tree().get_first_node_in_group("seeker_relationships")
+    var relations_open: bool = is_instance_valid(relations) and bool(relations.call("is_open"))
+    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
@@ -523,6 +527,13 @@ func _interact() -> void:
                     life.call("interact", kind)
             elif kind.begins_with("herb"):
                 _gather_herb(kind)
+    # Log first NPC meetings/known public landmarks after the real interaction.
+    var codex: Node = get_tree().get_first_node_in_group("personal_codex")
+    if is_instance_valid(codex) and codex.has_method("record_interaction"):
+        codex.call("record_interaction", kind, str(nearest["title"]))
+    var relations: Node = get_tree().get_first_node_in_group("seeker_relationships")
+    if is_instance_valid(relations) and bool(relations.call("supports", kind)):
+        relations.call("open_dialogue", kind, str(nearest["title"]))
 
 
 func _npc_dialogue(kind: String) -> void:
@@ -653,6 +664,9 @@ func _finish_contract() -> void:
     _update_plants()
     _announce("CONTRACT COMPLETE! +%d Tola, +%d XP, +1 guild reputation." % [REWARDS[old_contract], XP_REWARDS[old_contract]])
     _save_game()
+    var codex: Node = get_tree().get_first_node_in_group("personal_codex")
+    if is_instance_valid(codex) and codex.has_method("record_contract"):
+        codex.call("record_contract", old_contract, CONTRACTS[old_contract], REWARDS[old_contract], XP_REWARDS[old_contract])
 
 
 func _toggle_bag() -> void:

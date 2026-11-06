@@ -100,6 +100,12 @@ func _physics_process(delta: float) -> void:
     var ring_journal: Node = get_tree().get_first_node_in_group("ring_two_life")
     if is_instance_valid(ring_journal) and ring_journal.has_method("is_open"):
         editing = editing or bool(ring_journal.call("is_open"))
+    var personal_codex: Node = get_tree().get_first_node_in_group("personal_codex")
+    if is_instance_valid(personal_codex) and personal_codex.has_method("is_open"):
+        editing = editing or bool(personal_codex.call("is_open"))
+    var relations: Node = get_tree().get_first_node_in_group("seeker_relationships")
+    if is_instance_valid(relations) and relations.has_method("is_open"):
+        editing = editing or bool(relations.call("is_open"))
     if editing:
         input_dir = Vector2.ZERO
     var direction: Vector3 = (right * input_dir.x - forward * input_dir.y).normalized()
