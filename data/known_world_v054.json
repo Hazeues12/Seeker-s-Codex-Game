@@ -1,0 +1,740 @@
+{
+  "schema_version": 1,
+  "title": "Seeker's Codex Known-World Geography Registry",
+  "era": "1500 A.S.",
+  "units": "1 Godot 3D unit = 1 meter",
+  "source_policy": "New dimensions, modern map positions, route geometry and ring diameters are editable author planning proposals, not published book measurements.",
+  "scope": {
+    "included": [
+      "Rajistan",
+      "Chun",
+      "Janoah",
+      "Britannia",
+      "Vinlan",
+      "Germania",
+      "Tsar Empire",
+      "Dune States",
+      "Africanus",
+      "Americana",
+      "Zirael",
+      "Curan",
+      "Jaorea"
+    ],
+    "included_additional": [
+      "Central seas",
+      "established known-side islands"
+    ],
+    "excluded": [
+      "Zuba",
+      "Krystal Isles",
+      "Sunken Isles",
+      "Terragigantus",
+      "beyond Abyssal Line"
+    ],
+    "boundary_unverified": [
+      "Astraea",
+      "San Ciana",
+      "incompletely located islands"
+    ],
+    "no_permanent_coordinates_for_unknown": true
+  },
+  "size_targets": {
+    "overall_known_world_width_km_proposed": [
+      8000,
+      12000
+    ],
+    "status": "unapproved_conceptual_envelope",
+    "planet_diameter_km": null,
+    "locked_landmass_scale": false
+  },
+  "magnara": {
+    "city_id": "magnara",
+    "nation": "Janoah",
+    "urban_span_m_proposed": 26000,
+    "outer_radius_m_proposed": 13000,
+    "area_km2_ideal_envelope_proposed": 530.93,
+    "planning_center_in_current_game": {
+      "x_m": -1700,
+      "z_m": 70,
+      "status": "temporary_engine_anchor",
+      "note": "Puts the existing Ring Two scene inside Ring II; not an official city map bearing."
+    },
+    "ring_specs": [
+      {
+        "id": "government",
+        "ring": 1,
+        "name": "Government Core",
+        "inner_radius_m": 0,
+        "outer_radius_m": 1000,
+        "envelope_area_km2_proposed": 3.14,
+        "design_status": "author_supplied_planning",
+        "boundary_status": "provisional_ideal_ring",
+        "landmarks_placed": []
+      },
+      {
+        "id": "seeker",
+        "ring": 2,
+        "name": "Seeker Quarters",
+        "inner_radius_m": 1000,
+        "outer_radius_m": 2600,
+        "envelope_area_km2_proposed": 18.1,
+        "design_status": "author_supplied_planning",
+        "boundary_status": "provisional_ideal_ring",
+        "landmarks_placed": []
+      },
+      {
+        "id": "civic",
+        "ring": 3,
+        "name": "Civic / Guild / Spectacle",
+        "inner_radius_m": 2600,
+        "outer_radius_m": 4700,
+        "envelope_area_km2_proposed": 48.16,
+        "design_status": "author_supplied_planning",
+        "boundary_status": "provisional_ideal_ring",
+        "landmarks_placed": []
+      },
+      {
+        "id": "merchant",
+        "ring": 4,
+        "name": "Merchant Quarter",
+        "inner_radius_m": 4700,
+        "outer_radius_m": 6500,
+        "envelope_area_km2_proposed": 63.33,
+        "design_status": "author_supplied_planning",
+        "boundary_status": "provisional_ideal_ring",
+        "landmarks_placed": []
+      },
+      {
+        "id": "artisan",
+        "ring": 5,
+        "name": "Artisan / Foundry",
+        "inner_radius_m": 6500,
+        "outer_radius_m": 8700,
+        "envelope_area_km2_proposed": 105.05,
+        "design_status": "author_supplied_planning",
+        "boundary_status": "provisional_ideal_ring",
+        "landmarks_placed": []
+      },
+      {
+        "id": "harbor",
+        "ring": 6,
+        "name": "Iron Cothon / Harbor",
+        "inner_radius_m": 8700,
+        "outer_radius_m": 10700,
+        "envelope_area_km2_proposed": 121.89,
+        "design_status": "author_supplied_planning",
+        "boundary_status": "provisional_ideal_ring",
+        "landmarks_placed": []
+      },
+      {
+        "id": "outer",
+        "ring": 7,
+        "name": "Outer / Soot Wards",
+        "inner_radius_m": 10700,
+        "outer_radius_m": 13000,
+        "envelope_area_km2_proposed": 171.25,
+        "design_status": "author_supplied_planning",
+        "boundary_status": "provisional_ideal_ring",
+        "landmarks_placed": []
+      }
+    ],
+    "known_landmarks_without_approved_coordinates": [
+      "Steel Flame Tower",
+      "Iron Cothon",
+      "The Talking Boar",
+      "Grand Amphistad",
+      "Mercy Deck",
+      "Founders' Bridge",
+      "Forgehouse",
+      "Nightweave Row",
+      "Hollow Thread Atelier",
+      "Onikaze Forge",
+      "Grindgate Pit",
+      "Butters Estate"
+    ],
+    "coastline_status": "unfinalized: ring VI is NOT rendered as canonical seawater",
+    "ring_two_legacy_location": "existing hub near x0,z0 and Chapter90-inspired Ring Two z30..130 prototype",
+    "current_detail_level": "V0.53 small urban corridor; geographically incomplete"
+  },
+  "nations": [
+    {
+      "id": "Rajistan",
+      "design_identity": "monastic and commercial",
+      "design_cues": [
+        "monasteries",
+        "lotus/flame motifs",
+        "pilgrimage",
+        "regional Martial schools",
+        "bazaars"
+      ],
+      "capital_if_unconfirmed": null,
+      "coordinates": null,
+      "culture_source": "author_supplied_design_direction"
+    },
+    {
+      "id": "Chun",
+      "design_identity": "imperial ritual and clan",
+      "design_cues": [
+        "tiered walls",
+        "clan districts",
+        "imperial ledgers",
+        "jade",
+        "shrine courts",
+        "automata"
+      ],
+      "capital_if_unconfirmed": null,
+      "coordinates": null,
+      "culture_source": "author_supplied_design_direction"
+    },
+    {
+      "id": "Janoah",
+      "design_identity": "industrial republic and international Seeker center",
+      "design_cues": [
+        "trams",
+        "canals",
+        "foundries",
+        "firearms",
+        "guilds",
+        "class-diverse neighborhoods"
+      ],
+      "capital_if_unconfirmed": null,
+      "coordinates": null,
+      "culture_source": "author_supplied_design_direction"
+    },
+    {
+      "id": "Britannia",
+      "design_identity": "monarchical and knightly",
+      "design_cues": [
+        "white bastions",
+        "stained glass",
+        "noble estates",
+        "farming villages",
+        "Sun heraldry"
+      ],
+      "capital_if_unconfirmed": null,
+      "coordinates": null,
+      "culture_source": "author_supplied_design_direction"
+    },
+    {
+      "id": "Vinlan",
+      "design_identity": "northern forge and war fellowship",
+      "design_cues": [
+        "fjord towns",
+        "ritual halls",
+        "forges",
+        "ice roads",
+        "longships"
+      ],
+      "capital_if_unconfirmed": null,
+      "coordinates": null,
+      "culture_source": "author_supplied_design_direction"
+    },
+    {
+      "id": "Germania",
+      "design_identity": "gothic industrial with ordinary civic life",
+      "design_cues": [
+        "rail works",
+        "black-pine regions",
+        "civilian markets",
+        "military forts"
+      ],
+      "capital_if_unconfirmed": null,
+      "coordinates": null,
+      "culture_source": "author_supplied_design_direction"
+    },
+    {
+      "id": "Tsar Empire",
+      "design_identity": "northern legions and fortification",
+      "design_cues": [
+        "winter roads",
+        "Double-Eagle military",
+        "cryo training",
+        "lake towns"
+      ],
+      "capital_if_unconfirmed": null,
+      "coordinates": null,
+      "culture_source": "author_supplied_design_direction"
+    },
+    {
+      "id": "Dune States",
+      "design_identity": "desert and coastal polities",
+      "design_cues": [
+        "oases",
+        "water rights",
+        "distinct inland and coastal markets",
+        "caravan forts"
+      ],
+      "capital_if_unconfirmed": null,
+      "coordinates": null,
+      "culture_source": "author_supplied_design_direction"
+    },
+    {
+      "id": "Africanus",
+      "design_identity": "five-bloc council coalition",
+      "design_cues": [
+        "Northern Desert Thrones",
+        "Western Trade Kingdoms",
+        "Eastern Coral Thrones",
+        "Southern Ancestral Clans",
+        "Central Relic States"
+      ],
+      "capital_if_unconfirmed": null,
+      "coordinates": null,
+      "culture_source": "author_supplied_design_direction"
+    },
+    {
+      "id": "Americana",
+      "design_identity": "multiple cultural regions under development",
+      "design_cues": [
+        "distinct environmental traditions",
+        "varied settlements",
+        "no one-template biome"
+      ],
+      "capital_if_unconfirmed": null,
+      "coordinates": null,
+      "culture_source": "author_supplied_design_direction"
+    },
+    {
+      "id": "Zirael",
+      "design_identity": "aquatic infrastructure",
+      "design_cues": [
+        "underwater transport",
+        "inhabitant-specific architecture",
+        "sanctuary networks"
+      ],
+      "capital_if_unconfirmed": null,
+      "coordinates": null,
+      "culture_source": "author_supplied_design_direction"
+    },
+    {
+      "id": "Curan",
+      "design_identity": "island maritime and pariah economy",
+      "design_cues": [
+        "island harbors",
+        "Sahradan",
+        "Port Qasirah",
+        "embargoed trade"
+      ],
+      "capital_if_unconfirmed": null,
+      "coordinates": null,
+      "culture_source": "author_supplied_design_direction"
+    },
+    {
+      "id": "Jaorea",
+      "design_identity": "contested territory",
+      "design_cues": [
+        "Cainowa harbor",
+        "civic evacuation",
+        "military roads",
+        "checkpoints"
+      ],
+      "capital_if_unconfirmed": null,
+      "coordinates": null,
+      "culture_source": "author_supplied_design_direction"
+    }
+  ],
+  "settlements": [
+    {
+      "id": "magnara",
+      "name": "Magnara",
+      "nation": "Janoah",
+      "diameter_km_proposed": 26,
+      "geographic_coordinates": null,
+      "kind": "capital",
+      "name_status": "author_supplied",
+      "description": "industrial seven-ring metropolis",
+      "dimension_status": "planning_only",
+      "area_km2_envelope_proposed": 530.93
+    },
+    {
+      "id": "zhushen",
+      "name": "Zhushen",
+      "nation": "Chun",
+      "diameter_km_proposed": 18,
+      "geographic_coordinates": null,
+      "kind": "capital",
+      "name_status": "author_supplied",
+      "description": "multi-tier imperial city",
+      "dimension_status": "planning_only",
+      "area_km2_envelope_proposed": 254.47
+    },
+    {
+      "id": "new_rehli",
+      "name": "New Rehli",
+      "nation": "Rajistan",
+      "diameter_km_proposed": 15,
+      "geographic_coordinates": null,
+      "kind": "capital",
+      "name_status": "author_supplied",
+      "description": "spiritual-commercial metropolis",
+      "dimension_status": "planning_only",
+      "area_km2_envelope_proposed": 176.71
+    },
+    {
+      "id": "albion",
+      "name": "Albion",
+      "nation": "Britannia",
+      "diameter_km_proposed": 15,
+      "geographic_coordinates": null,
+      "kind": "capital",
+      "name_status": "author_supplied",
+      "description": "royal fortress and civic districts",
+      "dimension_status": "planning_only",
+      "area_km2_envelope_proposed": 176.71
+    },
+    {
+      "id": "dune_city",
+      "name": "Dune City",
+      "nation": "Dune States",
+      "diameter_km_proposed": 10,
+      "geographic_coordinates": null,
+      "kind": "major_city",
+      "name_status": "author_supplied",
+      "description": "coastal trade / domes, exact coast unplaced",
+      "dimension_status": "planning_only",
+      "area_km2_envelope_proposed": 78.54
+    },
+    {
+      "id": "sand_city",
+      "name": "Sand City",
+      "nation": "Dune States",
+      "diameter_km_proposed": 9,
+      "geographic_coordinates": null,
+      "kind": "major_city",
+      "name_status": "author_supplied",
+      "description": "fortified desert capital-scale settlement",
+      "dimension_status": "planning_only",
+      "area_km2_envelope_proposed": 63.62
+    },
+    {
+      "id": "golden_city",
+      "name": "Golden City",
+      "nation": "Dune States",
+      "diameter_km_proposed": 8,
+      "geographic_coordinates": null,
+      "kind": "major_city",
+      "name_status": "author_supplied",
+      "description": "major desert city; precise political role pending",
+      "dimension_status": "planning_only",
+      "area_km2_envelope_proposed": 50.27
+    },
+    {
+      "id": "kings_vain",
+      "name": "King's Vain",
+      "nation": "Britannia",
+      "diameter_km_proposed": 7,
+      "geographic_coordinates": null,
+      "kind": "provincial_center",
+      "name_status": "author_supplied",
+      "description": "House Vutor power center, distinct from Albion",
+      "dimension_status": "planning_only",
+      "area_km2_envelope_proposed": 38.48
+    },
+    {
+      "id": "dust_city",
+      "name": "Dust City",
+      "nation": "Dune States",
+      "diameter_km_proposed": 6,
+      "geographic_coordinates": null,
+      "kind": "regional_center",
+      "name_status": "author_supplied",
+      "description": "caravans / granaries / water rights",
+      "dimension_status": "planning_only",
+      "area_km2_envelope_proposed": 28.27
+    },
+    {
+      "id": "hochrot",
+      "name": "Hochrot",
+      "nation": "Germania",
+      "diameter_km_proposed": 6,
+      "geographic_coordinates": null,
+      "kind": "regional_center",
+      "name_status": "game_chat_unconfirmed",
+      "description": "industrial regional city; novel status pending",
+      "dimension_status": "planning_only",
+      "area_km2_envelope_proposed": 28.27
+    },
+    {
+      "id": "sahradan",
+      "name": "Sahradan",
+      "nation": "Curan",
+      "diameter_km_proposed": 5.5,
+      "geographic_coordinates": null,
+      "kind": "regional_center",
+      "name_status": "author_supplied",
+      "description": "island settlement",
+      "dimension_status": "planning_only",
+      "area_km2_envelope_proposed": 23.76
+    },
+    {
+      "id": "cainowa",
+      "name": "Cainowa",
+      "nation": "Jaorea",
+      "diameter_km_proposed": 4.5,
+      "geographic_coordinates": null,
+      "kind": "regional_center",
+      "name_status": "author_supplied",
+      "description": "contested harbor and defenses",
+      "dimension_status": "planning_only",
+      "area_km2_envelope_proposed": 15.9
+    },
+    {
+      "id": "port_qasirah",
+      "name": "Port Qasirah",
+      "nation": "Curan",
+      "diameter_km_proposed": 3.2,
+      "geographic_coordinates": null,
+      "kind": "port",
+      "name_status": "author_supplied",
+      "description": "island port; no land bridge to Rajistan",
+      "dimension_status": "planning_only",
+      "area_km2_envelope_proposed": 8.04
+    },
+    {
+      "id": "rajir",
+      "name": "Rajir",
+      "nation": "Rajistan",
+      "diameter_km_proposed": 3,
+      "geographic_coordinates": null,
+      "kind": "town",
+      "name_status": "author_supplied",
+      "description": "arena and Seeker preliminaries",
+      "dimension_status": "planning_only",
+      "area_km2_envelope_proposed": 7.07
+    },
+    {
+      "id": "corsair_haven",
+      "name": "Corsair Haven",
+      "nation": "Central seas",
+      "diameter_km_proposed": 2.5,
+      "geographic_coordinates": null,
+      "kind": "port",
+      "name_status": "placement_unverified",
+      "description": "pirate community, exact island placement pending",
+      "dimension_status": "planning_only",
+      "area_km2_envelope_proposed": 4.91
+    },
+    {
+      "id": "shevadun",
+      "name": "Shèvadun",
+      "nation": "Historical setting",
+      "diameter_km_proposed": 1.6,
+      "geographic_coordinates": null,
+      "kind": "historical_town",
+      "name_status": "historical",
+      "description": "Golden Age rural settlement",
+      "dimension_status": "planning_only",
+      "area_km2_envelope_proposed": 2.01
+    },
+    {
+      "id": "ashford_on_lea",
+      "name": "Ashford-on-Lea",
+      "nation": "Britannia",
+      "diameter_km_proposed": 0.65,
+      "geographic_coordinates": null,
+      "kind": "village",
+      "name_status": "historical_1486",
+      "description": "riverside village; historical variant",
+      "dimension_status": "planning_only",
+      "area_km2_envelope_proposed": 0.33
+    },
+    {
+      "id": "moor_town",
+      "name": "Moor Town",
+      "nation": "Britannia",
+      "diameter_km_proposed": 0.5,
+      "geographic_coordinates": null,
+      "kind": "village",
+      "name_status": "historical_1486",
+      "description": "struggling inland frontier town",
+      "dimension_status": "planning_only",
+      "area_km2_envelope_proposed": 0.2
+    },
+    {
+      "id": "cliff_island_fishing_town",
+      "name": "Unnamed Cliff-Island Fishing Town",
+      "nation": "Historical island",
+      "diameter_km_proposed": 0.55,
+      "geographic_coordinates": null,
+      "kind": "historical_village",
+      "name_status": "historical_unplaced",
+      "description": "fishing village; unnamed",
+      "dimension_status": "planning_only",
+      "area_km2_envelope_proposed": 0.24
+    }
+  ],
+  "non_city_sites": [
+    {
+      "id": "bodhira",
+      "name": "Bodhira Monastery",
+      "nation": "Rajistan",
+      "span_m_proposed": 600,
+      "dimension_status": "planning_only",
+      "coordinates": null
+    },
+    {
+      "id": "chun_skyport",
+      "name": "Chun Skyport",
+      "nation": "Chun",
+      "span_m_proposed": 2200,
+      "dimension_status": "planning_only",
+      "coordinates": null
+    },
+    {
+      "id": "lockhart_keep",
+      "name": "Lockhart Keep",
+      "nation": "Britannia",
+      "span_m_proposed": 800,
+      "dimension_status": "planning_only",
+      "coordinates": null
+    },
+    {
+      "id": "guan_diego",
+      "name": "Guan Diego",
+      "nation": "Chun",
+      "span_m_proposed": 2000,
+      "dimension_status": "planning_only",
+      "coordinates": null
+    },
+    {
+      "id": "mont_saint_sun_crown",
+      "name": "Mont Saint Sun Crown",
+      "nation": "Britannia",
+      "span_m_proposed": 1200,
+      "dimension_status": "planning_only",
+      "coordinates": null
+    }
+  ],
+  "routes": {
+    "nodes": [
+      "bodhira",
+      "rajir",
+      "new_rehli",
+      "red_hills",
+      "chun_border",
+      "zhushen",
+      "chun_skyport",
+      "magnara"
+    ],
+    "edges": [
+      {
+        "from": "bodhira",
+        "to": "rajir",
+        "kind": "mountain_road",
+        "modes": [
+          "foot",
+          "carriage"
+        ],
+        "topology_status": "known_story_order",
+        "route_length_km": null,
+        "route_geometry": null
+      },
+      {
+        "from": "rajir",
+        "to": "new_rehli",
+        "kind": "regional_road",
+        "modes": [
+          "carriage",
+          "foot"
+        ],
+        "topology_status": "author_supplied_route",
+        "route_length_km": null,
+        "route_geometry": null
+      },
+      {
+        "from": "new_rehli",
+        "to": "red_hills",
+        "kind": "caravan_route",
+        "modes": [
+          "caravan"
+        ],
+        "topology_status": "author_supplied_route",
+        "route_length_km": null,
+        "route_geometry": null
+      },
+      {
+        "from": "red_hills",
+        "to": "chun_border",
+        "kind": "borderland_caravan",
+        "modes": [
+          "caravan"
+        ],
+        "topology_status": "author_supplied_route",
+        "route_length_km": null,
+        "route_geometry": null
+      },
+      {
+        "from": "chun_border",
+        "to": "zhushen",
+        "kind": "imperial_road",
+        "modes": [
+          "foot",
+          "carriage"
+        ],
+        "topology_status": "author_supplied_route",
+        "route_length_km": null,
+        "route_geometry": null
+      },
+      {
+        "from": "zhushen",
+        "to": "chun_skyport",
+        "kind": "imperial_transit",
+        "modes": [
+          "carriage"
+        ],
+        "topology_status": "route_planning",
+        "route_length_km": null,
+        "route_geometry": null
+      },
+      {
+        "from": "chun_skyport",
+        "to": "magnara",
+        "kind": "interregional_airship",
+        "modes": [
+          "aratrum"
+        ],
+        "topology_status": "route_planning",
+        "route_length_km": null,
+        "route_geometry": null
+      }
+    ],
+    "continuity_anchors": [
+      {
+        "id": "rajistan_chun_caravan",
+        "from": "new_rehli",
+        "to": "chun_border",
+        "duration_description": "approximately one month by caravan through several changing landscapes",
+        "distance_km": null,
+        "status": "author_supplied_story_duration"
+      }
+    ],
+    "ocean_routes_unplaced": true,
+    "curan_island_no_invented_land_bridge": true
+  },
+  "historical_variants": [
+    {
+      "settlement_id": "ashford_on_lea",
+      "year_as": 1486
+    },
+    {
+      "settlement_id": "moor_town",
+      "year_as": 1486
+    },
+    {
+      "settlement_id": "shevadun",
+      "year_as": null
+    }
+  ],
+  "future_missing": {
+    "nation_borders": "unapproved",
+    "planetary_lat_long": "unapproved",
+    "nation_capital_names": [
+      "Vinlan",
+      "Tsar Empire",
+      "Africanus",
+      "Americana",
+      "Zirael"
+    ],
+    "city_populations": "unapproved"
+  }
+}
