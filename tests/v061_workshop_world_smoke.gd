@@ -187,8 +187,8 @@ func _run() -> void:
     if int(shifted.get("completed", 0)) != 3 or int(shifted.get("worker_trust", 99)) != -4:
         _fail("workers forgot the consequences of dangerous rushed shifts")
         return
-    var signal: StandardMaterial3D = quarter_lantern.material_override as StandardMaterial3D
-    if signal == null or signal.albedo_color.r <= signal.albedo_color.g:
+    var safety_material: StandardMaterial3D = quarter_lantern.material_override as StandardMaterial3D
+    if safety_material == null or safety_material.albedo_color.r <= safety_material.albedo_color.g:
         _fail("worker safety signal isn't changing to red after harmful decisions")
         return
     var disk := FileAccess.open("user://seeker_profile_v1.json", FileAccess.READ)
