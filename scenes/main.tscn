@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="PackedScene" path="res://characters/player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://ui/mobile_controls.tscn" id="2"]
@@ -11,7 +11,8 @@
 [ext_resource type="Script" path="res://world/magnara_ring_two.gd" id="9"]
 [ext_resource type="Script" path="res://world/ring_two_daily_life.gd" id="10"]
 [ext_resource type="Script" path="res://systems/personal_codex.gd" id="11"]
-[ext_resource type="Script" path="res://systems/seeker_relationships.gd" id="12"]
+[ext_resource type="Script" path="res://systems/seeker_dialogues_v045.gd" id="12"]
+[ext_resource type="Script" path="res://systems/seeker_society.gd" id="13"]
 
 [sub_resource type="BoxMesh" id="GroundMesh"]
 size = Vector3(60, 1, 60)
@@ -71,6 +72,9 @@ script = ExtResource("10")
 
 [node name="PersonalCodex" type="Node" parent="."]
 script = ExtResource("11")
+
+[node name="SeekerSociety" type="Node" parent="."]
+script = ExtResource("13")
 
 [node name="SeekerRelationships" type="Node" parent="."]
 script = ExtResource("12")

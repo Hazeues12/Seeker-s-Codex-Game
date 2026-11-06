@@ -667,6 +667,9 @@ func _finish_contract() -> void:
     var codex: Node = get_tree().get_first_node_in_group("personal_codex")
     if is_instance_valid(codex) and codex.has_method("record_contract"):
         codex.call("record_contract", old_contract, CONTRACTS[old_contract], REWARDS[old_contract], XP_REWARDS[old_contract])
+    var society: Node = get_tree().get_first_node_in_group("seeker_society")
+    if is_instance_valid(society) and society.has_method("record_contract_outcome"):
+        society.call("record_contract_outcome", old_contract)
 
 
 func _toggle_bag() -> void:

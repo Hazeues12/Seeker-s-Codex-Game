@@ -303,7 +303,27 @@ func _refresh_view() -> void:
         for key in keys.slice(0, 8):
             var friend: Dictionary = contacts[key]
             output += " - %s | %s | rapport %d\n" % [str(friend.get("name", key)), str(friend.get("relationship", "acquainted")), int(friend.get("rapport", 0))]
-    output += "\nREPUTATION & SOUL\nAssociation Trust and Public Fame: not assessed yet.\nSoul Bloom / Spirit Bloom: separate, unrevealed.\nEidolon / Ryōiki / rare Eyes: no unlock recorded.\n"
+    output += "\nREPUTATION & SOUL\n"
+    var society_data: Dictionary = profile.get("society", {})
+    var reputation_data: Dictionary = society_data.get("reputation", {})
+    if reputation_data.is_empty():
+        output += "Professional reputation: not assessed yet.\n"
+    else:
+        output += "Association trust: %d | Public fame: %d | Guild reliability: %d\n" % [
+            int(reputation_data.get("association_trust", 0)),
+            int(reputation_data.get("public_fame", 0)),
+            int(reputation_data.get("guild_reliability", 0))]
+        output += "Neighborhood respect: %d | Underworld attention: %d\n" % [
+            int(reputation_data.get("local_respect", 0)),
+            int(reputation_data.get("underworld_attention", 0))]
+        var decisions: Dictionary = society_data.get("decisions", {})
+        var quests: Dictionary = society_data.get("quests", {})
+        var romance: Dictionary = society_data.get("romance", {})
+        output += "Life decisions recorded: %d | Neighborhood delivery: %s\n" % [
+            decisions.size(), str(quests.get("canal_delivery", "not started"))]
+        for resident in romance:
+            output += "Adult relationship: %s — %s\n" % [str(resident), str(romance[resident])]
+    output += "Soul Bloom / Spirit Bloom: separate, unrevealed.\nEidolon / Ryōiki / rare Eyes: no unlock recorded.\n"
     output += "\nLIFE CHRONICLE  (%d saved events)\n" % entries.size()
     var first: int = maxi(0, entries.size() - 14)
     for i in range(entries.size() - 1, first - 1, -1):
