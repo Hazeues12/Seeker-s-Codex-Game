@@ -506,7 +506,9 @@ func _any_panel_open() -> bool:
     var life_open: bool = is_instance_valid(young_life) and bool(young_life.call("is_open"))
     var homes: Node = get_tree().get_first_node_in_group("residential_life_v060")
     var homes_open: bool = is_instance_valid(homes) and bool(homes.call("is_open"))
-    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
+    var workshops: Node = get_tree().get_first_node_in_group("magnara_workshops_v061")
+    var workshops_open: bool = is_instance_valid(workshops) and bool(workshops.call("is_open"))
+    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
@@ -563,6 +565,10 @@ func _interact() -> void:
                 var expedition: Node = get_tree().get_first_node_in_group("multi_day_expedition_v050")
                 if is_instance_valid(expedition) and expedition.has_method("interact"):
                     expedition.call("interact", kind)
+            elif kind.begins_with("work_v061_") or kind.begins_with("npc_v061_"):
+                var workshops: Node = get_tree().get_first_node_in_group("magnara_workshops_v061")
+                if is_instance_valid(workshops) and workshops.has_method("interact"):
+                    workshops.call("interact", kind)
             elif kind.begins_with("npc_v060_"):
                 var residential: Node = get_tree().get_first_node_in_group("residential_life_v060")
                 if is_instance_valid(residential) and residential.has_method("interact"):
