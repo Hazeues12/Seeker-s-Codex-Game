@@ -1,0 +1,142 @@
+{
+  "version": 1,
+  "era": "1500 A.S.",
+  "nation": "Janoah",
+  "city": "Magnara",
+  "ring": "II — public services / residential",
+  "source_status": "game_only_local_city_extension",
+  "geography": {
+    "engine_units": "1 game unit = 1 meter",
+    "conceptual_magnara_diameter_m": 26000,
+    "road_spines_x_m": [
+      -62,
+      0,
+      62
+    ],
+    "road_north_z_range_m": [
+      232,
+      376
+    ],
+    "market_square_center_local_m": {
+      "x": 0,
+      "z": 300
+    },
+    "south_connection": "V0.61 cross-avenue z207 and V0.60 east residential lane",
+    "market_avenues_z_m": [
+      301,
+      344
+    ],
+    "actual_world_boundaries_unapproved": true
+  },
+  "housing": [
+    {
+      "id": "west_worker_one",
+      "kind": "worker_rowhouse",
+      "x": -99,
+      "z": 274,
+      "enterable": true,
+      "canon_status": "game_only"
+    },
+    {
+      "id": "west_worker_two",
+      "kind": "worker_rowhouse",
+      "x": -99,
+      "z": 340,
+      "enterable": true,
+      "canon_status": "game_only"
+    },
+    {
+      "id": "east_townhouse_one",
+      "kind": "comfortable_townhouse",
+      "x": 99,
+      "z": 274,
+      "enterable": true,
+      "canon_status": "game_only"
+    },
+    {
+      "id": "east_townhouse_two",
+      "kind": "comfortable_townhouse",
+      "x": 99,
+      "z": 340,
+      "enterable": true,
+      "canon_status": "game_only"
+    },
+    {
+      "id": "market_lodging_one",
+      "kind": "market_lodging",
+      "x": -32,
+      "z": 357,
+      "enterable": true,
+      "canon_status": "game_only"
+    },
+    {
+      "id": "market_lodging_two",
+      "kind": "market_lodging",
+      "x": 32,
+      "z": 357,
+      "enterable": true,
+      "canon_status": "game_only"
+    }
+  ],
+  "public_market": [
+    {
+      "id": "provisions",
+      "merchant": "Provision Seller",
+      "item": "Travel Rations",
+      "x": -28,
+      "z": 284,
+      "base_tola": 8
+    },
+    {
+      "id": "textiles",
+      "merchant": "Cloth Merchant",
+      "item": "Repair Cloth",
+      "x": 28,
+      "z": 284,
+      "base_tola": 12
+    },
+    {
+      "id": "hardware",
+      "merchant": "Repair Parts Merchant",
+      "item": "Tool Parts",
+      "x": -28,
+      "z": 319,
+      "base_tola": 15
+    }
+  ],
+  "systems": {
+    "opening_minutes": [
+      480,
+      1080
+    ],
+    "prices": "Deterministic 5-day capped stock/price cycle; vendor rapport and existing V0.60/V0.61 trust modify quotes",
+    "stock": "Each of 3 vendors carries 3-6 units per day; purchased units persist in old game save",
+    "buy_and_sell": true,
+    "item_storage": "HubManager inventory in margerina_v033.json",
+    "coins": "GameState tola in margerina_v033.json",
+    "stock_persistence": "market_stock_v062 in margerina_v033.json",
+    "social_persistence": "market_v062 in seeker_profile_v1.json",
+    "individual_vendor_social_choices": [
+      "listen",
+      "assist",
+      "pressure"
+    ],
+    "social_actions_per_vendor_day": 1,
+    "unimplemented": [
+      "actual shipping logistics",
+      "NPC production supply chain",
+      "economy across nations",
+      "shops owned by players",
+      "rent, mortgage or property title",
+      "animated population crowds",
+      "rail and canal services"
+    ]
+  },
+  "continuity": {
+    "never_relocate_canon_ring_iv": true,
+    "never_relocate_canon_ring_v": true,
+    "known_world_only": true,
+    "spokes_ranks_lore_unchanged": true,
+    "ship_ports_not_yet_mapped": true
+  }
+}
