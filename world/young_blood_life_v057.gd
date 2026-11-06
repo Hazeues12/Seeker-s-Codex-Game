@@ -4,9 +4,11 @@ extends Node3D
 # nine trades, nation origin scenes, traits, and family lineages follow later.
 const Rules = preload("res://systems/young_blood_life_rules_v057.gd")
 const Origins = preload("res://systems/young_blood_origins_v058.gd")
+const Families = preload("res://systems/young_blood_family_v059.gd")
 const REGISTRAR: Vector3 = Vector3(-8.5, 0.56, 69.0)
 const PICKUP: Vector3 = Vector3(11.5, 0.56, 60.0)
 const DELIVERY: Vector3 = Vector3(-18.0, 0.56, 90.0)
+const FAMILY_ARCHIVE: Vector3 = Vector3(19.0, 0.56, 102.0)
 
 var player: CharacterBody3D
 var hub: Node
@@ -24,6 +26,11 @@ var origin_checks: Array[CheckBox] = []
 var perk_checks: Array[CheckBox] = []
 var origins_feedback: Label
 var origins_confirm: Button
+var family_option: OptionButton
+var bond_option: OptionButton
+var disclosure_option: OptionButton
+var family_confirm: Button
+var family_feedback: Label
 var cached_origin_effects: Dictionary = {}
 var initialized: bool = false
 
@@ -116,6 +123,13 @@ func _make_world() -> void:
     hub.call("_add_location", "yb_v057_registrar", "Life Road Registrar", REGISTRAR, registrar)
     hub.call("_add_location", "yb_v057_pickup", "Civic Parcel Pickup", PICKUP, parcel)
     hub.call("_add_location", "yb_v057_delivery", "Civic Courier Delivery", DELIVERY, dropoff)
+    var archive: Node3D = _make_marker("FamilyArchiveOfficeV059", FAMILY_ARCHIVE,
+        "CIVIC HOUSEHOLD ARCHIVE / GAME ONLY", Color(0.52, 0.55, 0.69))
+    _box(archive, "FamilyLedgerCounter", Vector3(0.0, 0.49, 1.1),
+        Vector3(1.60, 0.73, 0.80), Color(0.36, 0.30, 0.29), true)
+    _box(archive, "PublicRecordShelf", Vector3(1.6, 1.14, 0.4),
+        Vector3(0.65, 2.0, 1.4), Color(0.46, 0.38, 0.30), true)
+    hub.call("_add_location", "yb_v059_archive", "Public Family Records", FAMILY_ARCHIVE, archive)
 
 func _text(parent: Node, message: String, font_size: int = 18) -> Label:
     var lbl := Label.new()
@@ -211,6 +225,18 @@ func _make_ui() -> void:
     origins_confirm.custom_minimum_size.y = 52
     origins_confirm.pressed.connect(_register_origin)
     column.add_child(origins_confirm)
+    _text(column, "FAMILY AND HOUSEHOLD HISTORY / V0.59", 20)
+    _text(column, "Choose an unverified family story. This never grants inherited eyes, ranks, access or canon family membership.", 15)
+    family_option = _family_choice(column, "FAMILY STORY / CLAIM", Families.FAMILY_NAMES)
+    bond_option = _family_choice(column, "FAMILY RELATIONSHIP", Families.BONDS)
+    disclosure_option = _family_choice(column, "PUBLIC DISCLOSURE", Families.DISCLOSURES)
+    family_feedback = _text(column, "Complete your road and social origin first.", 15)
+    family_confirm = Button.new()
+    family_confirm.text = "SEAL FAMILY HISTORY"
+    family_confirm.custom_minimum_size.y = 53
+    family_confirm.pressed.connect(_register_family)
+    column.add_child(family_confirm)
+    _text(column, "After registration, physically visit the Public Family Records counter to file a one-time archive inquiry.", 15)
     notice = _text(column, "", 16)
     var close := Button.new()
     close.text = "RETURN TO MARGERINA"
@@ -224,6 +250,15 @@ func _origin_choice(parent: VBoxContainer, caption: String, choices: Array[Strin
     option.custom_minimum_size.y = 46
     for entry in choices:
         option.add_item(Origins.label(entry))
+    parent.add_child(option)
+    return option
+
+func _family_choice(parent: VBoxContainer, caption: String, values: Array[String]) -> OptionButton:
+    _text(parent, caption, 16)
+    var option := OptionButton.new()
+    option.custom_minimum_size.y = 47
+    for name in values:
+        option.add_item(name.replace("_", " ").capitalize() if values != Families.FAMILY_NAMES else name)
     parent.add_child(option)
     return option
 
@@ -327,6 +362,86 @@ func _register_origin() -> void:
         Origins.summary(result) + ". Game-only background, no canon secret or lineage unlocked.")
     _announce("Your temperament, trait and origin are recorded in the Personal Codex.")
     _refresh_origin_controls()
+    _refresh_family_controls()
+
+func _current_family() -> Dictionary:
+    if not is_instance_valid(codex):
+        return {}
+    var data: Dictionary = codex.get("profile")
+    return Families.sanitize(data.get("family_v059", {}))
+
+func _save_family(record: Dictionary) -> bool:
+    if not is_instance_valid(codex) or bool(codex.get("save_blocked")):
+        return false
+    var clean: Dictionary = Families.sanitize(record)
+    if clean.is_empty():
+        return false
+    var existing: Dictionary = codex.get("profile")
+    var updated: Dictionary = existing.duplicate(true)
+    updated["family_v059"] = clean
+    codex.set("profile", updated)
+    codex.call("_save_profile")
+    var disk := FileAccess.open("user://seeker_profile_v1.json", FileAccess.READ)
+    if disk == null:
+        codex.set("profile", existing)
+        return false
+    var raw: Variant = JSON.parse_string(disk.get_as_text())
+    disk.close()
+    if typeof(raw) != TYPE_DICTIONARY:
+        codex.set("profile", existing)
+        return false
+    var passed: bool = Families.sanitize(raw.get("family_v059", {})) == clean
+    if not passed:
+        codex.set("profile", existing)
+    return passed
+
+func _refresh_family_controls() -> void:
+    if not is_instance_valid(family_feedback):
+        return
+    var family: Dictionary = _current_family()
+    var sealed: bool = not family.is_empty()
+    var ready: bool = not _current_life().is_empty() and not _current_origin().is_empty()
+    for option in [family_option, bond_option, disclosure_option]:
+        option.disabled = sealed or not ready
+    family_confirm.disabled = sealed or not ready or bool(codex.get("save_blocked"))
+    if sealed:
+        family_feedback.text = Families.summary(family) + " | This save's family story is sealed."
+    elif not ready:
+        family_feedback.text = "Register a life road and your personal background first."
+    else:
+        family_feedback.text = "Public disclosure may attract official scrutiny. Private claims remain confidential; neither establishes a bloodline."
+
+func _register_family() -> void:
+    if not _current_family().is_empty() or _current_life().is_empty() or _current_origin().is_empty():
+        _refresh_family_controls()
+        return
+    var choice: Dictionary = Families.choose_once({},
+        Families.FAMILY_IDS[family_option.selected], Families.BONDS[bond_option.selected],
+        Families.DISCLOSURES[disclosure_option.selected])
+    if choice.is_empty() or not _save_family(choice):
+        family_feedback.text = "Family registration could not be verified. Existing history preserved."
+        return
+    codex.call("record_event", "v059:family_claim", "family_history_registered",
+        "Registered original Seeker family history",
+        Families.summary(choice) + ". Unverified; no inherited powers or institutional privilege granted.")
+    _announce("Family history recorded. Your chosen disclosure has consequences for local conversations.")
+    _refresh_family_controls()
+
+func _request_archive() -> void:
+    var current: Dictionary = _current_family()
+    var next: Dictionary = Families.request_archive(current)
+    if next.is_empty():
+        _announce("Family records: register a family story first, or your inquiry is already on file.")
+        return
+    if not _save_family(next):
+        _announce("The household record could not be saved. No inquiry was filed.")
+        return
+    codex.call("record_event", "v059:family_archive", "family_archive_inquiry",
+        "Filed a household archive inquiry",
+        Families.summary(next) + ". The office has not proved any contested ancestry.")
+    _announce("Archive inquiry recorded. No bloodline proof or restricted technique has been granted.")
+    if is_open():
+        _refresh_ui()
 
 func _day() -> int:
     return maxi(1, int(floor(float(hub.get("world_minutes")) / 1440.0)) + 1)
@@ -394,6 +509,7 @@ func _refresh_ui() -> void:
     else:
         notice.text = "Exam = candidate; Sworn = an existing Iron licence in your backstory; Trade = unlicensed civilian work."
     _refresh_origin_controls()
+    _refresh_family_controls()
 
 func interact(spot: String) -> void:
     if not initialized:
@@ -404,6 +520,8 @@ func interact(spot: String) -> void:
         _pickup()
     elif spot == "yb_v057_delivery":
         _deliver()
+    elif spot == "yb_v059_archive":
+        _request_archive()
 
 func _choose_path(path: String) -> void:
     if bool(codex.get("save_blocked")):
@@ -477,7 +595,8 @@ func _deliver() -> void:
         return
     var previous: Dictionary = codex.get("profile")
     var updated: Dictionary = previous.duplicate(true)
-    var payment: Dictionary = Origins.courier_payment(_current_origin(), Rules.COURIER_PAY_TOLA)
+    var family_adjustment: int = Families.courier_adjustment(_current_family())
+    var payment: Dictionary = Origins.courier_payment(_current_origin(), Rules.COURIER_PAY_TOLA + family_adjustment)
     updated["life_v057"] = next
     if not _current_origin().is_empty():
         updated["origin_v058"] = payment["origin"]
