@@ -1,0 +1,135 @@
+name: Margerina V0.67 - Modular Streaming and Crowd LOD
+
+on:
+  push:
+    branches: [margerina-v067-modular-streaming-staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-modular-city:
+    runs-on: ubuntu-latest
+    timeout-minutes: 54
+    steps:
+      - name: Checkout isolated V0.67 staging
+        uses: actions/checkout@v4
+        with:
+          ref: margerina-v067-modular-streaming-staging
+      - name: Audit author-canon boundaries and streaming source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          roster=json.loads(Path('data/seeker_character_registry_v065.json').read_text())
+          assert len(roster['canon_cast'])==64 and len(roster['civilian_roster'])==31
+          assert next(x for x in roster['canon_cast'] if x['id']=='rin_kairo')['spawn_policy']=='scripted_only'
+          regions=json.loads(Path('data/margerina_region_population_v066.json').read_text())
+          assert len(regions['regions'])==12
+          assert sum(bool(x['physical_implemented']) for x in regions['regions'])==1
+          scene=Path('scenes/main.tscn').read_text()
+          assert all(x in scene for x in ('MagnaraPopulationV065','MagnaraBusinessesV066','MagnaraStreamedBlocksV067'))
+          hub=Path('systems/hub_manager.gd').read_text()
+          player=Path('characters/player_controller.gd').read_text()
+          stream=Path('world/magnara_streamed_blocks_v067.gd').read_text()
+          rules=Path('systems/magnara_stream_rules_v067.gd').read_text()
+          oldnpc=Path('world/magnara_population_v065.gd').read_text()
+          assert 'get_nearest_interaction' in hub and 'street_v067_' in hub
+          assert 'magnara_streamed_blocks_v067' in player
+          assert 'MultiMeshInstance3D' in stream and 'queue_free()' in stream
+          assert 'visible_instance_count' in stream
+          assert 'CollisionShape3D' in stream and 'StaticBody3D' in stream
+          assert 'MAX_ROW: int = 4' in rules and 'ACTIVE_CAP: int = 9' in rules
+          assert 'CLOSE_M: float = 20.0' in rules and 'MID_M: float = 100.0' in rules
+          assert 'V067MidBody' in oldnpc and 'V067NearNPCShape' in oldnpc
+          assert Path('docs/V067_MODULAR_STREAMED_CITY_CROWD_LOD.md').is_file()
+          assert 'main' not in stream.split('extends Node3D')[0]
+          print('V0.67 SCENE CODING CANON BOUNDARIES CHUNK AND LOD AUDIT PASS')
+          PY
+      - name: Install Godot 4.4.1 plus Web templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+      - name: Validate Godot import scripts and live game boot
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 180s godot --headless --path . --editor --import --quit 2>&1 | tee v067-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v067-import.log; then exit 1; fi
+          timeout 150s godot --headless --path . --quit-after 220 2>&1 | tee v067-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v067-startup.log; then exit 1; fi
+      - name: Test deterministic 15 chunks 90 Lego houses and 75 citizens
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v067-rules"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 130s godot --headless --path . res://tests/v067_stream_rules_scene.tscn --quit-after 520 2>&1 | tee v067-rules.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v067-rules.log; then exit 1; fi
+          grep -Fq 'V0.67 FIFTEEN STABLE STREAM CHUNKS NINETY MODULAR BUILDINGS SEVENTY-FIVE SCHEDULED CIVILIANS LOD RULES PASS' v067-rules.log
+      - name: Test physical streamed city NPC LOD chat and unload-reload
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v067-world"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 160s godot --headless --path . res://tests/v067_stream_world_scene.tscn --quit-after 700 2>&1 | tee v067-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v067-world.log; then exit 1; fi
+          grep -Fq 'V0.67 STREAMING CHUNK UNLOAD RELOAD MODULAR MULTIMESH NPC LOD COLLISION CHAT PERSISTENCE PASS' v067-world.log
+      - name: Verify prior published shops canon cast and stable saves
+        shell: bash
+        run: |
+          set -euo pipefail
+          for item in \
+            'v066_business_world:V0.66 THREE PHYSICAL PUBLISHED BUSINESSES THIRTY-SEVEN SCHEDULED NPCS VERIFIED PURCHASES AND RELOAD PASS' \
+            'v065_population_world:V0.65 PHYSICAL TALKING BOAR 28 MOVING NPCS PUBLIC SQUAD GUILD SCHEDULE MEMORY PASS' \
+            'v064_civic_world:V0.64 THREE ENTERABLE CIVIC BUILDINGS INN CLINIC WORK AND PERSISTENT DAY CYCLE PASS' \
+            'v063_save_integrity:V0.63 VERIFIED BACKUP ATOMIC GAME SAVE AND INTERRUPTED-WRITE RECOVERY PASS' \
+            'v062_market_world:V0.62 ENTERABLE HOUSING STAFFED MARKET AND PERSISTENT TRADES PASS' \
+            'v061_workshop_world:V0.61 PHYSICAL WORKING STREETS SAFE EMPLOYMENT AND PERSISTENT WAGES PASS' \
+            'v054_geography:V0.54 KNOWN WORLD ATLAS AND 1:1 MAGNARA GEOGRAPHY PASS'; do
+            testfile="${item%%:*}"; expected="${item#*:}"
+            export XDG_DATA_HOME="$RUNNER_TEMP/v067-legacy-$testfile"
+            mkdir -p "$XDG_DATA_HOME"
+            timeout 145s godot --headless --path . "res://tests/${testfile}_scene.tscn" --quit-after 640 2>&1 | tee "${testfile}.log"
+            if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' "${testfile}.log"; then exit 1; fi
+            grep -Fq "$expected" "${testfile}.log"
+          done
+      - name: Export HTML5 game for iPhone browser
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          timeout 180s godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v067-export.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v067-export.log; then exit 1; fi
+          for ext in html js wasm pck; do test -s "build/web/index.${ext}"; done
+      - name: Upload tested Web build
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v067-modular-streamed-city-web
+          path: build/web/
+          if-no-files-found: error
+      - name: Keep diagnostics if validation fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v067-staging-diagnostics
+          if-no-files-found: ignore
+          path: |
+            v067-import.log
+            v067-startup.log
+            v067-rules.log
+            v067-world.log
+            v066_business_world.log
+            v065_population_world.log
+            v064_civic_world.log
+            v063_save_integrity.log
+            v062_market_world.log
+            v061_workshop_world.log
+            v054_geography.log
+            v067-export.log
