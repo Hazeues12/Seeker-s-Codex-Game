@@ -109,7 +109,7 @@ func _run() -> void:
         return
     var details: Label = maritime.get("details")
     if details == null or not details.text.contains("Ring II desk") \
-            or not details.text.contains("Ring VII") \
+            or not details.text.to_upper().contains("RING VII") \
             or not details.text.contains("minor canal"):
         _fail("user-visible survey still makes main port look physically inside Ring II")
         return
