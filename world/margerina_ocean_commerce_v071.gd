@@ -3,6 +3,9 @@ extends Node3D
 # trading culture. Exact Iron Cothon coastline/city coordinates are UNKNOWN:
 # remote scene coordinates, docks, crew, ship schedules and trade-lane
 # pairings are explicit GAME-ONLY examples. Restricted military basin sealed.
+# Author correction: all real ocean-going docks/large harbors belong to
+# outermost Ring VII; the Ring II counter is a survey-only preview link.
+# It does NOT imply a ship, coastline, ocean berth, or physical harbor in Ring II.
 const Waves = preload("res://systems/ocean_hydrodynamics_v071.gd")
 const Trade = preload("res://systems/margerina_commerce_rules_v071.gd")
 const SkiffScriptV072 = preload("res://world/steerable_skiff_v072.gd")
@@ -100,13 +103,13 @@ func _make_city_embarkation() -> void:
     add_child(marker)
     _block(marker,"V071SurveyCounter",Vector3(0,1.17,0),
         Vector3(1.0,1.0,2.4),Color(0.42,0.37,0.28),true)
-    _sign(marker,"IRON COTHON / CIVIL SHIPPING SURVEY (GAME-ONLY LOCATION)",
+    _sign(marker,"RING VII SEAPORT / REMOTE SURVEY ONLY (RING II COUNTER)",
         Vector3(0,3.4,0),23)
     var approach := Node3D.new()
     approach.name = "V071PublicHarborApproach"
     approach.position = Vector3(-2.4,0.84,0)
     marker.add_child(approach)
-    hub.call("_add_location","ocean_v071_board","Iron Cothon / Civil Commerce Survey",
+    hub.call("_add_location","ocean_v071_board","Ring VII Seaport / Scenic Survey Counter",
         approach.global_position,approach)
 
 func _make_ui() -> void:
@@ -144,7 +147,7 @@ func _make_ui() -> void:
     stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     scrolling.add_child(stack)
     var title := Label.new()
-    title.text = "IRON COTHON / PUBLIC MARITIME TRADE SURVEY"
+    title.text = "RING VII / IRON COTHON MARITIME SURVEY"
     title.add_theme_font_size_override("font_size",22)
     title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     stack.add_child(title)
@@ -153,7 +156,7 @@ func _make_ui() -> void:
     details.custom_minimum_size.y = 270
     stack.add_child(details)
     action_button = Button.new()
-    action_button.text = "VISIT PUBLIC HARBOR SURVEY / SCENIC PREVIEW"
+    action_button.text = "VIEW RING VII OCEAN PREVIEW (NOT PHYSICAL TRAVEL)"
     action_button.custom_minimum_size.y = 52
     action_button.pressed.connect(_enter)
     stack.add_child(action_button)
@@ -189,6 +192,10 @@ func get_manifest() -> Dictionary:
         "atlas_waters":route_catalog.get("waters",[]).size(),
         "canon_harbor_military_basin_access":false,
         "actual_country_arrival_navigation":false,
+        "actual_harbor_ring":int(route_catalog.get("harbors",[])[0].get("ring",-1)),
+        "survey_counter_ring":2,
+        "survey_is_not_physical_inter_ring_travel":true,
+        "ring_two_has_major_ocean_berth":false,
         "real_live_weather_api":false}
 
 func _close() -> void:
@@ -201,7 +208,10 @@ func _info() -> void:
     var day: int = 1+floori(maxf(0.0,float(hub.get("world_minutes")))/1440.0)
     var trade: Dictionary = Trade.public_summary(day,seconds,route_catalog)
     var weather: Dictionary = weather_state
-    details.text = "Janoah Sea / coastal scene survey\n"
+    details.text = "RING VII — Janoah Sea / Outer-ring harbor scenic preview\n"
+    details.text += "The Ring II desk is a survey viewer, NOT an ocean dock.\n"
+    details.text += "Major seagoing ships berth only at the outermost-ring seaport.\n"
+    details.text += "Ring II only supports minor canal landings and an inland freight depot.\n"
     details.text += "Weather: %s | Wind %.0f%% | Wind waves respond offshore\n" % [
         str(weather.get("sky","calm")).replace("_"," "),
         float(weather.get("wind_strength",0.0))*100.0]
