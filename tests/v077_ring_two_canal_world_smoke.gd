@@ -10,8 +10,8 @@ func _fail(reason: String) -> void:
     push_error("RING TWO CANAL: " + reason)
     get_tree().call_deferred("quit", 1)
 
-func _walk(mobile: Control, direction: float, ticks: int) -> void:
-    mobile.set("movement", Vector2(0, direction))
+func _walk(mobile: Control, direction: Vector2, ticks: int) -> void:
+    mobile.set("movement", direction)
     for tick in range(ticks):
         await get_tree().physics_frame
     mobile.set("movement", Vector2.ZERO)
@@ -68,21 +68,25 @@ func _run() -> void:
     for entry: Vector2 in ramp_directions:
         player.global_position = Vector3(entry.x, City.CANAL_WATER_Y, entry.y)
         player.velocity = Vector3.ZERO
-        await _walk(mobile, ramp_directions[entry], 110)
+        await _walk(mobile, Vector2(0, ramp_directions[entry]), 110)
         if not player.is_on_floor() or bool(player.get("water_contact_v071")) or player.global_position.y < 0.48:
             _fail("player could not walk out at the canal ramp: " + str(player.global_position))
             return
 
     # The joystick crosses one bridge in each direction with no jump input.
-    player.global_position = Vector3(-88.0, 0.80, 43.2)
+    player.global_position = Vector3(-95.7, 0.51, 43.2)
     player.velocity = Vector3.ZERO
-    await _walk(mobile, 1.0, 132)
+    await _walk(mobile, Vector2.RIGHT, 94)
+    if absf(player.global_position.x + 88.0) >= 1.0:
+        _fail("quay approach blocks access to the west footbridge: " + str(player.global_position))
+        return
+    await _walk(mobile, Vector2.DOWN, 132)
     if player.global_position.z <= 52.8 or not player.is_on_floor():
         _fail("west footbridge is not walkable from the quay: " + str(player.global_position))
         return
     player.global_position = Vector3(-62.0, 0.55, 53.2)
     player.velocity = Vector3.ZERO
-    await _walk(mobile, -1.0, 132)
+    await _walk(mobile, Vector2.UP, 132)
     if player.global_position.z >= 43.8 or not player.is_on_floor():
         _fail("east footbridge is not walkable from the far bank: " + str(player.global_position))
         return

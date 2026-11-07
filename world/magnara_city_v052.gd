@@ -8,6 +8,7 @@ const Water = preload("res://systems/ocean_hydrodynamics_v071.gd")
 const CURRENT_SHADER = preload("res://shaders/margerina_river_currents_v071.gdshader")
 const CANAL_WATER_Y: float = -0.39
 const CANAL_BED_Y: float = -1.32
+const QUAY_WALK_Y: float = 0.57
 const LOAD_RADIUS: float = 77.0
 const UNLOAD_RADIUS: float = 97.0
 const CELL_CENTERS: Dictionary = {
@@ -276,7 +277,7 @@ func _slope(parent: Node3D, label: String, start: Vector3, end: Vector3,
 func _bridge(parent: Node3D, x: float, z: float) -> void:
     var iron := Color(0.33, 0.36, 0.41)
     _part(parent, "IronFootbridgeDeck", Vector3(x, 0.80, z), Vector3(8.1, 0.30, 7.0), iron, true)
-    _slope(parent, "IronBridgeApproach", Vector3(x, 0.68, z - 4.7),
+    _slope(parent, "IronBridgeApproach", Vector3(x, QUAY_WALK_Y, z - 4.18),
         Vector3(x, 0.95, z - 3.48), 8.1, iron)
     _slope(parent, "IronBridgeApproach", Vector3(x, 0.95, z + 3.48),
         Vector3(x, 0.50, z + 5.3), 8.1, iron)
@@ -486,16 +487,16 @@ func _dress_ward(parent: Node3D, key: String, street_x: float) -> void:
     if key == "west_public":
         # Public quay along the blue-resonance water channel. A physically
         # raised edge provides a reachable observation perch.
-        _part(parent, "CanalQuayPaving", Vector3(-72.0, 0.60, 43.0),
+        _part(parent, "CanalQuayPaving", Vector3(-72.0, QUAY_WALK_Y - 0.08, 43.0),
             Vector3(44.0, 0.16, 2.15), sandstone, true)
         # Separate quay rail sections leave the two iron bridge approaches open.
-        _part(parent, "QuayBronzeGuardMid", Vector3(-75.0, 1.10, 44.22),
+        _part(parent, "QuayBronzeGuardMid", Vector3(-75.0, QUAY_WALK_Y + 0.42, 44.22),
             Vector3(15.0, 0.82, 0.16), bronze, true)
-        _part(parent, "QuayBronzeGuardEast", Vector3(-53.5, 1.10, 44.22),
+        _part(parent, "QuayBronzeGuardEast", Vector3(-53.5, QUAY_WALK_Y + 0.42, 44.22),
             Vector3(6.5, 0.82, 0.16), bronze, true)
         for bollard_x in [-94.0, -78.0, -70.0, -50.0]:
             _part(parent, "PublicQuayMooring",
-                Vector3(float(bollard_x), 1.07, 42.5),
+                Vector3(float(bollard_x), QUAY_WALK_Y + 0.39, 42.5),
                 Vector3(0.42, 0.96, 0.42), stone, true)
         _tag(parent, "CANAL QUAY / IRON BRIDGES",
             Vector3(-72.0, 4.28, 42.2), 27)
