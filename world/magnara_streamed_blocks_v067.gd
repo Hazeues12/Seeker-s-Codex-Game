@@ -5,6 +5,7 @@ extends Node3D
 # Canon interiors, published businesses and the original browser game are
 # protected. No claim of an entire 26 km completed city.
 const Rules = preload("res://systems/magnara_stream_rules_v067.gd")
+const Roof = preload("res://systems/magnara_roof_rules_v068.gd")
 const MAT_COLORS: Array[Color] = [
     Color(0.64, 0.60, 0.55), Color(0.60, 0.63, 0.64),
     Color(0.53, 0.56, 0.59), Color(0.65, 0.59, 0.53),
@@ -51,6 +52,8 @@ func _initialize() -> void:
     instanced_material.albedo_color = Color.WHITE
     instanced_material.vertex_color_use_as_albedo = true
     instanced_material.roughness = 0.88
+    instanced_material.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
+    instanced_material.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
     _link_old_avenue()
     _make_conversation_ui()
     initialized = true
@@ -72,6 +75,10 @@ func get_manifest() -> Dictionary:
         "population_lod_mid_m": Rules.MID_M,
         "lod_strategy": "close multi-part collision, mid MultiMesh sidewalk rail, far unrendered",
         "renderer_strategy": "chunk-batched MultiMesh, renderer frustum and distance checks",
+        "v068_roof_parkour": true,
+        "v068_roof_route_count_per_chunk": Roof.ACCESS_PER_CHUNK,
+        "v068_physics_roof_decks": true,
+        "v068_toon_lighting": "Godot 4.4 built-in StandardMaterial3D Toon diffuse",
         "cpu_occlusion_baked": false,
         "why_no_cpu_occlusion": "Godot Compatibility Web and iPhone CPU cost; enable and benchmark later where renderer supports it",
         "new_module_kit": Rules.MODULE_TYPES,
@@ -104,6 +111,8 @@ func _shade(color: Color) -> StandardMaterial3D:
     var material := StandardMaterial3D.new()
     material.albedo_color = color
     material.roughness = 0.84
+    material.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
+    material.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
     close_materials[key] = material
     return material
 
@@ -240,6 +249,69 @@ func _add_building_colliders(root: Node3D, parcels: Array) -> Array:
         blockers.append({"body": body, "shape": collision})
     return blockers
 
+func _make_rooftop_network(root: Node3D, cell: Vector2i) -> Array:
+    # Real, individually physics-backed parkour boards, with one GPU batch for
+    # stair platforms and another for roof-to-roof maintenance decks.
+    # Collision is enabled only while the player is nearby in _refresh_crowds.
+    var network := Node3D.new()
+    network.name = "V068PhysicalRooftopRoutes"
+    network.add_to_group("v068_rooftop_parkour")
+    root.add_child(network)
+    var colliders: Array = []
+    var geometry: Dictionary = {"stair": [], "bridge": []}
+    var entries: Array[Dictionary] = Roof.roof_routes(cell)
+    for entry in entries:
+        var kind: String = str(entry["kind"])
+        var body := StaticBody3D.new()
+        body.name = "V068RoofSolid_" + str(entry["id"]).replace(":", "_")
+        body.position = entry["local_position"]
+        body.add_to_group("v068_roof_physical")
+        network.add_child(body)
+        var hitbox := CollisionShape3D.new()
+        hitbox.name = "V068RoofCollision"
+        var block := BoxShape3D.new()
+        block.size = entry["size"]
+        hitbox.shape = block
+        hitbox.disabled = true
+        body.add_child(hitbox)
+        colliders.append({"body": body, "shape": hitbox, "kind": kind, "id": str(entry["id"])})
+        if kind != "roof":
+            var drawn: Array = geometry[kind]
+            drawn.append(entry)
+            geometry[kind] = drawn
+    for kind in ["stair", "bridge"]:
+        var specs: Array = geometry[kind]
+        if specs.is_empty():
+            continue
+        var mm := MultiMesh.new()
+        mm.transform_format = MultiMesh.TRANSFORM_3D
+        mm.use_colors = true
+        mm.mesh = building_mesh
+        mm.instance_count = specs.size()
+        var tint: Color = Color(0.78, 0.59, 0.38) if kind == "stair" else Color(0.48, 0.65, 0.70)
+        for n in range(specs.size()):
+            var record: Dictionary = specs[n]
+            mm.set_instance_transform(n, Transform3D(
+                Basis.IDENTITY.scaled(record["size"]), record["local_position"]))
+            mm.set_instance_color(n, tint)
+        var visual := MultiMeshInstance3D.new()
+        visual.name = "V068RooftopGPU_" + kind
+        visual.multimesh = mm
+        visual.material_override = instanced_material
+        visual.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+        network.add_child(visual)
+    for side in [-1.0, 1.0]:
+        var sign := Label3D.new()
+        sign.name = "V068RoofJumpHint"
+        sign.text = "ROOF ROUTE / RUN + JUMP / DOUBLE JUMP ACROSS"
+        sign.position = Vector3(side * 13.0, 3.5, 27.0)
+        sign.font_size = 21
+        sign.pixel_size = 0.0043
+        sign.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+        sign.no_depth_test = true
+        network.add_child(sign)
+    return colliders
+
 func _crowd_geometry(root: Node3D) -> MultiMeshInstance3D:
     var people := MultiMesh.new()
     people.transform_format = MultiMesh.TRANSFORM_3D
@@ -287,10 +359,11 @@ func _build_chunk(cell: Vector2i) -> void:
         specs.append(Rules.parcel(cell, i))
     var kit: Dictionary = _make_city_kit(chunk, specs)
     var blockers: Array = _add_building_colliders(chunk, specs)
+    var rooftop: Array = _make_rooftop_network(chunk, cell)
     var crowd: MultiMeshInstance3D = _crowd_geometry(chunk)
     active_chunks[id] = {
         "cell": cell, "node": chunk, "kit": kit, "parcels": specs,
-        "colliders": blockers, "crowd": crowd, "citizens": Rules.residents(cell)
+        "colliders": blockers, "roof_shapes": rooftop, "crowd": crowd, "citizens": Rules.residents(cell)
     }
     for person in active_chunks[id]["citizens"]:
         resident_records[str(person["id"])] = person
@@ -432,6 +505,15 @@ func _refresh_crowds() -> void:
             var near: bool = player.global_position.distance_to(body.global_position) <= Rules.COLLIDER_M
             shape.set_deferred("disabled", not near)
             if near:
+                sums["physically_active_colliders"] = int(sums["physically_active_colliders"]) + 1
+        # V0.68 shares the same bounded physics activation envelope.
+        # The roof deck and bridge are *actual* platforms, not painted ones.
+        for roof_record in info["roof_shapes"]:
+            var roof_body: StaticBody3D = roof_record["body"]
+            var roof_shape: CollisionShape3D = roof_record["shape"]
+            var roof_near: bool = player.global_position.distance_to(roof_body.global_position) <= Rules.COLLIDER_M
+            roof_shape.set_deferred("disabled", not roof_near)
+            if roof_near:
                 sums["physically_active_colliders"] = int(sums["physically_active_colliders"]) + 1
     crowd_stats = sums
 
