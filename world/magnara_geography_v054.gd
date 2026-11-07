@@ -50,6 +50,7 @@ func get_manifest() -> Dictionary:
         "active_cell_cap": MAX_ACTIVE_CELLS,
         "legacy_scene_preserved": true,
         "generated_blocks_are_complete_city": false,
+        "v074_full_city_ring_frame_service":true,
         "scope": "known world only",
     }
 
@@ -224,9 +225,14 @@ func _build_tile(parent: Node3D, tile: Vector2i) -> void:
         # preventing old giant cuboids from cutting through new streets and
         # overlapping streamed buildings. No other city tiles are changed.
         return
-    for n in range(positions.size()):
-        var offset: Vector2 = positions[n]
-        _building(parent, ring, center + Vector3(offset.x, 0.0, offset.y), n)
+    # V0.74 now supplies dense, deterministic, GPU-instanced city
+    # silhouettes across all seven rings. The 4 V0.54 solid cubes must
+    # NOT overlap those same lots or block ring/radial avenues. Keep
+    # this original behavior for standalone V0.54 regression scenes.
+    if get_tree().get_first_node_in_group("magnara_seven_ring_foundation_v074") == null:
+        for n in range(positions.size()):
+            var offset: Vector2 = positions[n]
+            _building(parent, ring, center + Vector3(offset.x, 0.0, offset.y), n)
     # A low-cost wayfinding mark. Unapproved dimensions remain explicit.
     var marker := Label3D.new()
     marker.name = "SurveyRingMarker"
