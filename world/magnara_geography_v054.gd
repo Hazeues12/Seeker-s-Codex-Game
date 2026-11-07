@@ -217,10 +217,12 @@ func _build_tile(parent: Node3D, tile: Vector2i) -> void:
     # V0.60/V0.61 have actual authored homes, workshops and streets in
     # the first northern survey tile (0:1). Do not spawn generic *solid*
     # massing over these hand-built accessible spaces.
-    if tile == Vector2i(0, 1) or tile == Vector2i(0, 2):
-        # V0.64 hand-built connected civic buildings extend into tile 0:2.
-        # Suppress procedural solid massing here to keep doorways and street
-        # continuations accessible; other tiles still generate survey blocks.
+    if tile.x == 0 and tile.y >= 1 and tile.y <= 6:
+        # V0.64-V0.66 civic/shop streets cover the northern 0:1-0:2
+        # region. V0.67 owns 0:3-0:5 with genuine streamed modular blocks.
+        # Keep the survey tile ground as invisible collision support, while
+        # preventing old giant cuboids from cutting through new streets and
+        # overlapping streamed buildings. No other city tiles are changed.
         return
     for n in range(positions.size()):
         var offset: Vector2 = positions[n]
