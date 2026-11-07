@@ -8,12 +8,14 @@ const OUTER_BOUNDS_M: Array[float] = [
     1000.0, 2600.0, 4700.0, 6500.0, 8700.0, 10700.0, 13000.0
 ]
 # Zone titles follow confirmed placement rules, not an invented final plan.
-# Ring II = Seeker Quarters; IV trade; V foundry; VII seaport.
-# Ring VI had an incorrect 'harbor' title in V0.54, now corrected.
+# V0.76: audited Royal Road chapter and creator revisions.
+# II Seeker Quarters, III Commons, IV Academies, V Markets,
+# VII Iron Cothon. VI remains unassigned. Ring dimensions are still
+# provisional gameplay measurements, never book-published distances.
 const RING_NAMES: Array[String] = [
-    "INNER CORE / PROVISIONAL", "SEEKER QUARTERS", "UNASSIGNED URBAN ZONE",
-    "TRADE / MERCHANT DISTRICTS", "FORGE / MANUFACTURING ZONE",
-    "OUTER INFRASTRUCTURE / UNASSIGNED", "OUTERMOST SEAPORT / IRON COTHON RESERVE"
+    "INNER CORE / PROVISIONAL", "SEEKER QUARTERS", "THE COMMONS",
+    "THE ACADEMIES", "THE MARKETS",
+    "RING VI / UNASSIGNED", "IRON COTHON / OUTER PORT RING"
 ]
 
 static func radial_m(point: Vector3) -> float:
