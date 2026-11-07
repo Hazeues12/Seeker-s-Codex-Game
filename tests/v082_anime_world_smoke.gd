@@ -31,6 +31,8 @@ func _run() -> void:
         _fail("creator hair or skin choice no longer reaches the live shader")
         return
     rig.apply_player_appearance(0, 0, 0, 0)
+    rig.pose_clock = 0.0
+    rig.last_pose = ""
     rig.animate_state(0.09, 5.0)
     var held: float = rig.left_leg.rotation.x
     rig.animate_state(0.015, 5.0)

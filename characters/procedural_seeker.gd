@@ -10,6 +10,7 @@ var pose_clock := 0.0
 var last_pose := ""
 var ink: ShaderMaterial
 var anime_gem_scale: Vector3
+var shoulder_drapes: Array[MeshInstance3D] = []
 var appearance: String = "seeker"
 var animation_time: float = 0.0
 var attack_time: float = 0.0
@@ -52,6 +53,10 @@ func configure_anime_player() -> void:
     ink.shader = INK_SHADER
     configure("seeker")
     anime_gem_scale = aura_gem.scale
+    shoulder_drapes.append(_sphere(left_arm, "ShoulderDrape", Vector3(0.09, -0.08, 0),
+        Vector3(0.18, 0.15, 0.164), Color(0.19, 0.32, 0.47)))
+    shoulder_drapes.append(_sphere(right_arm, "ShoulderDrape", Vector3(-0.09, -0.08, 0),
+        Vector3(0.18, 0.15, 0.164), Color(0.19, 0.32, 0.47)))
     body_root.get_node("FaceBand").hide()
     for side in [-1.0, 1.0]:
         var eye_x: float = side * 0.115
@@ -233,6 +238,8 @@ func _apply_colors() -> void:
 
 func _color_clothes(jacket: Color, pants: Color) -> void:
     for item in [torso_mesh, left_sleeve, right_sleeve, cape_trim]:
+        _tint(item, jacket)
+    for item in shoulder_drapes:
         _tint(item, jacket)
     for item in [left_pant, right_pant]:
         _tint(item, pants)

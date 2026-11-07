@@ -387,13 +387,14 @@ jobs:
                   if (/SCRIPT ERROR|SHADER ERROR|shader compilation failed/i.test(content)) errors.push(content);
               });
               try {
-                  await Promise.all([
+                  const [result] = await Promise.all([
                       test.waitForEvent("console", {
-                          predicate: message => message.text().includes(marker),
+                          predicate: message => message.text().includes(marker) || message.text().includes("V0.82 ANIME WORLD:"),
                           timeout: 65000,
                       }),
                       test.goto("http://127.0.0.1:8765/qa.html"),
                   ]);
+                  if (!result.text().includes(marker)) throw new Error(result.text());
                   if (errors.length) throw new Error(errors.join("\n"));
                   if (screenshot) await test.locator("#canvas").screenshot({ path: screenshot });
               } finally {
