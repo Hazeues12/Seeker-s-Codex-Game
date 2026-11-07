@@ -111,6 +111,13 @@ func _physics_process(delta: float) -> void:
     var input_dir: Vector2 = Input.get_vector(
         "ui_left", "ui_right", "ui_up", "ui_down"
     )
+    # While operating the public skiff, arrow keys turn the helm.
+    # The iPhone joystick remains independently available to walk its
+    # real moving deck without also shoving the character off-board.
+    var helm_controller: Node = get_tree().get_first_node_in_group("v072_steerable_skiff")
+    if is_instance_valid(helm_controller) and helm_controller.has_method("is_helming") \
+            and bool(helm_controller.call("is_helming")):
+        input_dir = Vector2.ZERO
     var mobile_sprinting: bool = false
     if is_instance_valid(mobile_controls):
         if mobile_controls.movement.length() > 0.05:
