@@ -2,6 +2,11 @@
 
 **Engine:** Godot 4.4.1 Web/Compatibility; iPhone-first. **Story era:** 1500 A.S. **Scope:** Known World only; no beyond-the-Abyssal content or speculative high-level antagonist spawns.
 
+
+## Author-confirmed outermost Ring VII port correction (November 7, 2026)
+
+**Magnara's main sea-facing docks, large oceangoing harbor and Iron Cothon maritime freight basins belong to the OUTERMOST Ring VII.** Ring II is the Seeker Quarters: its public canals may have **small shallow-draft local landing piers only**. The existing Ring II goods yard and courier route at approximately (14, 1382) is an **inland land-wagon receiving depot**, never a coast, a port or a large-ship berth. The Ring II harbor-survey counter opens a **separately loaded remote Ring VII scenic preview**, not a physical inter-ring crossing. The exact shoreline and the route from Ring II canal to Ring VII seaport are not mapped or author-approved, so the game must not claim that ships or barges already traverse it.
+
 ## Geographic canon and honest boundaries
 
 Established names/systems: **Margerina, Janoah, Magnara's seven rings, Ring II Seeker Quarters, Iron Cothon (public commercial and restricted military basins), Janoah Sea, Gulf of Janoah, South Chun Sea, Tsarian Straits, Britannia Strait, Viridian Sea, Lake Lukka (Africanus's largest lake)**, and named waters in the creator's atlas. The existing V0.56 Janoah approach river and its two bridges are explicitly **game-only provisional** because its name, course, crossings and actual country coastline were never locked. **Emerald River, Lake Tsar, Lake Silva, and Lake Lucia/Lucita have no confirmed local coordinates/appropriate nation assignments** in current integrated game data; do not draw them in arbitrary nations.
