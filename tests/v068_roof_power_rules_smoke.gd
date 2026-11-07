@@ -63,7 +63,7 @@ func _test() -> void:
     if not Roof.roof_routes(Vector2i(9,9)).is_empty():
         _fail("unauthorized city/world gets procedural parkour")
         return
-    if not Roof.jump_hint(Vector2i.ZERO, 0).contains("DOUBLE JUMP"):
+    if not Roof.jump_hint(Vector2i.ZERO, 0).to_lower().contains("double-jump"):
         _fail("mobile controls guidance for roof hops missing")
         return
 
