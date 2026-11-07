@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "era": "1500 A.S.",
+  "scope": "public prototype techniques and non-secret author-verified metadata",
+  "status_hierarchy": [
+    "creator_locked",
+    "published_author_text",
+    "game_only_training"
+  ],
+  "secrecy": "No Archwheel hidden truth, unrevealed Bloodmark motives, sealed eyes or future plot data in client exports",
+  "concepts": {
+    "power_chain": [
+      "Soul",
+      "Aura",
+      "Muti",
+      "Technique"
+    ],
+    "aura_model": {
+      "bucket": "reserve",
+      "tap": "output",
+      "recovery": "replenishment",
+      "purity": "efficiency and control"
+    },
+    "spokes": [
+      "Elemental",
+      "Martial",
+      "Spirit",
+      "Alchemy",
+      "Psychic",
+      "Spatial",
+      "Abyssal"
+    ],
+    "celestial": "rare primary access requires authored story gate; not a normal training spoke",
+    "will": {
+      "sight": "Kyōmei-shi (advanced training)",
+      "steel": "Kōshin (Gold+)",
+      "sovereignty": "Ōi (Grand+)"
+    }
+  },
+  "techniques": [
+    {
+      "id": "martial_pulse_v034",
+      "label": "Basic Aura-infused Martial Strike",
+      "owner": "game_only_player",
+      "canonical_status": "game_only_training",
+      "cast_policy": "public_basic",
+      "aura_cost": 12,
+      "output_required": 10,
+      "spokes": [
+        "Martial"
+      ],
+      "lineage": "Magnara Seeker Quarters practice",
+      "signature_type": "Martial",
+      "startup_seconds": 0.18,
+      "trajectory": "short_forward_arc",
+      "effect_type": "arena_hit",
+      "history_tag": "supervised_basic",
+      "usable": true
+    },
+    {
+      "id": "training_martial",
+      "label": "Supervised Martial Drill",
+      "owner": "supervised_yard",
+      "canonical_status": "game_only_training",
+      "cast_policy": "supervised_only",
+      "aura_cost": 14,
+      "output_required": 10,
+      "spokes": [
+        "Martial"
+      ],
+      "lineage": "Seeker Quarters practice",
+      "signature_type": "Martial",
+      "startup_seconds": 0.25,
+      "trajectory": "close_arc",
+      "effect_type": "training_only",
+      "history_tag": "supervised_basic",
+      "usable": true
+    },
+    {
+      "id": "training_elemental",
+      "label": "Supervised Elemental Drill",
+      "owner": "supervised_yard",
+      "canonical_status": "game_only_training",
+      "cast_policy": "supervised_only",
+      "aura_cost": 20,
+      "output_required": 10,
+      "spokes": [
+        "Elemental"
+      ],
+      "lineage": "Seeker Quarters practice",
+      "signature_type": "Elemental",
+      "startup_seconds": 0.36,
+      "trajectory": "forward_bolt",
+      "effect_type": "training_only",
+      "history_tag": "supervised_basic",
+      "usable": true
+    },
+    {
+      "id": "training_spirit",
+      "label": "Supervised Spirit Drill",
+      "owner": "supervised_yard",
+      "canonical_status": "game_only_training",
+      "cast_policy": "supervised_only",
+      "aura_cost": 18,
+      "output_required": 10,
+      "spokes": [
+        "Spirit"
+      ],
+      "lineage": "Seeker Quarters practice",
+      "signature_type": "Spirit",
+      "startup_seconds": 0.28,
+      "trajectory": "self_pulse",
+      "effect_type": "training_only",
+      "history_tag": "supervised_basic",
+      "usable": true
+    },
+    {
+      "id": "training_alchemy",
+      "label": "Supervised Alchemy Drill",
+      "owner": "supervised_yard",
+      "canonical_status": "game_only_training",
+      "cast_policy": "supervised_only",
+      "aura_cost": 22,
+      "output_required": 10,
+      "spokes": [
+        "Alchemy"
+      ],
+      "lineage": "Seeker Quarters practice",
+      "signature_type": "Alchemy",
+      "startup_seconds": 0.44,
+      "trajectory": "self_ward",
+      "effect_type": "training_only",
+      "history_tag": "supervised_basic",
+      "usable": true
+    },
+    {
+      "id": "training_psychic",
+      "label": "Supervised Psychic Drill",
+      "owner": "supervised_yard",
+      "canonical_status": "game_only_training",
+      "cast_policy": "supervised_only",
+      "aura_cost": 21,
+      "output_required": 10,
+      "spokes": [
+        "Psychic"
+      ],
+      "lineage": "Seeker Quarters practice",
+      "signature_type": "Psychic",
+      "startup_seconds": 0.4,
+      "trajectory": "short_focus",
+      "effect_type": "training_only",
+      "history_tag": "supervised_basic",
+      "usable": true
+    },
+    {
+      "id": "training_spatial",
+      "label": "Supervised Spatial Drill",
+      "owner": "supervised_yard",
+      "canonical_status": "game_only_training",
+      "cast_policy": "supervised_only",
+      "aura_cost": 24,
+      "output_required": 10,
+      "spokes": [
+        "Spatial"
+      ],
+      "lineage": "Seeker Quarters practice",
+      "signature_type": "Spatial",
+      "startup_seconds": 0.45,
+      "trajectory": "short_shift_safe_only",
+      "effect_type": "training_only",
+      "history_tag": "supervised_basic",
+      "usable": true
+    },
+    {
+      "id": "training_abyssal",
+      "label": "Supervised Abyssal Drill",
+      "owner": "supervised_yard",
+      "canonical_status": "game_only_training",
+      "cast_policy": "supervised_only",
+      "aura_cost": 28,
+      "output_required": 10,
+      "spokes": [
+        "Abyssal"
+      ],
+      "lineage": "Seeker Quarters practice",
+      "signature_type": "Abyssal",
+      "startup_seconds": 0.6,
+      "trajectory": "short_impact",
+      "effect_type": "training_only",
+      "history_tag": "supervised_basic",
+      "usable": true
+    },
+    {
+      "id": "bodhi_palm",
+      "label": "Bodhi Palm",
+      "owner": "kai_xander",
+      "canonical_status": "creator_locked",
+      "cast_policy": "story_only",
+      "aura_cost": null,
+      "output_required": null,
+      "spokes": [
+        "Martial",
+        "Spirit"
+      ],
+      "lineage": "Bodhira monastery / Kai's path",
+      "signature_type": "Martial + Spirit",
+      "startup_seconds": null,
+      "trajectory": "author_story_only",
+      "effect_type": "canon_skill",
+      "history_tag": "locked",
+      "usable": false
+    },
+    {
+      "id": "viatra_stage_ii",
+      "label": "Viatra / Shōen no Me",
+      "owner": "rin_kairo",
+      "canonical_status": "creator_locked",
+      "cast_policy": "story_only",
+      "aura_cost": null,
+      "output_required": null,
+      "spokes": [
+        "Psychic"
+      ],
+      "lineage": "Black Clan / ocular lore, further requirements restricted",
+      "signature_type": "ocular",
+      "startup_seconds": null,
+      "trajectory": "read_and_interpret",
+      "effect_type": "perception_story_only",
+      "history_tag": "locked",
+      "usable": false
+    }
+  ],
+  "items": [
+    {
+      "id": "sun_staff",
+      "name": "Sun (staff)",
+      "known_bearer": "kai_xander",
+      "lineage": "Bodhira / relic",
+      "public_tags": [
+        "staff",
+        "relic",
+        "Martial"
+      ],
+      "secret_tags": [],
+      "visibility": "public",
+      "gameplay_access": "story_only"
+    },
+    {
+      "id": "tetsuba",
+      "name": "Tetsuba",
+      "known_bearer": "rin_kairo",
+      "lineage": "Black Clan",
+      "public_tags": [
+        "phantom_blade"
+      ],
+      "secret_tags": [],
+      "visibility": "known_public",
+      "gameplay_access": "story_only"
+    },
+    {
+      "id": "chi_no_ryoken",
+      "name": "Chi no Ryōken",
+      "known_bearer": "rin_kairo",
+      "lineage": "stage-specific: do not show in earlier chronology",
+      "public_tags": [
+        "sword",
+        "chapter_gated"
+      ],
+      "secret_tags": [],
+      "visibility": "restricted_to_confirmed_chapter",
+      "gameplay_access": "story_only"
+    },
+    {
+      "id": "william_sword",
+      "name": "Juzuri Tsunegen",
+      "known_bearer": "william_lockhart",
+      "lineage": "published William inventory",
+      "public_tags": [
+        "sword"
+      ],
+      "secret_tags": [],
+      "visibility": "public",
+      "gameplay_access": "story_only"
+    }
+  ],
+  "authored_domain_catalog": [
+    {
+      "id": "pale_desert",
+      "name": "Pale Desert",
+      "known_wielder": "cyrus",
+      "actual_rules": "unverified",
+      "visibility": "restricted",
+      "cast_policy": "story_only"
+    },
+    {
+      "id": "black_shrine",
+      "name": "Black Shrine Ryōiki",
+      "known_wielder": "seizen_kairo",
+      "actual_rules": "sealed",
+      "visibility": "restricted",
+      "cast_policy": "story_only"
+    }
+  ],
+  "sandbox_domains": [
+    {
+      "id": "training_output_field",
+      "name": "Supervised Aura-Output Practice Field",
+      "canon_status": "game_only",
+      "radius_m": 8,
+      "output_multiplier": 0.75,
+      "min_output_multiplier": 0.25,
+      "expires_seconds": 8,
+      "allowed_scope": "supervised_training_only"
+    }
+  ]
+}
