@@ -1,6 +1,9 @@
 extends Node3D
 # V0.73: physically observable local deliveries. Three V0.71 wagons
-# actually reach the north freight station; warehouse carriers then follow
+# actually reach the north freight station in Ring II (INLAND, NOT A SEAPORT).
+# The main ocean-going docks belong to outermost Ring VII. No ocean-going
+# ship unloads at this Ring II warehouse; minor canal piers are separate.
+# Land carriers then follow
 # public road nodes to eligible V0.72 workrooms. Inventories are credited
 # ONLY when a courier completes its full path, once per wagon per day.
 const Rules = preload("res://systems/magnara_local_logistics_rules_v073.gd")
@@ -81,7 +84,7 @@ func _make_public_depot() -> void:
             Vector3(1.15,0.95,1.1),Color(0.56,0.44,0.28),true)
     var sign := Label3D.new()
     sign.name = "V073PublicGoodsBoard"
-    sign.text = "LOCAL FREIGHT RECEIPTS / PUBLIC WARD SHIPMENTS"
+    sign.text = "RING II / INLAND GOODS DEPOT / NO SEA-GOING DOCK"
     sign.position = Vector3(2.2,3.60,-1.8)
     sign.billboard = BaseMaterial3D.BILLBOARD_ENABLED
     sign.no_depth_test = true
@@ -93,7 +96,7 @@ func _make_public_depot() -> void:
     marker.position = Vector3(-3.2,0.84,0)
     stage.add_child(marker)
     hub.call("_add_location","logistics_v073_depot",
-        "Ring Two Public Freight Ledger",marker.global_position,marker)
+        "Ring II Inland Freight Ledger",marker.global_position,marker)
 
 func _make_ui() -> void:
     var canvas := CanvasLayer.new()
@@ -130,7 +133,7 @@ func _make_ui() -> void:
     stack.add_theme_constant_override("separation",14)
     scroll.add_child(stack)
     var head := Label.new()
-    head.text = "MAGNARA / PUBLIC LOCAL GOODS LEDGER"
+    head.text = "MAGNARA RING II / INLAND GOODS LEDGER"
     head.add_theme_font_size_override("font_size",22)
     head.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     stack.add_child(head)
@@ -165,7 +168,8 @@ func _update_panel() -> void:
         return
     var ledger: Dictionary = Rules.clean(hub.get("local_trade_v073"))
     var day: int = 1+floori(float(hub.get("world_minutes"))/1440.0)
-    details.text = "Local game-only route / Day %d\n" % day
+    details.text = "Ring II inland distribution / Day %d\n" % day
+    details.text += "These are LAND wagons, not harbor ships. Deepwater docks are in Ring VII.\n"
     details.text += "3 physical wagons; up to 3 public couriers active.\n"
     details.text += "Goods count at destinations ONLY after arrival. No automatic player Tola.\n"
     details.text += "Delivery records: %d complete; %d on foot.\n\n" % [
@@ -186,6 +190,11 @@ func get_manifest() -> Dictionary:
         "daily_wagon_unload_capacity":Rules.WAGON_COUNT,
         "public_delivery_targets":12,
         "physical_depot":is_instance_valid(stage),
+        "inland_ring":2,
+        "major_ocean_port_ring":7,
+        "maritime_dock":false,
+        "allows_minor_canal_transfer":true,
+        "has_mapped_canal_to_outer_port":false,
         "persistent_receipts":ledger["receipts"].size(),
         "pending_receipts":ledger["pending"].size(),
         "no_player_tola_payout":true,
