@@ -112,7 +112,7 @@ static func path(day: int, wagon: int) -> Array[Vector3]:
     points.append(Vector3(0,0.84,1360))
     points.append(Vector3(city_x,0.84,1360))
     points.append(Vector3(city_x,0.84,road_z))
-    points.append(door+Vector3(-float(Interiors.site(cell)["inward"])*2.2,0,0))
+    points.append(door+Vector3(float(Interiors.site(cell)["inward"])*2.2,0,0))
     # The last point is outside the official workroom, keeping its public
     # open doorway and existing employee unobstructed.
     return points
