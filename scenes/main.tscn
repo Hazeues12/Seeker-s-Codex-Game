@@ -1,4 +1,4 @@
-[gd_scene load_steps=45 format=3]
+[gd_scene load_steps=46 format=3]
 
 [ext_resource type="PackedScene" path="res://characters/player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://ui/mobile_controls.tscn" id="2"]
@@ -41,6 +41,7 @@
 [ext_resource type="Script" path="res://world/magnara_ward_interiors_v072.gd" id="39"]
 [ext_resource type="Script" path="res://world/magnara_local_logistics_v073.gd" id="40"]
 [ext_resource type="Script" path="res://world/magnara_seven_ring_foundation_v074.gd" id="41"]
+[ext_resource type="Script" path="res://world/magnara_streetscape_v075.gd" id="42"]
 
 [sub_resource type="BoxMesh" id="GroundMesh"]
 size = Vector3(60, 1, 60)
@@ -190,3 +191,6 @@ script = ExtResource("40")
 
 [node name="MagnaraSevenRingFoundationV074" type="Node3D" parent="."]
 script = ExtResource("41")
+
+[node name="MagnaraStreetscapeV075" type="Node3D" parent="."]
+script = ExtResource("42")
