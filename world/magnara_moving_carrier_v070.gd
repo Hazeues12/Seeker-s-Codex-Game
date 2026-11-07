@@ -97,8 +97,10 @@ func _make_vehicle() -> void:
     deck_body.collision_layer = 1
     deck_body.collision_mask = 1
     deck_body.add_to_group("v070_moving_platform")
-    deck_body.position = Vector3(0,0.90,0)
-    follower.add_child(deck_body)
+    # Keep the *physics body* under world root. Moving only the parent
+    # PathFollow can leave the synced broadphase collider behind its visual.
+    add_child(deck_body)
+    deck_body.global_position = follower.global_position + Vector3(0,0.90,0)
     # y=1.52 local rail world; deck top=1.64, accessible by ordinary jump.
     var floor_shape := CollisionShape3D.new()
     floor_shape.name = "V070CarrierFloorCollision"
@@ -233,8 +235,10 @@ func _physics_process(delta: float) -> void:
     route_state = Rules.state_at(journey_seconds)
     var fraction: float = float(route_state.get("fraction",0.0))
     follower.progress_ratio = fraction
-    # The path moves the physical AnimatableBody3D; the CharacterBody3D
-    # automatically inherits platform velocity via move_and_slide().
-    # NEVER call player.set_physics_process(false) or parent Player to cart.
+    # Sample curve coordinates then move the AnimatableBody3D itself, in the
+    # physics tick. This updates its actual broadphase collision/velocity.
+    deck_body.global_position = follower.global_position + Vector3(0,0.90,0)
+    # CharacterBody3D inherits platform velocity via move_and_slide(),
+    # without disabling, reparenting or scripting player motion.
     if is_open():
         _update_info()
