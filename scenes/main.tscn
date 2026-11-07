@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3]
+[gd_scene load_steps=33 format=3]
 
 [ext_resource type="PackedScene" path="res://characters/player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://ui/mobile_controls.tscn" id="2"]
@@ -28,6 +28,7 @@
 [ext_resource type="Script" path="res://world/magnara_civic_v064.gd" id="26"]
 [ext_resource type="Script" path="res://world/magnara_population_v065.gd" id="27"]
 [ext_resource type="Script" path="res://world/magnara_businesses_v066.gd" id="28"]
+[ext_resource type="Script" path="res://world/magnara_streamed_blocks_v067.gd" id="29"]
 
 [sub_resource type="BoxMesh" id="GroundMesh"]
 size = Vector3(60, 1, 60)
@@ -138,3 +139,6 @@ script = ExtResource("27")
 
 [node name="MagnaraBusinessesV066" type="Node3D" parent="."]
 script = ExtResource("28")
+
+[node name="MagnaraStreamedBlocksV067" type="Node3D" parent="."]
+script = ExtResource("29")
