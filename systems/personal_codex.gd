@@ -368,6 +368,19 @@ func _refresh_view() -> void:
             (civic_life.get("slept", {}) as Dictionary).size(),
             (civic_life.get("treatments", {}) as Dictionary).size(),
             (civic_life.get("helped", {}) as Dictionary).size()]
+    var population_record: Dictionary = profile.get("population_v065", {})
+    var relationships_v065: Dictionary = population_record.get("actors", {})
+    if not relationships_v065.is_empty():
+        output += "MAGNARA LIVING PEOPLE / GAME-ONLY ENCOUNTER MEMORY\n"
+        output += "People with a recorded daily encounter: %d\n" % relationships_v065.size()
+        var familiar: Array = relationships_v065.keys()
+        familiar.sort()
+        for acquaintance in familiar.slice(0, 12):
+            var interactions: Dictionary = relationships_v065.get(acquaintance, {})
+            output += " - %s | Rapport %d | Days remembered %d\n" % [
+                str(acquaintance).replace("citizen_v065_", "resident #").replace("_", " ").capitalize(),
+                int(interactions.get("rapport", 0)),
+                (interactions.get("days", {}) as Dictionary).size()]
     output += "YOUR ROAD\n%s\n" % ("Not chosen" if life_road.is_empty() else life_road)
     if life_road == "trade":
         var life_work: Dictionary = life_record.get("work", {})
