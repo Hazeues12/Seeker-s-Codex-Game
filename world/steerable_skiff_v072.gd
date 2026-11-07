@@ -228,7 +228,8 @@ func get_nearest_interaction(at: Vector3, reach: float) -> Dictionary:
     if at.distance_to(helm_at) > minf(3.2,reach):
         return {}
     return {"id":"skiff_v072_helm","position":helm_at,
-        "node":body,"name":"Public Steerable Skiff"}
+        "node":body,"name":"Public Steerable Skiff",
+        "title":"Public Steerable Skiff"}
 
 func interact(key: String) -> void:
     if key != "skiff_v072_helm" or not initialized:
