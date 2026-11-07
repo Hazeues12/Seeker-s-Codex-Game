@@ -4,7 +4,7 @@
   "nation": "Janoah",
   "city": "Magnara",
   "ring_count": 7,
-  "city_plan_status": "ring_two_ward_interior_expansion_in_progress",
+  "city_plan_status": "v074_full_seven_ring_foundation_first",
   "canon_status": "mixed_confirmed_and_game_only",
   "source_note": "Author's Seeker's Codex lore, Chapter 90 and November 2026 location correction: primary maritime docks are in Magnara's outermost Ring VII. Exact coastline and quay coordinates remain unplaced.",
   "rings": [
@@ -174,7 +174,7 @@
   },
   "geography_source_of_truth": "res://data/known_world_v054.json",
   "geography_status": "legacy local Ring Two layout; canonical metro coordinates remain provisional",
-  "planning_measurements_status": "V0.54 author-supplied editable proposals; not book measurement",
+  "planning_measurements_status": "26km circular survey envelope retained as editable 1:1 gameplay proposal, not book measurement",
   "port_geography": {
     "source": "author_direct_correction_2026-11-07",
     "main_seaport_ring": 7,
@@ -188,5 +188,18 @@
     "exact_coastline_coordinates": "unfinalized",
     "scenic_demo_visitor_entry": "Ring II survey counter accesses isolated Ring VII ocean preview; no actual inter-ring travel",
     "inland_distribution_ring": 2
+  },
+  "seven_ring_foundation_v074": {
+    "status": "physical_gpu_shells_road_frame_and_live_map_active",
+    "world_diameter_m_proposed": 26000,
+    "geometric_area_km2_proposed": 530.929,
+    "rings_all_terrain_streamed": true,
+    "circumferential_roads": 7,
+    "radial_spokes": 12,
+    "populated_detailed_regions": "existing Ring II only, original worlds remain intact",
+    "regions_one_three_four_five_six_seven": "streamed game_only visual massing, not authored detailed districts",
+    "full_interior_production_complete": false,
+    "national_coastlines_mapped": false,
+    "iron_cothon_ship_basin_built_in_real_ring_seven": false
   }
 }
