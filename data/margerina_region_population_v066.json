@@ -1,0 +1,252 @@
+{
+  "version": 1,
+  "era": "1500 A.S.",
+  "source_status": "creator_locked_and_published_registry_with_game_only_spawn_gate",
+  "story_phase": "trial_week_open_world_parallel",
+  "regions": [
+    {
+      "id": "magnara_ring_two",
+      "name": "Magnara / Ring II / Seeker Quarters outer band",
+      "nation": "Janoah",
+      "physical_implemented": true,
+      "spawn_policy": "physical_limited",
+      "era": "1500 A.S.",
+      "known_people": [
+        "william_lockhart",
+        "hanami",
+        "ven",
+        "kai_xander",
+        "rin_kairo",
+        "aria_flamehart",
+        "lila_butters",
+        "captain_valentina"
+      ],
+      "local_venues": [
+        "talking_boar",
+        "lebells",
+        "avicci",
+        "vernal_divongcci"
+      ],
+      "notes": "Only published-public figures with story gate; Rin covert and Valentina scripted rather than ambient"
+    },
+    {
+      "id": "magnara_other_rings",
+      "name": "Magnara / Rings I, III-VII",
+      "nation": "Janoah",
+      "physical_implemented": false,
+      "spawn_policy": "registry_only",
+      "era": "1500 A.S.",
+      "known_people": [
+        "darius_king",
+        "michael_rage",
+        "jeremiah_abel"
+      ],
+      "local_venues": [
+        "grand_amphistad",
+        "forgehouse",
+        "flama_magnara",
+        "blade_magnara",
+        "terra_firma_magnara"
+      ],
+      "notes": "Canonical separate ring roles require authored district placement; all coordinates provisional"
+    },
+    {
+      "id": "bodhira_rajistan",
+      "name": "Bodhira Monastery / Rajistan",
+      "nation": "Rajistan",
+      "physical_implemented": false,
+      "spawn_policy": "registry_only",
+      "era": "1500 A.S.",
+      "known_people": [
+        "elder_xander",
+        "kai_xander"
+      ],
+      "local_venues": [
+        "bodhira_monastery"
+      ],
+      "notes": "Monastery, faith and Martial instruction; Kai may have left this area in current story"
+    },
+    {
+      "id": "rajir_rajistan",
+      "name": "Rajir / Rajistan",
+      "nation": "Rajistan",
+      "physical_implemented": false,
+      "spawn_policy": "registry_only",
+      "era": "1500 A.S.",
+      "known_people": [
+        "kai_xander"
+      ],
+      "local_venues": [
+        "king_in_the_lair"
+      ],
+      "notes": "Historical exam-stage venue, not necessarily active cast position now"
+    },
+    {
+      "id": "zhushen_chun",
+      "name": "Zhushen / Chun",
+      "nation": "Chun",
+      "physical_implemented": false,
+      "spawn_policy": "registry_only",
+      "era": "1500 A.S.",
+      "known_people": [
+        "rin_kairo",
+        "mushi_katana"
+      ],
+      "local_venues": [
+        "black_clan",
+        "chun_skyport"
+      ],
+      "notes": "Current mainline whereabouts must follow active plot; no roaming high clan spoilers"
+    },
+    {
+      "id": "vinlan_north",
+      "name": "Vinlan / northern cities and forests",
+      "nation": "Vinlan",
+      "physical_implemented": false,
+      "spawn_policy": "registry_only",
+      "era": "1500 A.S.",
+      "known_people": [
+        "artemis_flamehart",
+        "aria_flamehart"
+      ],
+      "local_venues": [],
+      "notes": "Aria's origin, not a claim she is physically here during Janoah trial"
+    },
+    {
+      "id": "albion_britannia",
+      "name": "Albion / Britannia",
+      "nation": "Britannia",
+      "physical_implemented": false,
+      "spawn_policy": "registry_only",
+      "era": "1500 A.S.",
+      "known_people": [
+        "william_lockhart",
+        "octavian_vutor",
+        "isolde_vutor"
+      ],
+      "local_venues": [
+        "sun_throne"
+      ],
+      "notes": "Current Albion stays separate from historical Light Born 1486 A.S."
+    },
+    {
+      "id": "dune_states",
+      "name": "Dune States / Golden City and other known cities",
+      "nation": "Dune States",
+      "physical_implemented": false,
+      "spawn_policy": "registry_only",
+      "era": "1500 A.S.",
+      "known_people": [
+        "yobokari_morningstar",
+        "cyrus"
+      ],
+      "local_venues": [
+        "golden_city"
+      ],
+      "notes": "Red Order antagonists never ambient; exact active theatre unverified"
+    },
+    {
+      "id": "tsar_empire",
+      "name": "Tsar Empire / northern routes",
+      "nation": "Tsar Empire",
+      "physical_implemented": false,
+      "spawn_policy": "registry_only",
+      "era": "1500 A.S.",
+      "known_people": [
+        "tikhan_darogua"
+      ],
+      "local_venues": [],
+      "notes": "Pillar not an ordinary wandering NPC"
+    },
+    {
+      "id": "zirael",
+      "name": "Zirael / underwater civilization",
+      "nation": "Zirael",
+      "physical_implemented": false,
+      "spawn_policy": "registry_only",
+      "era": "1500 A.S.",
+      "known_people": [],
+      "local_venues": [],
+      "notes": "Separate aquatic ecology, no generic land pedestrians"
+    },
+    {
+      "id": "curan",
+      "name": "Curan / island settlements",
+      "nation": "Curan",
+      "physical_implemented": false,
+      "spawn_policy": "registry_only",
+      "era": "1500 A.S.",
+      "known_people": [],
+      "local_venues": [
+        "port_qasirah"
+      ],
+      "notes": "No fabricated land bridge or nation proximity"
+    },
+    {
+      "id": "guan_diego",
+      "name": "Guan Diego / Janoah sphere",
+      "nation": "Janoah",
+      "physical_implemented": false,
+      "spawn_policy": "registry_only",
+      "era": "1500 A.S.",
+      "known_people": [
+        "jeremiah_abel",
+        "grace_fallon"
+      ],
+      "local_venues": [
+        "guan_diego"
+      ],
+      "notes": "Not in the public Ring II population"
+    }
+  ],
+  "authored_retail": [
+    {
+      "id": "lebells",
+      "name": "Le'Bell's",
+      "kind": "restaurant",
+      "canon_grounding": "late-night diners; savory forge-bread butter",
+      "stock_item": "Le'Bell's Forge-Bread Portion",
+      "item_status": "game_only_product",
+      "owner": "unverified",
+      "staff_name": "Miri Penn",
+      "staff_status": "game_only",
+      "shop_hours_status": "game_only"
+    },
+    {
+      "id": "avicci",
+      "name": "Avicci",
+      "kind": "jewelry",
+      "canon_grounding": "high-end chains and pendants, Water and Earth Muti grown stones",
+      "stock_item": "Avicci Water-Earth Pendant",
+      "item_status": "game_only_product",
+      "owner": "unverified",
+      "staff_name": "Orin Vell",
+      "staff_status": "game_only",
+      "shop_hours_status": "game_only"
+    },
+    {
+      "id": "vernal_divongcci",
+      "name": "Vernal Divongcci",
+      "kind": "perfumer",
+      "canon_grounding": "glowing perfumery sign; scent on street even with doors closed",
+      "stock_item": "Vernal Divongcci Fragrance",
+      "item_status": "game_only_product",
+      "owner": "unverified",
+      "staff_name": "Celia Marr",
+      "staff_status": "game_only",
+      "shop_hours_status": "game_only"
+    }
+  ],
+  "sources": [
+    "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/4243742/trial-by-mercy-darker-than-black-pt-8",
+    "creator_lore_canon_2026-10-21",
+    "data/seeker_character_registry_v065.json"
+  ],
+  "rules": [
+    "only magnara_ring_two has active authored spawn geometry",
+    "canonical villain undercover and hidden figures not spawnable from business schedule",
+    "no invented shop owner or business exact street location treated as series canon",
+    "other regions need real scene assets and narrative phase before activation",
+    "opening hours, products, staff and merchandise prices are game-only"
+  ]
+}
