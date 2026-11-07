@@ -4,6 +4,7 @@ extends Control
 # This is a city layout reference, not a revealed story map or exact coast.
 const Geo = preload("res://systems/known_world_geometry_v054.gd")
 const Rules = preload("res://systems/magnara_seven_ring_rules_v074.gd")
+const StreetsV075 = preload("res://systems/magnara_streetscape_rules_v075.gd")
 var player: Node3D
 
 func _ready() -> void:
@@ -29,6 +30,16 @@ func _draw() -> void:
         var radius: float = chart_radius*bound/Rules.CITY_RADIUS_M
         draw_arc(center,radius,0,TAU,160,
             Rules.RING_COLORS[ring-1].lightened(0.32),3.3,true)
+    # 84 ring/avenue survey intersections are shown as light dots.
+    # These are road geometry, not named canon properties or docks.
+    for ring in range(1,8):
+        for avenue in range(Rules.RADIAL_COUNT):
+            var intersection: Dictionary = StreetsV075.junction(ring,avenue)
+            var world: Vector3 = intersection["world_pos"]
+            var plan: Vector2 = Vector2(world.x-Geo.CITY_CENTER.x,
+                world.z-Geo.CITY_CENTER.y)
+            draw_circle(center+plan/Rules.CITY_RADIUS_M*chart_radius,
+                2.4,Color(0.80,0.84,0.81,0.87))
     if not is_instance_valid(player):
         return
     var pos: Vector3 = player.global_position
