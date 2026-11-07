@@ -4,7 +4,7 @@
   "world": "Margerina",
   "scope": "known_world_only",
   "secrecy": "Abyssal Line and beyond excluded from all public routes/ship spawns",
-  "geography_policy": "Named water bodies are creator-known; exact coastlines, positions, river assignments and trade lanes not inventoried or plot-locked remain unplaced. Godot scenic positions do not equal series geography.",
+  "geography_policy": "Named water bodies are creator-known; exact coastlines, positions, river assignments and trade lanes not inventoried or plot-locked remain unplaced. Godot scenic positions do not equal series geography. Author correction: primary maritime docks and the Iron Cothon ocean seaport belong to outermost Magnara Ring VII; Ring II has only minor canal quays/local freight, without large ocean-going berths.",
   "waters": [
     {
       "id": "janoah_sea",
@@ -148,7 +148,11 @@
         "restricted_military_basin"
       ],
       "military_access": "never_ambient_civilians",
-      "coordinates": "unfinalized"
+      "coordinates": "unfinalized",
+      "ring": 7,
+      "ring_provenance": "author_confirmed_2026_11_07",
+      "geographic_type": "outermost_ring_major_seaport",
+      "inland_ring_two_maritime_access": false
     },
     {
       "id": "iron_cothon_civil_survey_v071",
@@ -161,7 +165,11 @@
         0,
         4000
       ],
-      "physical_map_status": "isolated_remote_preview_not_actual_city_coordinate"
+      "physical_map_status": "isolated_remote_preview_of_ring_vii_not_actual_city_coordinate",
+      "represents_actual_ring": 7,
+      "entry_counter_ring": 2,
+      "entry_counter_type": "remote_scenic_preview_only",
+      "real_inter_ring_transport": false
     }
   ],
   "maritime_simulation": [
@@ -243,6 +251,17 @@
     "civilian docking in Iron Cothon military basin",
     "claiming random national rivers exist",
     "real exchange rate or phantom tola speculation",
-    "spawning known Seeker characters as random port workers"
-  ]
+    "spawning known Seeker characters as random port workers",
+    "representing outermost Ring VII deepwater harbor or ocean-going vessels as physically docked in Ring II",
+    "turning Ring II's inland freight depot into a deepwater wharf",
+    "assuming a mapped traversable canal to Ring VII without creator approval"
+  ],
+  "local_canals": {
+    "ring": 2,
+    "role": "minor city landings and low-draft local boats only",
+    "ocean_vessels_allowed": false,
+    "sea_route_to_outermost_ring": "not_yet_author_mapped",
+    "minor_quay_locations": "provisional_ring_two_canals",
+    "large_commercial_seaport": false
+  }
 }
