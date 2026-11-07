@@ -5,12 +5,14 @@ extends Node3D
 const Geo = preload("res://systems/known_world_geometry_v054.gd")
 const Rules = preload("res://systems/magnara_published_city_visual_rules_v076.gd")
 const CommonsLife = preload("res://world/magnara_commons_life_v080.gd")
+const CommonsCart = preload("res://world/magnara_commons_cart_v081.gd")
 const MAX_COMMONS_LIGHTS: int = 4
 const COMMONS_LIGHT_DISTANCE: float = 24.0
 const LANTERN_COLOR := Color(1.0, 0.78, 0.43)
 var city: Node3D
 var hub: Node
 var commons_life: CommonsLife
+var commons_cart: CommonsCart
 var commons_lights: Array[OmniLight3D] = []
 var material_lantern: StandardMaterial3D
 var player: CharacterBody3D
@@ -62,6 +64,10 @@ func _setup() -> void:
     commons_life.name = "CommonsLifeV080"
     add_child(commons_life)
     commons_life.configure(player, hub)
+    commons_cart = CommonsCart.new()
+    commons_cart.name = "CommonsCartV081"
+    add_child(commons_cart)
+    commons_cart.configure(player, hub)
     material_lantern = _material(0.55, 0.0)
     material_lantern.emission_enabled = true
     material_lantern.emission = LANTERN_COLOR
@@ -163,6 +169,7 @@ func _refresh_tiles() -> void:
 
     _refresh_commons_lights()
     commons_life.refresh(decorated)
+    commons_cart.refresh(decorated)
 
 func _refresh_commons_lights() -> void:
     for light in commons_lights:

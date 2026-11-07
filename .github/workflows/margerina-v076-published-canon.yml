@@ -279,6 +279,15 @@ jobs:
           timeout 145s godot --headless --path . res://tests/v080_commons_life_world_scene.tscn --fixed-fps 60 --quit-after 850 2>&1 | tee v080-commons-world.log
           if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v080-commons-world.log; then exit 1; fi
           grep -Fq 'V0.80 COMMONS PICNIC CLOCK POETRY MOBILE INTERACTION AND PERSISTENT CODEX PASS' v080-commons-world.log
+      - name: Test Commons vendor sales and freight handoff
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/commons-trade"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 145s godot --headless --path . res://tests/v081_commons_trade_world_scene.tscn --fixed-fps 60 --quit-after 850 2>&1 | tee v081-commons-trade.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v081-commons-trade.log; then exit 1; fi
+          grep -Fq 'V0.81 COMMONS VENDOR FOOD PURCHASE STAMINA DELIVERY AND RELOAD PASS' v081-commons-trade.log
       - name: Run previous Ring VII and V0.73-V0.53 live city, sea, freight and combat regressions
         shell: bash
         run: |
@@ -338,6 +347,47 @@ jobs:
           timeout 180s godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v074-export.log
           if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v074-export.log; then exit 1; fi
           for ext in html js wasm pck; do test -s "build/web/index.${ext}"; done
+      - name: Start the exported game in Chrome
+        shell: bash
+        run: |
+          set -euo pipefail
+          export CHROME_BIN="$(command -v google-chrome || command -v chromium)"
+          browser_test="$RUNNER_TEMP/margerina-browser"
+          npm install --no-audit --no-fund --prefix "$browser_test" playwright-core@1.56.1
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory build/web >v081-browser-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          curl --fail --silent --retry 10 --retry-connrefused --retry-delay 1 http://127.0.0.1:8765/ -o /dev/null
+          cat >"$browser_test/startup.cjs" <<'JS'
+          const { chromium } = require("playwright-core");
+          async function main() {
+              const browser = await chromium.launch({
+                  executablePath: process.env.CHROME_BIN,
+                  args: ["--no-sandbox", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"],
+              });
+              try {
+                  const page = await browser.newPage({ viewport: { width: 900, height: 520 } });
+                  const errors = [];
+                  page.on("pageerror", error => errors.push(error.message));
+                  page.on("console", message => {
+                      const content = message.text();
+                      if (/SCRIPT ERROR|Shader compilation failed/.test(content)) errors.push(content);
+                  });
+                  await page.goto("http://127.0.0.1:8765/");
+                  await page.locator("#status").waitFor({ state: "detached", timeout: 60000 });
+                  await page.locator("#canvas").waitFor({ state: "visible" });
+                  await page.evaluate(() => new Promise(resolve =>
+                      requestAnimationFrame(() => requestAnimationFrame(resolve))));
+                  if (errors.length) throw new Error(errors.join("\n"));
+                  console.log("MARGERINA EXPORTED GAME STARTED IN CHROME");
+              } finally {
+                  await browser.close();
+              }
+          }
+          main().catch(error => { console.error(error); process.exitCode = 1; });
+          JS
+          timeout 90s node "$browser_test/startup.cjs" 2>&1 | tee v081-browser.log
+          grep -Fq 'MARGERINA EXPORTED GAME STARTED IN CHROME' v081-browser.log
       - name: Upload playable candidate
         uses: actions/upload-artifact@v4
         with:
@@ -368,6 +418,9 @@ jobs:
             v046_muti.log
             v077-canal-world.log
             v080-commons-world.log
+            v081-commons-trade.log
+            v081-browser.log
+            v081-browser-server.log
             v076-world.log
             v076-rules.log
             v075-world.log

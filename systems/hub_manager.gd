@@ -7,6 +7,7 @@ const GuildDirectorV069 = preload("res://systems/guild_public_director_v069.gd")
 const PowerRulesV068 = preload("res://systems/seeker_power_rules_v068.gd")
 const ParkourV070 = preload("res://systems/aura_parkour_rules_v070.gd")
 const ShopRulesV066 = preload("res://systems/magnara_business_rules_v066.gd")
+const CommonsCartV081 = preload("res://world/magnara_commons_cart_v081.gd")
 const FreightV073 = preload("res://systems/magnara_local_logistics_rules_v073.gd")
 
 # Seeker's Codex — Margerina V0.33
@@ -37,6 +38,7 @@ var civic_v064: Dictionary = {}
 var shop_stock_v066: Dictionary = {}
 var guild_director_v069: Dictionary = {}
 var local_trade_v073: Dictionary = FreightV073.clean({})
+var commons_trade_v081: Dictionary = CommonsCartV081.clean({})
 var aura: float = 100.0
 var stamina: float = 100.0
 var guild_rep: int = 0
@@ -580,7 +582,9 @@ func _any_panel_open() -> bool:
     var indoor_open: bool = is_instance_valid(indoor) and bool(indoor.call("is_open"))
     var freight: Node = get_tree().get_first_node_in_group("v073_public_logistics")
     var freight_open: bool = is_instance_valid(freight) and bool(freight.call("is_open"))
-    return atlas_open or board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or civic_open or population_open or shop_open or stream_open or pulse_open or seal_open or civic_director_open or carrier_open or trial_open or outer_open or maritime_open or indoor_open or freight_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
+    var cart := get_tree().get_first_node_in_group("magnara_commons_cart_v081")
+    var cart_open: bool = is_instance_valid(cart) and cart.is_open()
+    return cart_open or atlas_open or board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or civic_open or population_open or shop_open or stream_open or pulse_open or seal_open or civic_director_open or carrier_open or trial_open or outer_open or maritime_open or indoor_open or freight_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
@@ -635,6 +639,12 @@ func _nearest_location() -> Dictionary:
         var reading: Dictionary = commons.get_nearest_interaction(player.global_position, reach)
         if not reading.is_empty():
             closest = reading
+    var cart := get_tree().get_first_node_in_group("magnara_commons_cart_v081")
+    if is_instance_valid(cart):
+        var reach: float = best_distance if closest.is_empty() else player.global_position.distance_to(closest["position"])
+        var trade: Dictionary = cart.get_nearest_interaction(player.global_position, reach)
+        if not trade.is_empty():
+            closest = trade
     return closest
 
 
@@ -655,6 +665,10 @@ func _interact() -> void:
             _train_at_post()
         "npc_canal", "npc_vendor", "npc_scout":
             _npc_dialogue(kind)
+        CommonsCartV081.COUNTER_ID, CommonsCartV081.SUPPLIER_ID:
+            var cart := get_tree().get_first_node_in_group("magnara_commons_cart_v081")
+            if is_instance_valid(cart):
+                cart.interact(kind)
         "commons_v080_reading":
             var commons: Node = get_tree().get_first_node_in_group("magnara_commons_life_v080")
             if is_instance_valid(commons):
@@ -920,7 +934,7 @@ func _open_bag(shop_mode: bool) -> void:
     board_panel.hide()
     _clear_list(bag_list)
     _label(bag_list, "Tola: %d / Guild reputation: %d / XP: %d" % [GameState.tola, guild_rep, experience], 20)
-    for name_text in ["Vitality Draught", "Essence Tonic", "Field Kit", "Medicinal Herb"]:
+    for name_text in ["Vitality Draught", "Essence Tonic", "Field Kit", "Medicinal Herb", CommonsCartV081.FOOD]:
         var amount: int = int(inventory.get(name_text, 0))
         _label(bag_list, "%s: %d" % [name_text, amount], 18)
     var drink := Button.new()
@@ -935,6 +949,12 @@ func _open_bag(shop_mode: bool) -> void:
     recover.disabled = int(inventory.get("Vitality Draught", 0)) < 1
     recover.pressed.connect(_drink_draught)
     bag_list.add_child(recover)
+    if int(inventory.get(CommonsCartV081.FOOD, 0)) > 0:
+        var eat := Button.new()
+        eat.text = "EAT FORGE BREAD (+15 Stamina)"
+        eat.custom_minimum_size.y = 48
+        eat.pressed.connect(_eat_forge_bread)
+        bag_list.add_child(eat)
     if shop_mode:
         var buy := Button.new()
         buy.text = "BUY ESSENCE TONIC FROM HANAMI - %d TOLA" % int(_origin_effects_v058().get("tonic_price", 12))
@@ -965,6 +985,22 @@ func _drink_draught() -> void:
     _save_game()
 
 
+func _eat_forge_bread() -> void:
+    var count: int = int(inventory.get(CommonsCartV081.FOOD, 0))
+    if count <= 0 or stamina >= 100.0:
+        _announce("Eat forge bread when you need stamina.")
+        return
+    var old_stamina := stamina
+    inventory[CommonsCartV081.FOOD] = count - 1
+    stamina = minf(100.0, stamina + 15.0)
+    if not _save_game():
+        inventory[CommonsCartV081.FOOD] = count
+        stamina = old_stamina
+        return
+    bag_panel.hide()
+    _announce("Ate forge bread. Stamina recovered.")
+
+
 func _buy_tonic() -> void:
     var price: int = int(_origin_effects_v058().get("tonic_price", 12))
     if not GameState.spend_tola(price):
@@ -990,7 +1026,9 @@ func _refresh_status() -> void:
         quest_status.text = "%s: %d/%d" % [CONTRACTS[active_contract], progress, _goal_for(active_contract)]
     var spot := _nearest_location()
     if spot.is_empty():
-        proximity_label.text = "Approach a landmark, then tap TALK / USE"
+        var cart := get_tree().get_first_node_in_group("magnara_commons_cart_v081")
+        var delivery: String = cart.delivery_hint() if is_instance_valid(cart) else ""
+        proximity_label.text = "Approach a landmark, then tap TALK / USE" if delivery.is_empty() else delivery
     else:
         proximity_label.text = "NEAR: " + str(spot["title"]) + " - TAP TALK / USE"
     notice_label.text = last_notice if notice_timeout > 0.0 else ""
@@ -1057,7 +1095,8 @@ func _save_game() -> bool:
         "civic_v064": civic_v064,
         "shop_stock_v066": shop_stock_v066,
         "guild_director_v069": guild_director_v069,
-        "local_trade_v073": FreightV073.clean(local_trade_v073)
+        "local_trade_v073": FreightV073.clean(local_trade_v073),
+        "commons_trade_v081": CommonsCartV081.clean(commons_trade_v081)
     }
     if not SaveIntegrityV063.write_verified(data):
         _announce("Save failed verification. Your previous game was protected; check browser storage.")
@@ -1112,6 +1151,7 @@ func _load_game(show_feedback: bool) -> void:
     shop_stock_v066 = ShopRulesV066.sanitize_stock(data.get("shop_stock_v066", {}))
     guild_director_v069 = GuildDirectorV069.sanitize(data.get("guild_director_v069", {}))
     local_trade_v073 = FreightV073.clean(data.get("local_trade_v073",{}))
+    commons_trade_v081 = CommonsCartV081.clean(data.get("commons_trade_v081", {}))
     var civic_raw: Variant = data.get("civic_v064", {})
     civic_v064 = CivicRulesV064.sanitize(civic_raw)
     var existing_field_receipts: Variant = data.get("field_reward_receipts", {})
