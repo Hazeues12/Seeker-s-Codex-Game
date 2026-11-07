@@ -1,6 +1,7 @@
 extends CharacterBody3D
 
 const SeekerRigScript = preload("res://characters/procedural_seeker.gd")
+const ParkourV070 = preload("res://systems/aura_parkour_rules_v070.gd")
 
 @export var walk_speed: float = 5.0
 @export var sprint_speed: float = 9.0
@@ -37,6 +38,14 @@ var wall_run_remaining: float = 0.0
 var wall_reengage_delay: float = 0.0
 var water_running: bool = false
 var _space_latched: bool = false
+# Buffered jumps and timed Aura momentum use the existing move_and_slide
+# collision and moving-platform velocity, never direct character teleport.
+var coyote_seconds: float = 0.0
+var jump_buffer_seconds: float = 0.0
+var burst_remaining: float = 0.0
+var burst_cooldown: float = 0.0
+var burst_direction: Vector3 = Vector3.ZERO
+var burst_count: int = 0
 
 func _ready() -> void:
     mobile_controls = get_tree().get_first_node_in_group("mobile_controls")
@@ -48,6 +57,8 @@ func _ready() -> void:
     add_child(seeker_rig)
     seeker_rig.call("configure", "seeker")
     $Visual.visible = false
+    floor_snap_length = ParkourV070.FLOOR_SNAP
+    platform_on_leave = CharacterBody3D.PLATFORM_ON_LEAVE_ADD_VELOCITY
 
 func _process(delta: float) -> void:
     if not is_instance_valid(mobile_controls):
@@ -72,7 +83,12 @@ func _physics_process(delta: float) -> void:
         jumps_used = 0
         wall_run_remaining = 1.25
         wall_running = false
+        coyote_seconds = ParkourV070.COYOTE_SECONDS
+    else:
+        coyote_seconds = maxf(0.0, coyote_seconds - delta)
     wall_reengage_delay = maxf(0.0, wall_reengage_delay - delta)
+    burst_remaining = maxf(0.0, burst_remaining - delta)
+    burst_cooldown = maxf(0.0, burst_cooldown - delta)
     if not is_on_floor():
         velocity.y -= gravity * delta
 
@@ -82,6 +98,10 @@ func _physics_process(delta: float) -> void:
     if is_instance_valid(mobile_controls):
         mobile_jump = mobile_controls.consume_jump()
     var jump_requested_now: bool = keyboard_jump or mobile_jump
+    if jump_requested_now:
+        jump_buffer_seconds = ParkourV070.JUMP_BUFFER_SECONDS
+    else:
+        jump_buffer_seconds = maxf(0.0, jump_buffer_seconds - delta)
 
     var input_dir: Vector2 = Input.get_vector(
         "ui_left", "ui_right", "ui_up", "ui_down"
@@ -217,22 +237,39 @@ func _physics_process(delta: float) -> void:
         wall_run_remaining -= delta
         velocity.y = maxf(velocity.y, -1.05)
 
-    if jump_requested_now:
-        if is_on_floor():
+    if jump_buffer_seconds > 0.0 and not editing:
+        if is_on_floor() or (coyote_seconds > 0.0 and jumps_used == 0):
             velocity.y = 6.45
             jumps_used = 1
+            coyote_seconds = 0.0
+            jump_buffer_seconds = 0.0
         elif wall_running:
             velocity.y = 6.5
             wall_running = false
             wall_reengage_delay = 0.35
             jumps_used = 2
-            # Sideways impulse launches the character away from the wall.
+            jump_buffer_seconds = 0.0
             velocity.x += wall_normal.x * 4.2
             velocity.z += wall_normal.z * 4.2
         elif jumps_used < 2:
             velocity.y = 6.15
             jumps_used = 2
+            jump_buffer_seconds = 0.0
 
+    var wants_burst: bool = Input.is_key_pressed(KEY_R)
+    if is_instance_valid(mobile_controls) and mobile_controls.has_method("consume_burst"):
+        wants_burst = mobile_controls.consume_burst() or wants_burst
+    if wants_burst:
+        var readiness: Dictionary = ParkourV070.may_burst(direction, burst_cooldown,
+            float(hub.get("aura")) if is_instance_valid(hub) else 0.0,
+            float(hub.get("stamina")) if is_instance_valid(hub) else 0.0,
+            editing or not actions_allowed, guard_active, dodge_time > 0.0)
+        if bool(readiness.get("allowed", false)) and is_instance_valid(hub) \
+                and hub.has_method("try_aura_burst") and bool(hub.call("try_aura_burst")):
+            burst_direction = readiness["direction"]
+            burst_remaining = float(readiness["time"])
+            burst_cooldown = float(readiness["cooldown"])
+            burst_count += 1
     var speed: float = sprint_speed if wants_sprint and sprint_allowed else walk_speed
     var life: Node = get_tree().get_first_node_in_group("young_blood_life_v057")
     if wants_sprint and sprint_allowed and is_instance_valid(life) and life.has_method("get_origin_effects"):
@@ -246,7 +283,11 @@ func _physics_process(delta: float) -> void:
         speed = 0.0
     var target: Vector3 = direction * (speed * input_dir.length())
     var rate: float = acceleration if input_dir.length() > 0.05 else braking
-    if dodge_time > 0.0:
+    if burst_remaining > 0.0 and not editing:
+        # Collision-safe planar impulse; gravity never turns off in midair.
+        velocity.x = burst_direction.x * ParkourV070.BURST_SPEED
+        velocity.z = burst_direction.z * ParkourV070.BURST_SPEED
+    elif dodge_time > 0.0:
         velocity.x = dodge_direction.x * 11.5
         velocity.z = dodge_direction.z * 11.5
     elif wall_running:
