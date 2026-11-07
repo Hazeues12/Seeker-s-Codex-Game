@@ -218,7 +218,10 @@ func _refresh_junctions() -> void:
     if not initialized:
         return
     var wanted: Dictionary = {}
-    var list: Array[Dictionary] = Detail.junction_near(player.global_position)
+    # Prevent distant wayfinding markers from popping into the authored
+    # Seeker Quarter. They belong to the new full-city framework first.
+    var list: Array[Dictionary] = [] if City.protected_existing_ward(
+        player.global_position) else Detail.junction_near(player.global_position)
     for spec in list:
         var id: String = str(spec["id"])
         wanted[id] = true
