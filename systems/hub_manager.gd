@@ -5,6 +5,7 @@ const SaveIntegrityV063 = preload("res://systems/game_save_integrity_v063.gd")
 const CivicRulesV064 = preload("res://systems/magnara_civic_rules_v064.gd")
 const GuildDirectorV069 = preload("res://systems/guild_public_director_v069.gd")
 const PowerRulesV068 = preload("res://systems/seeker_power_rules_v068.gd")
+const ParkourV070 = preload("res://systems/aura_parkour_rules_v070.gd")
 const ShopRulesV066 = preload("res://systems/magnara_business_rules_v066.gd")
 
 # Seeker's Codex — Margerina V0.33
@@ -140,6 +141,28 @@ func try_dodge() -> bool:
         _announce("Dodge needs 18 Stamina. Recover and try again.")
         return false
     stamina -= 18.0
+    _refresh_status()
+    return true
+
+
+# Public basic burst is checked against the same four-layer technique
+# authorization used by Martial strikes. One press spends resources once.
+func try_aura_burst() -> bool:
+    if not can_use_combat_actions():
+        return false
+    var catalog: Dictionary = PowerRulesV068.load_catalog()
+    var model: Dictionary = PowerRulesV068.create_model(
+        "player_local_seeker", aura, 100.0, 24.0, 4.5, 1.0, ["Martial"])
+    var art: Dictionary = PowerRulesV068.technique_by_id(catalog, "aura_momentum_v070")
+    var check: Dictionary = PowerRulesV068.attempt(model, art)
+    var permitted: bool = bool(check.get("allowed", false)) and \
+        int(check.get("cost", -1)) == ParkourV070.BURST_AURA \
+        and stamina >= ParkourV070.BURST_STAMINA
+    if not permitted:
+        _announce("AURA BURST needs 16 Aura and 8 Stamina. Recover first.")
+        return false
+    aura -= float(ParkourV070.BURST_AURA)
+    stamina -= ParkourV070.BURST_STAMINA
     _refresh_status()
     return true
 
