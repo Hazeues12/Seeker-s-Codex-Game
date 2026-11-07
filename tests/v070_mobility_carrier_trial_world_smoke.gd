@@ -116,7 +116,11 @@ func _test() -> void:
     await get_tree().physics_frame
     var found: Dictionary = get_world_3d().direct_space_state.intersect_ray(probe)
     if found.is_empty() or found.get("collider") != vehicle:
-        _fail("the trolley is not a landable moving platform on the shop street")
+        var collider: Node = found.get("collider") as Node
+        _fail("the trolley is not a landable moving platform on the shop street / car=" \
+            + str(vehicle.global_position) + " collider=" \
+            + (str(collider.name) if is_instance_valid(collider) else "none") \
+            + " intersection=" + str(found.get("position",Vector3.ZERO)))
         return
     mobile.call("release_controls")
     player.global_position = vehicle.global_position + Vector3(0,0.16,0)
