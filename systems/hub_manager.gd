@@ -564,7 +564,11 @@ func _any_panel_open() -> bool:
     var seal_open: bool = is_instance_valid(seal_bench) and bool(seal_bench.call("is_open"))
     var civic_director: Node = get_tree().get_first_node_in_group("v069_public_director")
     var civic_director_open: bool = is_instance_valid(civic_director) and bool(civic_director.call("is_open"))
-    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or civic_open or population_open or shop_open or stream_open or pulse_open or seal_open or civic_director_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
+    var carrier: Node = get_tree().get_first_node_in_group("v070_public_carrier")
+    var carrier_open: bool = is_instance_valid(carrier) and bool(carrier.call("is_open"))
+    var trialboard: Node = get_tree().get_first_node_in_group("v070_spatial_trialboard")
+    var trial_open: bool = is_instance_valid(trialboard) and bool(trialboard.call("is_open"))
+    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or civic_open or population_open or shop_open or stream_open or pulse_open or seal_open or civic_director_open or carrier_open or trial_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
@@ -628,6 +632,14 @@ func _interact() -> void:
                 var expedition: Node = get_tree().get_first_node_in_group("multi_day_expedition_v050")
                 if is_instance_valid(expedition) and expedition.has_method("interact"):
                     expedition.call("interact", kind)
+            elif kind.begins_with("carrier_v070_"):
+                var trolley: Node = get_tree().get_first_node_in_group("v070_public_carrier")
+                if is_instance_valid(trolley) and trolley.has_method("interact"):
+                    trolley.call("interact", kind)
+            elif kind.begins_with("trial_v070_"):
+                var court: Node = get_tree().get_first_node_in_group("v070_spatial_trialboard")
+                if is_instance_valid(court) and court.has_method("interact"):
+                    court.call("interact", kind)
             elif kind == "seal_v069_practice":
                 var bench: Node = get_tree().get_first_node_in_group("v069_public_seals")
                 if is_instance_valid(bench) and bench.has_method("interact"):
@@ -948,6 +960,13 @@ func award_field_payout_once(receipt_id: String, amount: int) -> bool:
 
 
 func _save_game() -> bool:
+    # The simulated Spatial orientation room is temporary. A save made while
+    # inside must restore at its verified public entry, not in unloaded air.
+    var position_to_save: Vector3 = player.global_position
+    var trialboard: Node = get_tree().get_first_node_in_group("v070_spatial_trialboard")
+    if is_instance_valid(trialboard) and trialboard.has_method("is_active") \
+            and bool(trialboard.call("is_active")):
+        position_to_save = trialboard.call("get_safe_save_position")
     var data := {
         "version": 1,
         "tola": GameState.tola,
@@ -962,7 +981,7 @@ func _save_game() -> bool:
         "finished": contract_finished,
         "inventory": inventory,
         "gathered": gathered,
-        "position": [player.global_position.x, player.global_position.y, player.global_position.z],
+        "position": [position_to_save.x, position_to_save.y, position_to_save.z],
         "camera_yaw": player.get("wanted_yaw"),
         "camera_pitch": player.get("wanted_pitch"),
         "field_reward_receipts": field_reward_receipts,
