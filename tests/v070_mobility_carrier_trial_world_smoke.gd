@@ -106,8 +106,13 @@ func _test() -> void:
     # moving-platform velocity, never direct player position scripting.
     carrier.set("journey_seconds",CarrierRules.DOCK_SECONDS + CarrierRules.ONE_WAY_SECONDS*0.35)
     carrier.call("_physics_process",0.016)
+    # AnimatableBody3D with sync_to_physics commits body transforms during
+    # the next physics frame rather than necessarily within a direct call.
+    await get_tree().physics_frame
     if absf(float(vehicle.global_position.z) - (608.0+CarrierRules.STATION_DISTANCE*0.35)) > 0.80:
-        _fail("spline-driven platform isn't moving at public route coordinates")
+        _fail("spline-driven platform isn't moving at public route coordinates / actual=" \
+            + str(vehicle.global_position) + " follower=" + str(follow.global_position) \
+            + " progress=" + str(follow.progress_ratio))
         return
     var probe := PhysicsRayQueryParameters3D.create(
         vehicle.global_position + Vector3(0,2.5,0),
