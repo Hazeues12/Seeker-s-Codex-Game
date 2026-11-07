@@ -18,13 +18,13 @@ Code: `systems/aura_parkour_rules_v070.gd`, `characters/player_controller.gd`, `
 
 `world/magnara_moving_carrier_v070.gd` creates one **two-stop prototype public inspection trolley** on the existing x=0 shop-street road between z=608 and z=690.
 
-- Real `Path3D`, authored `Curve3D`, `PathFollow3D`, and `AnimatableBody3D(sync_to_physics = true)` 3D components.
+- Real `Path3D`, authored `Curve3D`, `PathFollow3D`, and `AnimatableBody3D(sync_to_physics = false)` moved directly each physics frame 3D components.
 - Genuine physical deck collider (3.6m x 6.2m); the player can **jump onto, run across and jump off** at any point. The player remains a normal `CharacterBody3D`, *never* parented to the vehicle or moved by scripted per-frame teleports.
 - 82m reversible journey at 5 m/s, 2-second dwell at each end; deterministic direction and timing in `systems/magnara_carrier_rules_v070.gd`.
 - Both actual station approaches feature signage and a phone-sized TALK/USE timetable. The game-only rail track is visible on the existing roads. This is **not an official Seeker's Codex Janoah train route, the Iron Cothon railroad or a Skyport**.
 - The old V0.50 expedition carriage and its forced sit/ride mode remain unchanged.
 
-Per official Godot 4.4 physics, CharacterBody3D adds a moving platform's velocity during `move_and_slide()`; synced AnimatableBody3D is the appropriate moving 3D platform primitive. We use that engine interaction rather than parenting the player to the platform or disabling user movement.
+Per official Godot 4.4 physics, CharacterBody3D adds a moving platform's velocity during `move_and_slide()`. The trolley is an AnimatableBody3D moved explicitly in the physics tick with `sync_to_physics = false`, because `true` is intended for animation-driven synchronized bodies and can overwrite direct scripted transforms. We rely on Godot's moving-platform handling instead of parenting the player or disabling movement.
 
 ## 3. Supervised Spatial rules: an *unloadable room*, not a canon Ryōiki
 
