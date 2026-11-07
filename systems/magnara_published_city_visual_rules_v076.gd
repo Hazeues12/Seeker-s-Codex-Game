@@ -75,6 +75,7 @@ static func _commons_court(at: Vector3, ground: Array[Dictionary],
 static func tile_art(tile: Vector2i) -> Dictionary:
     var boxes: Array[Dictionary] = []
     var domes: Array[Dictionary] = []
+    var canopies: Array[Dictionary] = []
     var parks: Array[Dictionary] = []
     var lanterns: Array[Dictionary] = []
     var court_centers: Array[Vector3] = []
@@ -103,9 +104,12 @@ static func tile_art(tile: Vector2i) -> Dictionary:
                 court_centers.append(local)
                 stats["commons_courts"] += 1
             if City.stable(tile,slot+730,2) == 0:
-                domes.append(_box(local+Vector3(-6.3,4.9,2.0),
-                    Vector3(CANOPY_RADIUS_M*2.0,6.1,
-                        CANOPY_RADIUS_M*2.0),COMMONS_CANOPY))
+                canopies.append(_box(local + Vector3(-6.3, 5.2, 2.0),
+                    Vector3(CANOPY_RADIUS_M * 1.6, 6.1, CANOPY_RADIUS_M * 1.45), COMMONS_CANOPY))
+                canopies.append(_box(local + Vector3(-8.2, 4.4, 2.4),
+                    Vector3(5.2, 4.1, 5.4), COMMONS_CANOPY.darkened(0.12)))
+                canopies.append(_box(local + Vector3(-4.5, 5.8, 1.3),
+                    Vector3(4.9, 4.4, 5.3), COMMONS_CANOPY.lightened(0.14)))
                 boxes.append(_box(local+Vector3(-6.3,1.8,2.0),
                     Vector3(0.65,3.2,0.65),Color(0.44,0.38,0.27)))
                 stats["commons_canopies"] = int(stats["commons_canopies"])+1
@@ -150,7 +154,7 @@ static func tile_art(tile: Vector2i) -> Dictionary:
                 stats["outer_ring_gantries"] = int(stats["outer_ring_gantries"])+1
         elif ring == 1 or ring == 6:
             stats["neutral_core_lots"] = int(stats["neutral_core_lots"])+1
-    return {"tile":tile,"boxes":boxes,"domes":domes,"parks":parks,"lanterns":lanterns,
+    return {"tile":tile,"boxes":boxes,"domes":domes,"canopies":canopies,"parks":parks,"lanterns":lanterns,
         "court_centers":court_centers,
         "stats":stats,"canon_status":"published_zone_game_only_parcel_positions",
         "named_landmarks_placed":0,"actual_harbor_docks":0,
@@ -158,4 +162,4 @@ static func tile_art(tile: Vector2i) -> Dictionary:
 
 static func visible_count(tile: Vector2i) -> int:
     var art: Dictionary = tile_art(tile)
-    return art["boxes"].size()+art["domes"].size()+art["parks"].size()+art["lanterns"].size()
+    return art["boxes"].size()+art["domes"].size()+art["parks"].size()+art["lanterns"].size()+art["canopies"].size()

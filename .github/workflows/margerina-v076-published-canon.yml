@@ -288,6 +288,15 @@ jobs:
           timeout 145s godot --headless --path . res://tests/v081_commons_trade_world_scene.tscn --fixed-fps 60 --quit-after 850 2>&1 | tee v081-commons-trade.log
           if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v081-commons-trade.log; then exit 1; fi
           grep -Fq 'V0.81 COMMONS VENDOR FOOD PURCHASE STAMINA DELIVERY AND RELOAD PASS' v081-commons-trade.log
+      - name: Validate the anime rig and Commons material pass
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/anime-world"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 120s godot --headless --path . res://tests/v082_anime_world_scene.tscn --fixed-fps 60 --quit-after 850 2>&1 | tee v082-anime-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v082-anime-world.log; then exit 1; fi
+          grep -Fq 'V0.82 ANIME PLAYER FACE HULL POSE VFX AND PAINTED CANOPY PASS' v082-anime-world.log
       - name: Run previous Ring VII and V0.73-V0.53 live city, sea, freight and combat regressions
         shell: bash
         run: |
@@ -347,7 +356,7 @@ jobs:
           timeout 180s godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v074-export.log
           if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v074-export.log; then exit 1; fi
           for ext in html js wasm pck; do test -s "build/web/index.${ext}"; done
-      - name: Start the exported game and exercise Commons trade in Chrome
+      - name: Check exported startup, Commons trade and anime shaders in Chrome
         shell: bash
         run: |
           set -euo pipefail
@@ -361,8 +370,37 @@ jobs:
           cat >"$browser_test/startup.cjs" <<'JS'
           const { readFileSync, writeFileSync, rmSync } = require("node:fs");
           const { chromium } = require("playwright-core");
-          const tradePage = "build/web/qa-commons-trade.html";
+          const qaPath = "build/web/qa.html";
           const tradePass = "V0.81 COMMONS VENDOR FOOD PURCHASE STAMINA DELIVERY AND RELOAD PASS";
+          async function checkScene(browser, scene, marker, screenshot) {
+              const shell = readFileSync("build/web/index.html", "utf8");
+              const args = JSON.stringify([scene]);
+              const testShell = shell.replace(/"args":\s*\[\]/, '"args":' + args);
+              if (testShell === shell) throw new Error("Export shell is missing its startup arguments");
+              writeFileSync(qaPath, testShell);
+              const test = await browser.newPage({ viewport: { width: 900, height: 520 } });
+              const errors = [];
+              test.on("pageerror", error => errors.push(error.message));
+              test.on("console", message => {
+                  const content = message.text();
+                  console.log(content);
+                  if (/SCRIPT ERROR|SHADER ERROR|shader compilation failed/i.test(content)) errors.push(content);
+              });
+              try {
+                  await Promise.all([
+                      test.waitForEvent("console", {
+                          predicate: message => message.text().includes(marker),
+                          timeout: 65000,
+                      }),
+                      test.goto("http://127.0.0.1:8765/qa.html"),
+                  ]);
+                  if (errors.length) throw new Error(errors.join("\n"));
+                  if (screenshot) await test.locator("#canvas").screenshot({ path: screenshot });
+              } finally {
+                  await test.close();
+              }
+          }
+
           async function main() {
               const browser = await chromium.launch({
                   executablePath: process.env.CHROME_BIN,
@@ -374,7 +412,7 @@ jobs:
                   page.on("pageerror", error => errors.push(error.message));
                   page.on("console", message => {
                       const content = message.text();
-                      if (/SCRIPT ERROR|Shader compilation failed/.test(content)) errors.push(content);
+                      if (/SCRIPT ERROR|SHADER ERROR|shader compilation failed/i.test(content)) errors.push(content);
                   });
                   await page.goto("http://127.0.0.1:8765/");
                   await page.locator("#status").waitFor({ state: "detached", timeout: 60000 });
@@ -385,37 +423,33 @@ jobs:
                   console.log("MARGERINA EXPORTED GAME STARTED IN CHROME");
                   await page.close();
 
-                  // Run the same test scene from the exported WASM/PCK in a fresh browser context.
-                  const shell = readFileSync("build/web/index.html", "utf8");
-                  const args = JSON.stringify(["res://tests/v081_commons_trade_world_scene.tscn"]);
-                  const testShell = shell.replace(/"args":\s*\[\]/, '"args":' + args);
-                  if (testShell === shell) throw new Error("Export shell is missing its startup arguments");
-                  writeFileSync(tradePage, testShell);
-                  const test = await browser.newPage({ viewport: { width: 900, height: 520 } });
-                  test.on("console", message => console.log(message.text()));
-                  await Promise.all([
-                      test.waitForEvent("console", {
-                          predicate: message => message.text().includes(tradePass),
-                          timeout: 65000,
-                      }),
-                      test.goto("http://127.0.0.1:8765/qa-commons-trade.html"),
-                  ]);
+                  await checkScene(browser, "res://tests/v081_commons_trade_world_scene.tscn", tradePass);
                   console.log("MARGERINA EXPORTED COMMONS TRADE PASSED IN CHROME");
+                  await checkScene(browser, "res://tests/v082_anime_world_scene.tscn",
+                      "V0.82 ANIME PLAYER FACE HULL POSE VFX AND PAINTED CANOPY PASS", "v082-render.png");
+                  console.log("MARGERINA EXPORTED ANIME SHADERS PASSED IN CHROME");
               } finally {
-                  rmSync(tradePage, { force: true });
+                  rmSync(qaPath, { force: true });
                   await browser.close();
               }
           }
           main().catch(error => { console.error(error); process.exitCode = 1; });
           JS
-          timeout 145s node "$browser_test/startup.cjs" 2>&1 | tee v081-browser.log
+          timeout 220s node "$browser_test/startup.cjs" 2>&1 | tee v081-browser.log
           grep -Fq 'MARGERINA EXPORTED GAME STARTED IN CHROME' v081-browser.log
           grep -Fq 'MARGERINA EXPORTED COMMONS TRADE PASSED IN CHROME' v081-browser.log
+          grep -Fq 'MARGERINA EXPORTED ANIME SHADERS PASSED IN CHROME' v081-browser.log
       - name: Upload playable candidate
         uses: actions/upload-artifact@v4
         with:
-          name: seeker-codex-v081-commons-trade-web
+          name: seeker-codex-v082-anime-style-web
           path: build/web/
+          if-no-files-found: error
+      - name: Keep the Chrome visual check
+        uses: actions/upload-artifact@v4
+        with:
+          name: v082-chrome-render-check
+          path: v082-render.png
           if-no-files-found: error
       - name: Upload diagnostics if failed
         if: failure()
@@ -442,6 +476,7 @@ jobs:
             v077-canal-world.log
             v080-commons-world.log
             v081-commons-trade.log
+            v082-anime-world.log
             v081-browser.log
             v081-browser-server.log
             v076-world.log

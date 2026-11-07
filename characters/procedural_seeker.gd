@@ -2,6 +2,14 @@ extends Node3D
 
 # V0.37: asset-free, articulated low-poly Seeker and sparring fighter rig.
 # Cosmetic only; collision, damage, Aura and movement stay in existing scripts.
+const ANIME_SHADER = preload("res://shaders/seeker_anime_v082.gdshader")
+const INK_SHADER = preload("res://shaders/seeker_ink_v082.gdshader")
+const POSE_INTERVAL := 1.0 / 12.0
+var anime_style := false
+var pose_clock := 0.0
+var last_pose := ""
+var ink: ShaderMaterial
+var anime_gem_scale: Vector3
 var appearance: String = "seeker"
 var animation_time: float = 0.0
 var attack_time: float = 0.0
@@ -37,6 +45,63 @@ func configure_civilian(jacket: Color, skin: Color) -> void:
     for part in [aura_gem, cape_trim, body_root.get_node("FaceBand"),
             left_arm.get_node("LeftTrim"), right_arm.get_node("RightTrim")]:
         part.hide()
+
+func configure_anime_player() -> void:
+    anime_style = true
+    ink = ShaderMaterial.new()
+    ink.shader = INK_SHADER
+    configure("seeker")
+    anime_gem_scale = aura_gem.scale
+    body_root.get_node("FaceBand").hide()
+    for side in [-1.0, 1.0]:
+        var eye_x: float = side * 0.115
+        _sphere(body_root, "InkEye", Vector3(eye_x, 2.19, -0.285),
+            Vector3(0.071, 0.043, 0.034), Color(0.10, 0.065, 0.09))
+        _sphere(body_root, "EyeWhite", Vector3(eye_x, 2.185, -0.315),
+            Vector3(0.053, 0.028, 0.012), Color(0.94, 0.88, 0.83))
+        _sphere(body_root, "Iris", Vector3(eye_x, 2.185, -0.327),
+            Vector3(0.023, 0.026, 0.009), Color(0.19, 0.14, 0.24))
+        var brow := _box(body_root, "Brow", Vector3(eye_x, 2.26, -0.302),
+            Vector3(0.105, 0.018, 0.018), Color(0.13, 0.085, 0.11))
+        brow.rotation.z = side * -0.13
+    _sphere(body_root, "Nose", Vector3(0, 2.108, -0.278),
+        Vector3(0.029, 0.037, 0.030), Color(0.69, 0.48, 0.37))
+    _box(body_root, "Mouth", Vector3(0, 2.027, -0.282),
+        Vector3(0.068, 0.014, 0.013), Color(0.39, 0.20, 0.24))
+    body_root.get_node("LeftEye").hide()
+    body_root.get_node("RightEye").hide()
+    body_root.get_node("Hair").hide()
+    for side in [-1.0, 1.0]:
+        var lapel := _box(body_root, "CoatLapel", Vector3(side * 0.145, 1.51, -0.203),
+            Vector3(0.07, 0.40, 0.055), Color(0.65, 0.50, 0.29))
+        lapel.rotation.z = side * -0.35
+    var locks := _pivot(body_root, "AnimeLocks", Vector3.ZERO)
+    for index in range(5):
+        var x: float = float(index - 2) * 0.106
+        var lock := _sphere(locks, "Fringe", Vector3(x, 2.37 - absf(x) * 0.38, -0.196),
+            Vector3(0.088, 0.163, 0.124), Color(0.17, 0.14, 0.23))
+        lock.rotation.z = -0.29 + x * 1.1
+    _sphere(locks, "HairCap", Vector3(0, 2.365, 0.034), Vector3(0.335, 0.218, 0.295),
+        Color(0.13, 0.10, 0.19))
+    for side in [-1.0, 1.0]:
+        var lock := _sphere(locks, "TempleLock", Vector3(side * 0.274, 2.265, 0.02),
+            Vector3(0.084, 0.19, 0.19), Color(0.14, 0.11, 0.20))
+        lock.rotation.z = side * 0.17
+
+func _tint(part: MeshInstance3D, color: Color) -> void:
+    if part.material_override is ShaderMaterial:
+        (part.material_override as ShaderMaterial).set_shader_parameter("base_color", color)
+    else:
+        (part.material_override as StandardMaterial3D).albedo_color = color
+
+func _anime_material(color: Color, face: bool, outline: bool) -> ShaderMaterial:
+    var material := ShaderMaterial.new()
+    material.shader = ANIME_SHADER
+    material.set_shader_parameter("base_color", color)
+    material.set_shader_parameter("face_lighting", face)
+    if outline:
+        material.next_pass = ink
+    return material
 
 func _build_rig() -> void:
     body_root = Node3D.new()
@@ -87,11 +152,23 @@ func _material(color: Color) -> StandardMaterial3D:
 func _box(parent: Node3D, node_name: String, at: Vector3, dimensions: Vector3, color: Color) -> MeshInstance3D:
     var item := MeshInstance3D.new()
     item.name = node_name
-    var primitive := BoxMesh.new()
-    primitive.size = dimensions
-    item.mesh = primitive
+    var rounded: bool = anime_style and dimensions.y >= 0.23 and dimensions.x >= 0.16 \
+        and dimensions.z >= 0.18 and node_name != "RearCoatTail"
+    if rounded:
+        var rounded_mesh := CapsuleMesh.new()
+        rounded_mesh.radius = minf(dimensions.x, dimensions.z) * 0.5
+        rounded_mesh.height = maxf(dimensions.y, rounded_mesh.radius * 2.0)
+        rounded_mesh.radial_segments = 14
+        rounded_mesh.rings = 5
+        item.mesh = rounded_mesh
+        item.scale = Vector3(dimensions.x / (rounded_mesh.radius * 2.0), 1.0,
+            dimensions.z / (rounded_mesh.radius * 2.0))
+    else:
+        var primitive := BoxMesh.new()
+        primitive.size = dimensions
+        item.mesh = primitive
     item.position = at
-    item.material_override = _material(color)
+    item.material_override = _anime_material(color, false, rounded) if anime_style else _material(color)
     item.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
     parent.add_child(item)
     return item
@@ -102,15 +179,42 @@ func _sphere(parent: Node3D, node_name: String, at: Vector3, dimensions: Vector3
     var primitive := SphereMesh.new()
     primitive.radius = 0.5
     primitive.height = 1.0
-    primitive.radial_segments = 10
-    primitive.rings = 5
+    primitive.radial_segments = 24 if anime_style else 10
+    primitive.rings = 12 if anime_style else 5
     item.mesh = primitive
+    if anime_style:
+        if node_name == "Head":
+            item.mesh = _taper_profile(primitive, 0.76)
+        elif node_name in ["Fringe", "TempleLock"]:
+            item.mesh = _taper_profile(primitive, 0.24)
     item.scale = dimensions * 2.0
     item.position = at
-    item.material_override = _material(color)
+    if anime_style and node_name != "AuraInsignia":
+        item.material_override = _anime_material(color, node_name in ["Head", "Nose"], dimensions.y >= 0.09)
+    else:
+        item.material_override = _material(color)
     item.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
     parent.add_child(item)
     return item
+
+func _taper_profile(source: SphereMesh, lower_width: float) -> ArrayMesh:
+    var arrays: Array = source.surface_get_arrays(0)
+    var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+    var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+    for index in range(vertices.size()):
+        var point: Vector3 = vertices[index]
+        var blend: float = clampf((point.y + 0.48) / 0.44, 0.0, 1.0)
+        var width: float = lerpf(lower_width, 1.0, blend * blend * (3.0 - 2.0 * blend))
+        var slope: float = (1.0 - lower_width) * 6.0 * blend * (1.0 - blend) / 0.44
+        var normal: Vector3 = normals[index]
+        normals[index] = Vector3(normal.x / width, normal.y - point.x * slope * normal.x / width,
+            normal.z).normalized()
+        vertices[index].x *= width
+    arrays[Mesh.ARRAY_VERTEX] = vertices
+    arrays[Mesh.ARRAY_NORMAL] = normals
+    var mesh := ArrayMesh.new()
+    mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+    return mesh
 
 func _apply_colors() -> void:
     var jacket: Color = Color(0.19, 0.32, 0.47)
@@ -129,9 +233,9 @@ func _apply_colors() -> void:
 
 func _color_clothes(jacket: Color, pants: Color) -> void:
     for item in [torso_mesh, left_sleeve, right_sleeve, cape_trim]:
-        (item.material_override as StandardMaterial3D).albedo_color = jacket
+        _tint(item, jacket)
     for item in [left_pant, right_pant]:
-        (item.material_override as StandardMaterial3D).albedo_color = pants
+        _tint(item, pants)
 
 func apply_national_outfit(nation: String) -> void:
     # 3D game costume silhouettes inspired by the author's Young Blood guide.
@@ -228,12 +332,21 @@ func animate_state(delta: float, planar_speed: float, dodging: bool = false, pos
     animation_time += delta * (4.2 + minf(planar_speed, 9.0) * 0.90)
     attack_time = maxf(0.0, attack_time - delta)
     impact_time = maxf(0.0, impact_time - delta)
+    var pose: String = "dodge" if dodging else posture
+    if pose.is_empty() and attack_time > 0.0:
+        pose = "strike" if attack_time > 0.12 else "recover"
+    if anime_style:
+        pose_clock += delta
+        if pose == last_pose and pose_clock < POSE_INTERVAL:
+            return
+        pose_clock = fposmod(pose_clock, POSE_INTERVAL)
+        last_pose = pose
     var stride: float = clampf(planar_speed / 5.5, 0.0, 1.35)
     var wave: float = sin(animation_time)
     var swing: float = wave * stride * 0.62
     var seated: bool = posture == "picnic"
-    left_leg.rotation.x = lerpf(left_leg.rotation.x, 1.45 if seated else swing, minf(1.0, delta * 15.0))
-    right_leg.rotation.x = lerpf(right_leg.rotation.x, 1.45 if seated else -swing, minf(1.0, delta * 15.0))
+    left_leg.rotation.x = lerpf(left_leg.rotation.x, 1.45 if seated else swing, 1.0 if anime_style else minf(1.0, delta * 15.0))
+    right_leg.rotation.x = lerpf(right_leg.rotation.x, 1.45 if seated else -swing, 1.0 if anime_style else minf(1.0, delta * 15.0))
     var l_arm: float = -swing * 0.75
     var r_arm: float = swing * 0.75
     var lean: float = 0.04 + stride * 0.07
@@ -257,18 +370,18 @@ func animate_state(delta: float, planar_speed: float, dodging: bool = false, pos
         l_arm = -0.60
         lean = -0.28
     elif attack_time > 0.0:
-        r_arm = 1.35
+        r_arm = 0.73 if anime_style and pose == "recover" else 1.35
         l_arm = -0.30
         lean = 0.20
     if dodging:
         lean = 0.47
         r_arm = -0.42
         l_arm = -0.42
-    left_arm.rotation.x = lerpf(left_arm.rotation.x, l_arm, minf(1.0, delta * 20.0))
-    right_arm.rotation.x = lerpf(right_arm.rotation.x, r_arm, minf(1.0, delta * 20.0))
-    body_root.rotation.x = lerpf(body_root.rotation.x, lean, minf(1.0, delta * 14.0))
+    left_arm.rotation.x = lerpf(left_arm.rotation.x, l_arm, 1.0 if anime_style else minf(1.0, delta * 20.0))
+    right_arm.rotation.x = lerpf(right_arm.rotation.x, r_arm, 1.0 if anime_style else minf(1.0, delta * 20.0))
+    body_root.rotation.x = lerpf(body_root.rotation.x, lean, 1.0 if anime_style else minf(1.0, delta * 14.0))
     body_root.position.y = -0.70 if seated else absf(wave) * stride * 0.06
-    aura_gem.scale = Vector3.ONE * (1.0 + 0.12 * sin(animation_time * 0.55))
+    aura_gem.scale = (anime_gem_scale if anime_style else Vector3.ONE) * (1.0 + 0.12 * sin(animation_time * 0.55))
 
 
 func apply_player_appearance(skin_id: int, hair_id: int, coat_id: int, aura_id: int) -> void:
@@ -282,13 +395,15 @@ func apply_player_appearance(skin_id: int, hair_id: int, coat_id: int, aura_id: 
     var aura_color: Color = auras[clampi(aura_id, 0, auras.size() - 1)]
     for part_name in ["Head", "Neck"]:
         var part: MeshInstance3D = body_root.get_node(part_name) as MeshInstance3D
-        (part.material_override as StandardMaterial3D).albedo_color = skin_color
+        _tint(part, skin_color)
+    if anime_style:
+        _tint(body_root.get_node("Nose"), skin_color)
     _color_clothes(jacket_color, jacket_color.darkened(0.33))
     (aura_gem.material_override as StandardMaterial3D).albedo_color = aura_color
     for sleeve in ["LeftTrim", "RightTrim"]:
         var parent: Node3D = left_arm if sleeve == "LeftTrim" else right_arm
         var trim: MeshInstance3D = parent.get_node(sleeve) as MeshInstance3D
-        (trim.material_override as StandardMaterial3D).albedo_color = aura_color
+        _tint(trim, aura_color)
 
     if not body_root.has_node("HairSpikes"):
         var spikes := Node3D.new()
@@ -302,7 +417,9 @@ func apply_player_appearance(skin_id: int, hair_id: int, coat_id: int, aura_id: 
     var hair: MeshInstance3D = body_root.get_node("Hair") as MeshInstance3D
     var spikes_node: Node3D = body_root.get_node("HairSpikes") as Node3D
     var topknot: MeshInstance3D = body_root.get_node("HairTopknot") as MeshInstance3D
-    hair.visible = style != 3
+    hair.visible = style != 3 and not anime_style
+    if anime_style:
+        body_root.get_node("AnimeLocks").visible = style != 3
     hair.scale = Vector3(1.0, 0.65 if style == 1 else 1.0, 1.0)
     spikes_node.visible = style == 1
     topknot.visible = style == 2

@@ -6,6 +6,7 @@ const Geo = preload("res://systems/known_world_geometry_v054.gd")
 const Rules = preload("res://systems/magnara_published_city_visual_rules_v076.gd")
 const CommonsLife = preload("res://world/magnara_commons_life_v080.gd")
 const CommonsCart = preload("res://world/magnara_commons_cart_v081.gd")
+const CANOPY_SHADER = preload("res://shaders/commons_canopy_v082.gdshader")
 const MAX_COMMONS_LIGHTS: int = 4
 const COMMONS_LIGHT_DISTANCE: float = 24.0
 const LANTERN_COLOR := Color(1.0, 0.78, 0.43)
@@ -30,6 +31,7 @@ var wall_mesh: BoxMesh
 var dome_mesh: SphereMesh
 var material_masonry: StandardMaterial3D
 var material_glass: StandardMaterial3D
+var material_canopy: ShaderMaterial
 var material_ground: StandardMaterial3D
 
 func _ready() -> void:
@@ -58,6 +60,8 @@ func _setup() -> void:
     dome_mesh.rings = 4
     material_masonry = _material(0.88,0.04)
     material_glass = _material(0.31,0.15)
+    material_canopy = ShaderMaterial.new()
+    material_canopy.shader = CANOPY_SHADER
     material_ground = _material(0.97,0.0)
     hub = get_tree().get_first_node_in_group("hub_manager")
     commons_life = CommonsLife.new()
@@ -95,7 +99,7 @@ func _material(roughness: float,metallic: float) -> StandardMaterial3D:
     return m
 
 func _gpu(parent: Node3D,name: String,items: Array,
-        shared_mesh: Mesh,material: StandardMaterial3D) -> void:
+        shared_mesh: Mesh,material: Material) -> void:
     if items.is_empty():
         return
     var mm := MultiMesh.new()
@@ -121,7 +125,7 @@ func _attach_to_tile(key: String,chunk: Dictionary) -> void:
         return
     var tile: Vector2i = chunk["cell"]
     var art: Dictionary = Rules.tile_art(tile)
-    var count: int = art["boxes"].size() + art["domes"].size() \
+    var count: int = art["boxes"].size() + art["domes"].size() + art["canopies"].size() \
         + art["parks"].size() + art["lanterns"].size()
     if count == 0:
         return
@@ -133,6 +137,7 @@ func _attach_to_tile(key: String,chunk: Dictionary) -> void:
         art["boxes"],wall_mesh,material_masonry)
     _gpu(layer,"V076AcademyGlassAndCommonsTreesGPU",
         art["domes"],dome_mesh,material_glass)
+    _gpu(layer, "CommonsPaintedCanopyGPU", art["canopies"], dome_mesh, material_canopy)
     _gpu(layer,"V076CommonsParkGroundGPU",
         art["parks"],wall_mesh,material_ground)
     _gpu(layer, "CommonsLanternGlassGPU", art["lanterns"], wall_mesh, material_lantern)

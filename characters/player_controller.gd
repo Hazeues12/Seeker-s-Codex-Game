@@ -60,7 +60,7 @@ func _ready() -> void:
     seeker_rig = SeekerRigScript.new()
     seeker_rig.name = "AnimatedSeeker"
     add_child(seeker_rig)
-    seeker_rig.call("configure", "seeker")
+    seeker_rig.call("configure_anime_player")
     $Visual.visible = false
     floor_snap_length = ParkourV070.FLOOR_SNAP
     platform_on_leave = CharacterBody3D.PLATFORM_ON_LEAVE_ADD_VELOCITY
@@ -379,24 +379,33 @@ func _show_martial_pulse(facing: Vector3) -> void:
     var arena: Node = get_tree().get_first_node_in_group("combat_arena")
     if is_instance_valid(arena) and arena.has_method("player_strike"):
         arena.call("player_strike", facing)
-    # A tiny, temporary effect keeps the Web/mobile build lightweight.
     var pulse := MeshInstance3D.new()
     pulse.name = "MartialPulse"
-    var sphere := SphereMesh.new()
-    sphere.radius = 0.42
-    sphere.height = 0.84
-    pulse.mesh = sphere
+    var ribbon := SurfaceTool.new()
+    ribbon.begin(Mesh.PRIMITIVE_TRIANGLES)
+    for index in range(12):
+        var left: float = float(index) / 12.0
+        var right: float = float(index + 1) / 12.0
+        var a := Vector2.from_angle(lerpf(-1.32, 1.32, left))
+        var b := Vector2.from_angle(lerpf(-1.32, 1.32, right))
+        var inner_a: Vector2 = a * (1.0 - sin(left * PI) * 0.24)
+        var inner_b: Vector2 = b * (1.0 - sin(right * PI) * 0.24)
+        for point in [a, b, inner_a, b, inner_b, inner_a]:
+            ribbon.set_color(Color(0.24, 0.64, 0.98) if point.length_squared() > 0.99 else Color(0.74, 0.92, 1.0))
+            ribbon.add_vertex(Vector3(point.y, point.x * 0.30, -point.x * 0.52))
+    pulse.mesh = ribbon.commit()
     var material := StandardMaterial3D.new()
-    material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+    material.vertex_color_use_as_albedo = true
     material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-    material.albedo_color = Color(0.31, 0.78, 1.0, 0.72)
+    material.cull_mode = BaseMaterial3D.CULL_DISABLED
     pulse.material_override = material
     pulse.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
     get_parent().add_child(pulse)
-    pulse.global_position = global_position + Vector3.UP * 1.20 + facing * 1.35
-    pulse.scale = Vector3(0.28, 0.28, 0.28)
+    pulse.global_position = global_position + Vector3.UP * 1.02 + facing * 0.75
+    pulse.rotation.y = atan2(-facing.x, -facing.z)
+    pulse.scale = Vector3.ONE * 0.50
     var effect := create_tween()
-    effect.tween_property(pulse, "scale", Vector3(2.3, 1.15, 1.6), 0.21)
+    effect.tween_property(pulse, "scale", Vector3.ONE * 1.34, 0.13)
     effect.tween_callback(pulse.queue_free)
 
 

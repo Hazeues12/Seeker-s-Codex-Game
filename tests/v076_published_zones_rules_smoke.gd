@@ -90,7 +90,7 @@ func _run() -> void:
                 if total > Visual.MAX_ART_PER_TILE:
                     _fail("newly-authored generic art exceeds phone tile GPU budget")
                     return
-                for part in ["boxes","domes","parks","lanterns"]:
+                for part in ["boxes","domes","canopies","parks","lanterns"]:
                     for item in info[part]:
                         if (item["size"] as Vector3).length() <= 0.1:
                             _fail("invalid decorative building or park geometry")
