@@ -3,6 +3,7 @@ const WorldGeoV054 = preload("res://systems/known_world_geometry_v054.gd")
 const JanoahRegionV055 = preload("res://world/janoah_approach_v055.gd")
 const SaveIntegrityV063 = preload("res://systems/game_save_integrity_v063.gd")
 const CivicRulesV064 = preload("res://systems/magnara_civic_rules_v064.gd")
+const PowerRulesV068 = preload("res://systems/seeker_power_rules_v068.gd")
 const ShopRulesV066 = preload("res://systems/magnara_business_rules_v066.gd")
 
 # Seeker's Codex — Margerina V0.33
@@ -144,10 +145,18 @@ func try_dodge() -> bool:
 func try_martial_strike() -> bool:
     if not can_use_combat_actions():
         return false
-    if aura < 12.0 or stamina < 4.0:
-        _announce("Martial strike requires 12 Aura and 4 Stamina.")
+    # V0.68: check all four layers. The prototype Martial pulse stays
+    # a basic game-only Art, at the original 12-Aura cost.
+    var catalog: Dictionary = PowerRulesV068.load_catalog()
+    var current_model: Dictionary = PowerRulesV068.create_model(
+        "player_local_seeker", aura, 100.0, 24.0, 4.5, 1.0, ["Martial"])
+    var technique: Dictionary = PowerRulesV068.technique_by_id(catalog, "martial_pulse_v034")
+    var check: Dictionary = PowerRulesV068.attempt(current_model, technique)
+    var required: int = int(check.get("cost", 12))
+    if not bool(check.get("allowed", false)) or stamina < 4.0:
+        _announce("Martial strike requires %d Aura and 4 Stamina." % maxi(required, 12))
         return false
-    aura -= 12.0
+    aura -= float(required)
     stamina -= 4.0
     var near_post: bool = false
     for spot in locations:
