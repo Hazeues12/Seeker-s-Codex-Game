@@ -70,7 +70,7 @@ static func _between(cell: Vector2i, side: int, from_row: int, across_tile: bool
     if across_tile:
         b_z += District.TILE_M
     var separation: float = b_z - a_z
-    var count: int = maxi(4, ceili(separation / STEP_GAP_MAX), ceili(absf(a_y - b_y) / STEP_RISE_MAX))
+    var count: int = maxi(4, maxi(ceili(separation / STEP_GAP_MAX), ceili(absf(a_y - b_y) / STEP_RISE_MAX)))
     # Position planks between two reachable roof edges. End-to-end hops are
     # visible, physics-backed and short enough for the existing double jump.
     for n in range(count):
