@@ -3,6 +3,7 @@ const WorldGeoV054 = preload("res://systems/known_world_geometry_v054.gd")
 const JanoahRegionV055 = preload("res://world/janoah_approach_v055.gd")
 const SaveIntegrityV063 = preload("res://systems/game_save_integrity_v063.gd")
 const CivicRulesV064 = preload("res://systems/magnara_civic_rules_v064.gd")
+const GuildDirectorV069 = preload("res://systems/guild_public_director_v069.gd")
 const PowerRulesV068 = preload("res://systems/seeker_power_rules_v068.gd")
 const ShopRulesV066 = preload("res://systems/magnara_business_rules_v066.gd")
 
@@ -32,6 +33,7 @@ var field_reward_receipts: Dictionary = {}
 var market_stock_v062: Dictionary = {}
 var civic_v064: Dictionary = {}
 var shop_stock_v066: Dictionary = {}
+var guild_director_v069: Dictionary = {}
 var aura: float = 100.0
 var stamina: float = 100.0
 var guild_rep: int = 0
@@ -535,7 +537,11 @@ func _any_panel_open() -> bool:
     var stream_open: bool = is_instance_valid(stream) and bool(stream.call("is_open"))
     var daily_pulse: Node = get_tree().get_first_node_in_group("margerina_public_pulse_v068")
     var pulse_open: bool = is_instance_valid(daily_pulse) and bool(daily_pulse.call("is_open"))
-    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or civic_open or population_open or shop_open or stream_open or pulse_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
+    var seal_bench: Node = get_tree().get_first_node_in_group("v069_public_seals")
+    var seal_open: bool = is_instance_valid(seal_bench) and bool(seal_bench.call("is_open"))
+    var civic_director: Node = get_tree().get_first_node_in_group("v069_public_director")
+    var civic_director_open: bool = is_instance_valid(civic_director) and bool(civic_director.call("is_open"))
+    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or civic_open or population_open or shop_open or stream_open or pulse_open or seal_open or civic_director_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
@@ -599,6 +605,14 @@ func _interact() -> void:
                 var expedition: Node = get_tree().get_first_node_in_group("multi_day_expedition_v050")
                 if is_instance_valid(expedition) and expedition.has_method("interact"):
                     expedition.call("interact", kind)
+            elif kind == "seal_v069_practice":
+                var bench: Node = get_tree().get_first_node_in_group("v069_public_seals")
+                if is_instance_valid(bench) and bench.has_method("interact"):
+                    bench.call("interact", kind)
+            elif kind.begins_with("guild_v069_"):
+                var public_work: Node = get_tree().get_first_node_in_group("v069_public_director")
+                if is_instance_valid(public_work) and public_work.has_method("interact"):
+                    public_work.call("interact", kind)
             elif kind == "pulse_v068_public":
                 var news: Node = get_tree().get_first_node_in_group("margerina_public_pulse_v068")
                 if is_instance_valid(news) and news.has_method("interact"):
@@ -931,7 +945,8 @@ func _save_game() -> bool:
         "field_reward_receipts": field_reward_receipts,
         "market_stock_v062": market_stock_v062,
         "civic_v064": civic_v064,
-        "shop_stock_v066": shop_stock_v066
+        "shop_stock_v066": shop_stock_v066,
+        "guild_director_v069": guild_director_v069
     }
     if not SaveIntegrityV063.write_verified(data):
         _announce("Save failed verification. Your previous game was protected; check browser storage.")
@@ -980,6 +995,7 @@ func _load_game(show_feedback: bool) -> void:
     else:
         market_stock_v062 = {}
     shop_stock_v066 = ShopRulesV066.sanitize_stock(data.get("shop_stock_v066", {}))
+    guild_director_v069 = GuildDirectorV069.sanitize(data.get("guild_director_v069", {}))
     var civic_raw: Variant = data.get("civic_v064", {})
     civic_v064 = CivicRulesV064.sanitize(civic_raw)
     var existing_field_receipts: Variant = data.get("field_reward_receipts", {})
