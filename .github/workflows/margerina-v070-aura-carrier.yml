@@ -49,7 +49,7 @@ jobs:
           assert 'try_aura_burst' in hub and 'position_to_save' in hub
           assert 'burst_remaining' in player and 'jump_buffer_seconds' in player
           carrier=Path('world/magnara_moving_carrier_v070.gd').read_text()
-          assert all(x in carrier for x in ('AnimatableBody3D','PathFollow3D','sync_to_physics = true','V070CarrierFloorCollision'))
+          assert all(x in carrier for x in ('AnimatableBody3D','PathFollow3D','sync_to_physics = false','V070CarrierFloorCollision'))
           trial=Path('world/spatial_practice_trialboard_v070.gd').read_text()
           assert all(x in trial for x in ('room.queue_free()','get_safe_save_position','_create_room'))
           assert 'carrier_safety' in Path('systems/guild_public_director_v069.gd').read_text()
