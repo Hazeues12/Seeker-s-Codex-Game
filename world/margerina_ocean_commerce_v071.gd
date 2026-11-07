@@ -269,14 +269,21 @@ func _make_harbor() -> void:
         Vector3(27,0.36,570),Color(0.62,0.60,0.54),true)
     for index in range(Trade.SHIP_COUNT):
         var lane_z: float = -250.0+float(index)*100.0
+        var manifest: Dictionary = Trade.ship_manifest(index,
+            1+floori(float(hub.get("world_minutes"))/1440.0),route_catalog)
+        var hull: Dictionary = Waves.ship_class(str(manifest["size"]))
+        # Finger piers run alongside the port gunwale. Never overlap the
+        # ship's *actual deck* at its center; overlapping static pier collision
+        # steals platform physics and prevents ordinary movement onboard.
+        var pier_z: float = lane_z-(float(hull["beam"])*0.45+2.7)
         _block(harbor,"V071FingerPier_%d" % index,
-            Vector3(-266,1.18,lane_z),Vector3(137,0.30,7.2),
+            Vector3(-266,1.18,pier_z),Vector3(137,0.30,7.2),
             Color(0.52,0.50,0.42),true)
         for n in range(3):
-            _block(harbor,"V071PierBollard",Vector3(-315+float(n)*39,1.55,lane_z+3.1),
+            _block(harbor,"V071PierBollard",Vector3(-315+float(n)*39,1.55,pier_z-3.1),
                 Vector3(1.3,0.52,1.3),Color(0.22,0.24,0.27),true)
         _sign(harbor,"PUBLIC CARGO BERTH %d" % (index+1),
-            Vector3(-312,3.70,lane_z),22)
+            Vector3(-312,3.70,pier_z),22)
     for i in range(15):
         var z: float = -273.0+float(i)*39.0
         _block(harbor,"V071WarehouseCargoStack",Vector3(-390,1.60,z),
