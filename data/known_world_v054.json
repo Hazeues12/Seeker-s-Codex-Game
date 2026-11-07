@@ -83,35 +83,35 @@
         "landmarks_placed": []
       },
       {
-        "id": "unassigned_civic_planning",
+        "id": "commons",
         "ring": 3,
-        "name": "Ring III / Urban Planning Reserve",
+        "name": "Ring III / The Commons",
         "inner_radius_m": 2600,
         "outer_radius_m": 4700,
         "envelope_area_km2_proposed": 48.16,
-        "design_status": "author_supplied_planning",
+        "design_status": "published_role_game_only_boundaries",
         "boundary_status": "provisional_ideal_ring",
         "landmarks_placed": []
       },
       {
-        "id": "merchant",
+        "id": "academies",
         "ring": 4,
-        "name": "Merchant Quarter",
+        "name": "Ring IV / The Academies",
         "inner_radius_m": 4700,
         "outer_radius_m": 6500,
         "envelope_area_km2_proposed": 63.33,
-        "design_status": "author_supplied_planning",
+        "design_status": "published_role_game_only_boundaries",
         "boundary_status": "provisional_ideal_ring",
         "landmarks_placed": []
       },
       {
-        "id": "artisan",
+        "id": "markets",
         "ring": 5,
-        "name": "Artisan / Foundry",
+        "name": "Ring V / The Markets",
         "inner_radius_m": 6500,
         "outer_radius_m": 8700,
         "envelope_area_km2_proposed": 105.05,
-        "design_status": "author_supplied_planning",
+        "design_status": "published_role_game_only_boundaries",
         "boundary_status": "provisional_ideal_ring",
         "landmarks_placed": []
       },
@@ -122,7 +122,7 @@
         "inner_radius_m": 8700,
         "outer_radius_m": 10700,
         "envelope_area_km2_proposed": 121.89,
-        "design_status": "author_supplied_planning",
+        "design_status": "role_not_confirmed",
         "boundary_status": "provisional_ideal_ring",
         "landmarks_placed": [],
         "port_status": "not_the_primary_seaport"
@@ -130,7 +130,7 @@
       {
         "id": "outer_maritime_port",
         "ring": 7,
-        "name": "Outermost Ring VII / Iron Cothon Maritime Port Reserve",
+        "name": "Ring VII / Iron Cothon Outer Port",
         "inner_radius_m": 10700,
         "outer_radius_m": 13000,
         "envelope_area_km2_proposed": 171.25,
@@ -167,7 +167,8 @@
       "coastline_and_port_position": "unplaced_pending_author_approved_coast",
       "published_places_relocated": false,
       "planning_footprint_is_not_book_lock": true
-    }
+    },
+    "published_audit_v076": "res://data/magnara_published_city_audit_v076.json"
   },
   "nations": [
     {
