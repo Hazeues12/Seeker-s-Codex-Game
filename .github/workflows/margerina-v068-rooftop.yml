@@ -1,0 +1,138 @@
+name: Margerina V0.68 - Rooftop Freedom and Soul Aura Muti
+
+on:
+  push:
+    branches: [margerina-v068-rooftop-soul-muti-staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-roof-power:
+    runs-on: ubuntu-latest
+    timeout-minutes: 56
+    steps:
+      - name: Check out isolated V0.68 staging
+        uses: actions/checkout@v4
+        with:
+          ref: margerina-v068-rooftop-soul-muti-staging
+      - name: Audit code, published canon protections and spoiler-safe metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          meta=json.loads(Path('data/seeker_power_components_v068.json').read_text())
+          assert meta['concepts']['power_chain']==['Soul','Aura','Muti','Technique']
+          assert len(meta['concepts']['spokes'])==7
+          assert all(t['cast_policy']=='story_only' and not t['usable'] for t in meta['techniques'] if t['owner'] in ('kai_xander','rin_kairo'))
+          assert all(not item['secret_tags'] for item in meta['items'])
+          roster=json.loads(Path('data/seeker_character_registry_v065.json').read_text())
+          assert len(roster['canon_cast'])==64 and len(roster['civilian_roster'])==31
+          assert next(x for x in roster['canon_cast'] if x['id']=='rin_kairo')['spawn_policy']=='scripted_only'
+          scene=Path('scenes/main.tscn').read_text()
+          assert all(x in scene for x in ('MagnaraStreamedBlocksV067','MagnaraBusinessesV066','MagnaraPublicPulseV068'))
+          hub=Path('systems/hub_manager.gd').read_text()
+          player=Path('characters/player_controller.gd').read_text()
+          stream=Path('world/magnara_streamed_blocks_v067.gd').read_text()
+          assert 'PowerRulesV068.attempt' in hub
+          assert 'PowerRulesV068.attempt' in Path('systems/seven_spokes_training.gd').read_text()
+          assert 'pulse_v068_public' in hub and 'margerina_public_pulse_v068' in player
+          assert '_make_rooftop_network' in stream and 'V068RoofCollision' in stream
+          assert 'BaseMaterial3D.DIFFUSE_TOON' in stream
+          assert Path('docs/V068_ROOFTOP_SOUL_AURA_MUTI.md').is_file()
+          print('V0.68 GAME ENGINE CANON-SAFE POWER AND ROOFTOP SOURCE AUDIT PASS')
+          PY
+      - name: Install Godot 4.4.1 and Web templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+      - name: Import game and validate all scripts and start scene
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 180s godot --headless --path . --editor --import --quit 2>&1 | tee v068-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v068-import.log; then exit 1; fi
+          timeout 150s godot --headless --path . --quit-after 220 2>&1 | tee v068-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v068-startup.log; then exit 1; fi
+      - name: Audit jump-safe roof paths and four-layer power permissions
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v068-rules"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 140s godot --headless --path . res://tests/v068_roof_power_rules_scene.tscn --quit-after 580 2>&1 | tee v068-rules.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v068-rules.log; then exit 1; fi
+          grep -Fq 'V0.68 FIFTEEN PHYSICAL ROOF ROUTES SOUL AURA MUTI TECHNIQUE SEVEN SPOKES PRIVATE STORY GATES PASS' v068-rules.log
+      - name: Exercise real rooftop geometry, kiosk, and combat costs
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v068-world"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 165s godot --headless --path . res://tests/v068_roof_world_scene.tscn --quit-after 760 2>&1 | tee v068-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v068-world.log; then exit 1; fi
+          grep -Fq 'V0.68 PHYSICAL ROOF HOPS MODULAR CHUNK UNLOAD TOON HUD AURA VALIDATION PASS' v068-world.log
+      - name: Preserve V0.54-V0.67 existing city, 7 Spokes and game saves
+        shell: bash
+        run: |
+          set -euo pipefail
+          for item in \
+            'v067_stream_world:V0.67 STREAMING CHUNK UNLOAD RELOAD MODULAR MULTIMESH NPC LOD COLLISION CHAT PERSISTENCE PASS' \
+            'v066_business_world:V0.66 THREE PHYSICAL PUBLISHED BUSINESSES THIRTY-SEVEN SCHEDULED NPCS VERIFIED PURCHASES AND RELOAD PASS' \
+            'v065_population_world:V0.65 PHYSICAL TALKING BOAR 28 MOVING NPCS PUBLIC SQUAD GUILD SCHEDULE MEMORY PASS' \
+            'v064_civic_world:V0.64 THREE ENTERABLE CIVIC BUILDINGS INN CLINIC WORK AND PERSISTENT DAY CYCLE PASS' \
+            'v063_save_integrity:V0.63 VERIFIED BACKUP ATOMIC GAME SAVE AND INTERRUPTED-WRITE RECOVERY PASS' \
+            'v062_market_world:V0.62 ENTERABLE HOUSING STAFFED MARKET AND PERSISTENT TRADES PASS' \
+            'v061_workshop_world:V0.61 PHYSICAL WORKING STREETS SAFE EMPLOYMENT AND PERSISTENT WAGES PASS' \
+            'v054_geography:V0.54 KNOWN WORLD ATLAS AND 1:1 MAGNARA GEOGRAPHY PASS'; do
+            testfile="${item%%:*}"; expected="${item#*:}"
+            export XDG_DATA_HOME="$RUNNER_TEMP/v068-legacy-$testfile"
+            mkdir -p "$XDG_DATA_HOME"
+            timeout 160s godot --headless --path . "res://tests/${testfile}_scene.tscn" --quit-after 720 2>&1 | tee "${testfile}.log"
+            if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' "${testfile}.log"; then exit 1; fi
+            grep -Fq "$expected" "${testfile}.log"
+          done
+          export XDG_DATA_HOME="$RUNNER_TEMP/v068-old-spokes"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 120s godot --headless --path . res://tests/v046_muti_scene.tscn --quit-after 460 2>&1 | tee v046_muti.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v046_muti.log; then exit 1; fi
+      - name: Export Godot HTML5 for browser and iPhone
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          timeout 180s godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v068-export.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v068-export.log; then exit 1; fi
+          for ext in html js wasm pck; do test -s "build/web/index.${ext}"; done
+      - name: Upload tested game
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v068-rooftop-muti-web
+          path: build/web/
+          if-no-files-found: error
+      - name: Preserve diagnostics if tests fail
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v068-diagnostics
+          if-no-files-found: ignore
+          path: |
+            v068-import.log
+            v068-startup.log
+            v068-rules.log
+            v068-world.log
+            v067_stream_world.log
+            v066_business_world.log
+            v065_population_world.log
+            v064_civic_world.log
+            v063_save_integrity.log
+            v062_market_world.log
+            v061_workshop_world.log
+            v054_geography.log
+            v046_muti.log
+            v068-export.log
