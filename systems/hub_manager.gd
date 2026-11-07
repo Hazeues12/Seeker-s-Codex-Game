@@ -572,7 +572,9 @@ func _any_panel_open() -> bool:
     var outer_open: bool = is_instance_valid(outer_wards) and bool(outer_wards.call("is_open"))
     var maritime: Node = get_tree().get_first_node_in_group("v071_public_ocean")
     var maritime_open: bool = is_instance_valid(maritime) and bool(maritime.call("is_open"))
-    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or civic_open or population_open or shop_open or stream_open or pulse_open or seal_open or civic_director_open or carrier_open or trial_open or outer_open or maritime_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
+    var indoor: Node = get_tree().get_first_node_in_group("v072_enterable_wards")
+    var indoor_open: bool = is_instance_valid(indoor) and bool(indoor.call("is_open"))
+    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or civic_open or population_open or shop_open or stream_open or pulse_open or seal_open or civic_director_open or carrier_open or trial_open or outer_open or maritime_open or indoor_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
@@ -605,6 +607,20 @@ func _nearest_location() -> Dictionary:
             player.global_position.distance_to(closest["position"]) if not closest.is_empty() else best_distance)
         if not neighbor.is_empty():
             closest = neighbor
+    var doors: Node = get_tree().get_first_node_in_group("v072_enterable_wards")
+    if is_instance_valid(doors) and doors.has_method("get_nearest_interaction"):
+        var nearest_venue: Dictionary = doors.call("get_nearest_interaction",
+            player.global_position,
+            player.global_position.distance_to(closest["position"]) if not closest.is_empty() else best_distance)
+        if not nearest_venue.is_empty():
+            closest = nearest_venue
+    var sea: Node = get_tree().get_first_node_in_group("v071_public_ocean")
+    if is_instance_valid(sea) and sea.has_method("get_nearest_skiff_interaction"):
+        var boat: Dictionary = sea.call("get_nearest_skiff_interaction",
+            player.global_position,
+            player.global_position.distance_to(closest["position"]) if not closest.is_empty() else best_distance)
+        if not boat.is_empty():
+            closest = boat
     return closest
 
 
@@ -642,6 +658,14 @@ func _interact() -> void:
                 var expedition: Node = get_tree().get_first_node_in_group("multi_day_expedition_v050")
                 if is_instance_valid(expedition) and expedition.has_method("interact"):
                     expedition.call("interact", kind)
+            elif kind.begins_with("interior_v072_"):
+                var district_venue: Node = get_tree().get_first_node_in_group("v072_enterable_wards")
+                if is_instance_valid(district_venue):
+                    district_venue.call("interact",kind)
+            elif kind.begins_with("skiff_v072_"):
+                var boat_ocean: Node = get_tree().get_first_node_in_group("v071_public_ocean")
+                if is_instance_valid(boat_ocean):
+                    boat_ocean.call("interact",kind)
             elif kind.begins_with("ward_v071_"):
                 var district: Node = get_tree().get_first_node_in_group("v071_expanded_magnara")
                 if is_instance_valid(district) and district.has_method("interact"):
