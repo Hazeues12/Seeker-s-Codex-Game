@@ -73,7 +73,7 @@ func _civilian(parent: Node3D, title: String, at: Vector3, toward: Vector3,
     actor.rotation.y = atan2(-direction.x, -direction.z)
     actor.scale = Vector3.ONE * height_scale
     parent.add_child(actor)
-    actor.configure_civilian(coat, skin)
+    actor.configure_anime_civilian(coat, skin, posmod(title.hash(), 4))
     return actor
 
 func _picnic_prop(title: String, at: Vector3, size: Vector3, tint: Color) -> void:

@@ -107,7 +107,7 @@ func _build_cart() -> void:
     vendor.name = "CommonsBaker"
     vendor.scale = Vector3.ONE * 0.76
     cart.add_child(vendor)
-    vendor.configure_civilian(Color(0.63, 0.43, 0.24), Color(0.55, 0.38, 0.27))
+    vendor.configure_anime_civilian(Color(0.63, 0.43, 0.24), Color(0.55, 0.38, 0.27), 2)
 
 func refresh(tiles: Dictionary) -> void:
     if not enabled:

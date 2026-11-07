@@ -71,6 +71,37 @@ func _run() -> void:
     camera.look_at(player.global_position + Vector3.UP * 1.32)
     for frame in range(12):
         await get_tree().process_frame
+    var cart := visuals.get_node("CommonsCartV081")
+    var life := visuals.get_node("CommonsLifeV080")
+    var courtyard: Vector3 = cart.get("court")
+    game.get_node("HubManager").set("world_minutes", 1140.0)
+    player.global_position = courtyard + Vector3(0, 0.75, 3.0)
+    for tick in range(5):
+        game.get_node("MagnaraGeographyV054").call("_refresh_cells")
+        game.get_node("MagnaraSevenRingFoundationV074").call("_refresh_near")
+    visuals.call("_refresh_tiles")
+    var vendor: Rig = cart.get("vendor")
+    var poet: Rig = life.get("poet")
+    var family: Array = life.get("family")
+    if vendor == null or poet == null or family.size() != 3:
+        _fail("Commons cast failed to stream at the evening courtyard")
+        return
+    for civilian in [vendor, poet] + family:
+        var civilian_face := civilian.body_root.get_node("Head") as MeshInstance3D
+        if not civilian.anime_style or not civilian_face.material_override is ShaderMaterial \
+                or civilian.aura_gem.visible:
+            _fail("Commons civilian lacks anime materials or is wearing a Seeker insignia")
+            return
+    var data: Dictionary = visuals.get("decorated")
+    var layer: Node3D = data[Geo.cell_id(Geo.tile_index(courtyard))]["root"]
+    var paving := layer.get_node("V076CommonsParkGroundGPU") as MultiMeshInstance3D
+    if not paving.material_override is ShaderMaterial:
+        _fail("Commons ground is missing its painted grass and paving")
+        return
+    camera.global_position = courtyard + Vector3(9.0, 6.0, 10.5)
+    camera.look_at(courtyard + Vector3(0, 0.85, -0.5))
+    for frame in range(12):
+        await get_tree().process_frame
     print("V0.82 ANIME PLAYER FACE HULL POSE VFX AND PAINTED CANOPY PASS")
     if OS.has_feature("web"):
         await get_tree().create_timer(20.0).timeout

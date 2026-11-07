@@ -6,6 +6,7 @@ const Geo = preload("res://systems/known_world_geometry_v054.gd")
 const Rules = preload("res://systems/magnara_published_city_visual_rules_v076.gd")
 const CommonsLife = preload("res://world/magnara_commons_life_v080.gd")
 const CommonsCart = preload("res://world/magnara_commons_cart_v081.gd")
+const GROUND_SHADER = preload("res://shaders/commons_ground_v083.gdshader")
 const CANOPY_SHADER = preload("res://shaders/commons_canopy_v082.gdshader")
 const MAX_COMMONS_LIGHTS: int = 4
 const COMMONS_LIGHT_DISTANCE: float = 24.0
@@ -32,7 +33,7 @@ var dome_mesh: SphereMesh
 var material_masonry: StandardMaterial3D
 var material_glass: StandardMaterial3D
 var material_canopy: ShaderMaterial
-var material_ground: StandardMaterial3D
+var material_ground: ShaderMaterial
 
 func _ready() -> void:
     add_to_group("magnara_published_ring_visuals_v076")
@@ -62,7 +63,8 @@ func _setup() -> void:
     material_glass = _material(0.31,0.15)
     material_canopy = ShaderMaterial.new()
     material_canopy.shader = CANOPY_SHADER
-    material_ground = _material(0.97,0.0)
+    material_ground = ShaderMaterial.new()
+    material_ground.shader = GROUND_SHADER
     hub = get_tree().get_first_node_in_group("hub_manager")
     commons_life = CommonsLife.new()
     commons_life.name = "CommonsLifeV080"

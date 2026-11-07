@@ -39,19 +39,32 @@ func configure(look: String = "seeker") -> void:
 
 func configure_civilian(jacket: Color, skin: Color) -> void:
     configure("civilian")
+    _color_civilian(jacket, skin)
+
+func _color_civilian(jacket: Color, skin: Color) -> void:
     _color_clothes(jacket, jacket.darkened(0.33))
     for part in [body_root.get_node("Head"), body_root.get_node("Neck"),
             left_arm.get_node("LeftGlove"), right_arm.get_node("RightGlove")]:
-        (part.material_override as StandardMaterial3D).albedo_color = skin
+        _tint(part, skin)
     for part in [aura_gem, cape_trim, body_root.get_node("FaceBand"),
             left_arm.get_node("LeftTrim"), right_arm.get_node("RightTrim")]:
         part.hide()
 
 func configure_anime_player() -> void:
+    _configure_anime("seeker", 0)
+
+func configure_anime_civilian(jacket: Color, skin: Color, hair: int) -> void:
+    _configure_anime("civilian", hair)
+    _color_civilian(jacket, skin)
+    _tint(body_root.get_node("Nose"), skin)
+    for lapel in body_root.find_children("CoatLapel*", "MeshInstance3D", true, false):
+        _tint(lapel, jacket.lightened(0.14))
+
+func _configure_anime(look: String, hair: int) -> void:
     anime_style = true
     ink = ShaderMaterial.new()
     ink.shader = INK_SHADER
-    configure("seeker")
+    configure(look)
     anime_gem_scale = aura_gem.scale
     shoulder_drapes.append(_sphere(left_arm, "ShoulderDrape", Vector3(0.09, -0.08, 0),
         Vector3(0.18, 0.15, 0.164), Color(0.19, 0.32, 0.47)))
@@ -81,16 +94,20 @@ func configure_anime_player() -> void:
             Vector3(0.07, 0.40, 0.055), Color(0.65, 0.50, 0.29))
         lapel.rotation.z = side * -0.35
     var locks := _pivot(body_root, "AnimeLocks", Vector3.ZERO)
-    for index in range(5):
-        var x: float = float(index - 2) * 0.106
+    var hair_colors: Array[Color] = [Color(0.17, 0.14, 0.23), Color(0.30, 0.19, 0.17),
+        Color(0.21, 0.21, 0.25), Color(0.38, 0.25, 0.17)]
+    var hair_tint: Color = hair_colors[posmod(hair, hair_colors.size())]
+    var fringe_count: int = 3 if hair == 2 else 5
+    for index in range(fringe_count):
+        var x: float = (float(index) - float(fringe_count - 1) * 0.5) * 0.106
         var lock := _sphere(locks, "Fringe", Vector3(x, 2.37 - absf(x) * 0.38, -0.196),
-            Vector3(0.088, 0.163, 0.124), Color(0.17, 0.14, 0.23))
-        lock.rotation.z = -0.29 + x * 1.1
+            Vector3(0.088, 0.13 if hair == 2 else 0.163, 0.124), hair_tint)
+        lock.rotation.z = (0.30 if hair == 1 else -0.29) + x * 1.1
     _sphere(locks, "HairCap", Vector3(0, 2.365, 0.034), Vector3(0.335, 0.218, 0.295),
-        Color(0.13, 0.10, 0.19))
+        hair_tint.darkened(0.19))
     for side in [-1.0, 1.0]:
         var lock := _sphere(locks, "TempleLock", Vector3(side * 0.274, 2.265, 0.02),
-            Vector3(0.084, 0.19, 0.19), Color(0.14, 0.11, 0.20))
+            Vector3(0.084, 0.14 if hair == 2 else 0.19, 0.19), hair_tint.darkened(0.12))
         lock.rotation.z = side * 0.17
 
 func _tint(part: MeshInstance3D, color: Color) -> void:
@@ -173,7 +190,7 @@ func _box(parent: Node3D, node_name: String, at: Vector3, dimensions: Vector3, c
         primitive.size = dimensions
         item.mesh = primitive
     item.position = at
-    item.material_override = _anime_material(color, false, rounded) if anime_style else _material(color)
+    item.material_override = _anime_material(color, false, rounded and (appearance != "civilian" or node_name == "SeekerCoat")) if anime_style else _material(color)
     item.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
     parent.add_child(item)
     return item
@@ -184,8 +201,8 @@ func _sphere(parent: Node3D, node_name: String, at: Vector3, dimensions: Vector3
     var primitive := SphereMesh.new()
     primitive.radius = 0.5
     primitive.height = 1.0
-    primitive.radial_segments = 24 if anime_style else 10
-    primitive.rings = 12 if anime_style else 5
+    primitive.radial_segments = 24 if anime_style and appearance != "civilian" else 12
+    primitive.rings = 12 if anime_style and appearance != "civilian" else 5
     item.mesh = primitive
     if anime_style:
         if node_name == "Head":
