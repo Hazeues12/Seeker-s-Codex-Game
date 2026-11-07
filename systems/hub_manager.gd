@@ -516,7 +516,9 @@ func _any_panel_open() -> bool:
     var market_open: bool = is_instance_valid(market) and bool(market.call("is_open"))
     var civic_services: Node = get_tree().get_first_node_in_group("magnara_civic_v064")
     var civic_open: bool = is_instance_valid(civic_services) and bool(civic_services.call("is_open"))
-    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or civic_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
+    var population: Node = get_tree().get_first_node_in_group("magnara_population_v065")
+    var population_open: bool = is_instance_valid(population) and bool(population.call("is_open"))
+    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or civic_open or population_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
@@ -573,6 +575,10 @@ func _interact() -> void:
                 var expedition: Node = get_tree().get_first_node_in_group("multi_day_expedition_v050")
                 if is_instance_valid(expedition) and expedition.has_method("interact"):
                     expedition.call("interact", kind)
+            elif kind.begins_with("npc_v065_"):
+                var citizens: Node = get_tree().get_first_node_in_group("magnara_population_v065")
+                if is_instance_valid(citizens) and citizens.has_method("interact"):
+                    citizens.call("interact", kind)
             elif kind.begins_with("civic_v064_"):
                 var civic_service: Node = get_tree().get_first_node_in_group("magnara_civic_v064")
                 if is_instance_valid(civic_service) and civic_service.has_method("interact"):
