@@ -93,7 +93,7 @@ func _run() -> void:
     if Shop.staff_activity("lebells", 1350.0) != "late_night_service" or Shop.staff_activity("avicci", 1300.0) != "off_shift":
         _fail("distinct employee day/night service routines disappeared")
         return
-    if Shop.visitor_activity(3, 300.0) == Shop.visitor_activity(4, 300.0):
+    if Shop.visitor_activity(3, 100.0) == Shop.visitor_activity(4, 100.0):
         _fail("different shoppers have identical arrival patterns")
         return
     var invalid: Dictionary = Shop.sanitize_stock({"day:1:lebells": 3, "day:5:avicci": 2,
