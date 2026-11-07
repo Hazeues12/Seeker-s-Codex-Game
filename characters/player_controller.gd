@@ -262,6 +262,10 @@ func _physics_process(delta: float) -> void:
     if is_instance_valid(ocean) and ocean.has_method("surface_at"):
         water_read = ocean.call("surface_at",global_position)
     if water_read.is_empty():
+        var city: Node = get_tree().get_first_node_in_group("magnara_city_v052")
+        if is_instance_valid(city):
+            water_read = city.get_water_surface_at(global_position)
+    if water_read.is_empty():
         var river: Node = get_tree().get_first_node_in_group("janoah_approach_v055")
         if is_instance_valid(river) and river.has_method("get_water_surface_at"):
             water_read = river.call("get_water_surface_at",global_position)

@@ -261,7 +261,16 @@ jobs:
           timeout 165s godot --headless --path . res://tests/v073_local_freight_world_scene.tscn --quit-after 780 2>&1 | tee v0731-world.log
           if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v0731-world.log; then exit 1; fi
           grep -Fq 'V0.73 LIVE WAGON TO ROAD COURIER REAL SIX CRATES SAVED ONCE DELIVERY EVENING FAMILY AND ORIGINAL OCEAN PASS' v0731-world.log
-      - name: Run previous Ring VII and V0.73-V0.54 live city, sea, freight and combat regressions
+      - name: Walk the Ring Two canal crossings and reload an old save
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/ring-two-canal"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 145s godot --headless --path . res://tests/v077_ring_two_canal_world_scene.tscn --fixed-fps 60 --quit-after 850 2>&1 | tee v077-canal-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v077-canal-world.log; then exit 1; fi
+          grep -Fq 'V0.77 RING TWO CURRENT TWO WALKABLE BRIDGES SAFE CANAL EXITS AND OLD SAVES PASS' v077-canal-world.log
+      - name: Run previous Ring VII and V0.73-V0.53 live city, sea, freight and combat regressions
         shell: bash
         run: |
           set -euo pipefail
@@ -279,7 +288,8 @@ jobs:
             'v063_save_integrity:V0.63 VERIFIED BACKUP ATOMIC GAME SAVE AND INTERRUPTED-WRITE RECOVERY PASS' \
             'v062_market_world:V0.62 ENTERABLE HOUSING STAFFED MARKET AND PERSISTENT TRADES PASS' \
             'v061_workshop_world:V0.61 PHYSICAL WORKING STREETS SAFE EMPLOYMENT AND PERSISTENT WAGES PASS' \
-            'v054_geography:V0.54 KNOWN WORLD ATLAS AND 1:1 MAGNARA GEOGRAPHY PASS'; do
+            'v054_geography:V0.54 KNOWN WORLD ATLAS AND 1:1 MAGNARA GEOGRAPHY PASS' \
+            'v053_city:V0.53 SIX WALKABLE INTERIORS AND CONNECTED STREETS PASS'; do
             testfile="${item%%:*}"; expected="${item#*:}"
             export XDG_DATA_HOME="$RUNNER_TEMP/v073-legacy-$testfile"
             mkdir -p "$XDG_DATA_HOME"
@@ -345,7 +355,9 @@ jobs:
             v062_market_world.log
             v061_workshop_world.log
             v054_geography.log
+            v053_city.log
             v046_muti.log
+            v077-canal-world.log
             v076-world.log
             v076-rules.log
             v075-world.log

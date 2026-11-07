@@ -3,6 +3,11 @@ extends Node3D
 # V0.52 WORLD FIRST: four real streamed Ring Two wards around the V0.40 spine.
 # All block placements, interiors, street names and local bearings are GAME_ONLY.
 # Chapter 90 establishes the architecture and Seeker Quarters, not this street grid.
+const Geo = preload("res://systems/known_world_geometry_v054.gd")
+const Water = preload("res://systems/ocean_hydrodynamics_v071.gd")
+const CURRENT_SHADER = preload("res://shaders/margerina_river_currents_v071.gdshader")
+const CANAL_WATER_Y: float = -0.39
+const CANAL_BED_Y: float = -1.32
 const LOAD_RADIUS: float = 77.0
 const UNLOAD_RADIUS: float = 97.0
 const CELL_CENTERS: Dictionary = {
@@ -20,6 +25,8 @@ var box_cache: Dictionary = {}
 var clock: float = 0.0
 var tram: Node3D
 var tram_progress: float = 0.0
+var canal_material: ShaderMaterial
+var canal_seconds: float = 0.0
 
 func _ready() -> void:
     add_to_group("magnara_city_v052")
@@ -60,6 +67,9 @@ func _process(delta: float) -> void:
     if clock >= 0.55:
         clock = 0.0
         _refresh_cells()
+    if active_cells.has("west_public"):
+        canal_seconds += delta
+        canal_material.set_shader_parameter("flow_seconds", canal_seconds)
     if is_instance_valid(tram):
         tram_progress = fposmod(tram_progress + delta * 5.8, 380.0)
         var travel: float = tram_progress if tram_progress <= 190.0 else 380.0 - tram_progress
@@ -67,6 +77,18 @@ func _process(delta: float) -> void:
         tram.position.z = 70.1
         tram.rotation.y = 0.0 if tram_progress <= 190.0 else PI
         tram.visible = is_instance_valid(player) and player.global_position.distance_to(tram.global_position) < 95.0
+
+func get_water_surface_at(world_point: Vector3) -> Dictionary:
+    var canal: Rect2 = Geo.WEST_PUBLIC_CANAL
+    var at := Vector2(world_point.x, world_point.z)
+    if not active_cells.has("west_public") or not canal.has_point(at):
+        return {}
+    var offset: Vector2 = at - canal.get_center()
+    # The water mesh's local +Z runs along world +X.
+    return {
+        "height": Water.river_surface_y(-offset.y, offset.x, canal_seconds, CANAL_WATER_Y),
+        "flow_velocity": Vector3(Water.RIVER_FLOW_MPS, 0, 0),
+    }
 
 func _refresh_cells() -> void:
     if not is_instance_valid(player):
@@ -242,12 +264,70 @@ func _market(parent: Node3D, x: float, z: float, prefix: String) -> void:
             Color(0.31, 0.53, 0.62) if n % 2 == 0 else Color(0.65, 0.40, 0.28))
     _tag(parent, "MARKET WALK", Vector3(x, 3.5, z + 2.8), 26)
 
+func _slope(parent: Node3D, label: String, start: Vector3, end: Vector3,
+        width: float, tint: Color) -> void:
+    var travel: Vector3 = end - start
+    var pitch: float = -atan2(travel.y, travel.z)
+    var thickness: float = 0.20
+    var center: Vector3 = (start + end) * 0.5 - Basis(Vector3.RIGHT, pitch).y * thickness * 0.5
+    var ramp := _part(parent, label, center, Vector3(width, thickness, travel.length()), tint, true)
+    ramp.rotation.x = pitch
+
 func _bridge(parent: Node3D, x: float, z: float) -> void:
-    _part(parent, "IronFootbridgeDeck", Vector3(x, 0.80, z),
-        Vector3(8.1, 0.30, 8.6), Color(0.33, 0.36, 0.41), true)
+    var iron := Color(0.33, 0.36, 0.41)
+    _part(parent, "IronFootbridgeDeck", Vector3(x, 0.80, z), Vector3(8.1, 0.30, 7.0), iron, true)
+    _slope(parent, "IronBridgeApproach", Vector3(x, 0.68, z - 4.7),
+        Vector3(x, 0.95, z - 3.48), 8.1, iron)
+    _slope(parent, "IronBridgeApproach", Vector3(x, 0.95, z + 3.48),
+        Vector3(x, 0.50, z + 5.3), 8.1, iron)
     for side in [-1.0, 1.0]:
         _part(parent, "BridgeRail", Vector3(x + side * 3.88, 1.48, z),
-            Vector3(0.17, 1.16, 8.7), Color(0.40, 0.33, 0.29))
+            Vector3(0.17, 1.16, 7.0), Color(0.40, 0.33, 0.29), true)
+
+func _west_canal(parent: Node3D) -> void:
+    var bounds: Rect2 = Geo.WEST_PUBLIC_CANAL
+    var center: Vector2 = bounds.get_center()
+    var stone := Color(0.49, 0.54, 0.57)
+    _part(parent, "LowerCanalBed", Vector3(center.x, CANAL_BED_Y - 0.25, center.y),
+        Vector3(bounds.size.x, 0.50, bounds.size.y), Color(0.32, 0.43, 0.49), true)
+    for edge in [bounds.position.y - 0.15, bounds.end.y + 0.15]:
+        _part(parent, "CanalStoneBank", Vector3(center.x, (0.50 + CANAL_BED_Y) * 0.5, edge),
+            Vector3(bounds.size.x, 0.50 - CANAL_BED_Y, 0.30), stone, true)
+    if canal_material == null:
+        canal_material = ShaderMaterial.new()
+        canal_material.shader = CURRENT_SHADER
+        canal_material.set_shader_parameter("river_color", Color(0.06, 0.35, 0.60))
+        canal_material.set_shader_parameter("glint_color", Color(0.35, 0.80, 0.99))
+    var plane := PlaneMesh.new()
+    plane.size = Vector2(bounds.size.y, bounds.size.x)
+    plane.subdivide_width = 4
+    plane.subdivide_depth = 95
+    var surface := MeshInstance3D.new()
+    surface.name = "BlueResonanceCanalSurface"
+    surface.position = Vector3(center.x, CANAL_WATER_Y, center.y)
+    surface.rotation.y = PI * 0.5
+    surface.mesh = plane
+    surface.material_override = canal_material
+    surface.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+    parent.add_child(surface)
+    _bridge(parent, -62.0, center.y)
+    _bridge(parent, -88.0, center.y)
+    _slope(parent, "CanalAccessRamp", Vector3(-99.0, 0.50, bounds.position.y - 0.05),
+        Vector3(-99.0, CANAL_BED_Y, bounds.position.y + 3.85), 2.6, stone)
+    _slope(parent, "CanalAccessRamp", Vector3(-77.0, CANAL_BED_Y, bounds.end.y - 3.85),
+        Vector3(-77.0, 0.50, bounds.end.y + 0.05), 2.6, stone)
+
+func _street_strip(parent: Node3D, key: String, label: String, at: Vector3,
+        size: Vector3, tint: Color, solid: bool = false) -> void:
+    if key != "west_public":
+        _part(parent, label, at, size, tint, solid)
+        return
+    var canal: Rect2 = Geo.WEST_PUBLIC_CANAL
+    var north_edge: float = at.z - size.z * 0.5
+    var south_edge: float = at.z + size.z * 0.5
+    for span in [Vector2(north_edge, canal.position.y), Vector2(canal.end.y, south_edge)]:
+        _part(parent, label, Vector3(at.x, at.y, (span.x + span.y) * 0.5),
+            Vector3(size.x, size.y, span.y - span.x), tint, solid)
 
 func _build_cell(key: String, parent: Node3D) -> void:
     var center: Vector2 = CELL_CENTERS[key]
@@ -263,21 +343,13 @@ func _build_cell(key: String, parent: Node3D) -> void:
             Vector3(72.0, 1.0, 14.5), stone, true)
         _part(parent, "CanalSouthWalkableGround", Vector3(mx, 0.0, 60.25),
             Vector3(72.0, 1.0, 19.5), stone, true)
-        _part(parent, "LowerCanalBed", Vector3(mx, -0.96, 47.5),
-            Vector3(72.0, 0.50, 6.0), Color(0.32, 0.43, 0.49), true)
-        _part(parent, "BlueResonanceCanalSurface", Vector3(mx, -0.67, 47.5),
-            Vector3(72.0, 0.04, 6.0), Color(0.11, 0.48, 0.65), false, false, true)
-        for edge in [44.5, 50.5]:
-            _part(parent, "CanalStoneBank", Vector3(mx, 0.73, edge),
-                Vector3(72.0, 0.45, 0.30), Color(0.72, 0.70, 0.64))
-        _bridge(parent, -62.0, 47.5)
-        _bridge(parent, -88.0, 47.5)
+        _west_canal(parent)
     else:
         _part(parent, "WalkableCellGround", Vector3(mx, 0.0, cz),
             Vector3(72.0, 1.0, 40.0), stone, true)
     # Streets keep the old Magnara spine open and create real cross-city paths.
     var street_x: float = -62.0 if west else 62.0
-    _part(parent, "NorthSouthSeekerStreet", Vector3(street_x, 0.55, cz),
+    _street_strip(parent, key, "NorthSouthSeekerStreet", Vector3(street_x, 0.55, cz),
         Vector3(10.0, 0.09, 39.75), Color(0.73, 0.69, 0.62))
     _part(parent, "TransverseAvenue", Vector3(mx, 0.57, 69.25 if public else 71.0),
         Vector3(71.5, 0.06, 7.70), Color(0.69, 0.65, 0.59))
@@ -374,7 +446,7 @@ func _dress_ward(parent: Node3D, key: String, street_x: float) -> void:
     var street_inner_x: float = street_x + (8.15 if west else -8.15)
     # Continuous pavement outside the vehicle street; a safe pedestrian strip
     # from the north edge through the entire ward.
-    _part(parent, "ContinuousPedestrianPromenade",
+    _street_strip(parent, key, "ContinuousPedestrianPromenade",
         Vector3(street_inner_x, 0.58, start_z + 18.8),
         Vector3(2.65, 0.15, 37.6), sandstone, true)
     for n in range(7):

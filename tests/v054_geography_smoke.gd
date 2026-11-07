@@ -99,8 +99,8 @@ func _run() -> void:
         _fail("legacy district and adjacent terrain cells not streamed")
         return
     var home: Node3D = cells["0:0"]
-    var underlay: MeshInstance3D = home.find_child("OneToOneGround256m", true, false) as MeshInstance3D
-    if not is_instance_valid(underlay) or underlay.visible:
+    var underlay := home.get_node_or_null("RingTwoTerrainUnderlay") as StaticBody3D
+    if underlay == null or home.has_node("OneToOneGround256m"):
         _fail("legacy city floor overwritten by streamed terrain")
         return
     var connector: Node = home.find_child("OldCityToGeographyStreetConnector", true, false)

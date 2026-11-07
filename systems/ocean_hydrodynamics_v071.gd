@@ -72,10 +72,10 @@ static func buoyancy(local_x: float, local_z: float, seconds: float, wind: float
 static func water_drag(speed: float, fraction_submerged: float) -> float:
     return maxf(0.0,speed) * (1.0 - clampf(fraction_submerged,0.0,1.0)*0.19)
 
-static func river_surface_y(local_x: float, local_z: float, seconds: float) -> float:
-    # The V0.56 Janoah floodplain is an unconfirmed GAME-ONLY river. River
-    # ripples are smaller, directional and shallower than open ocean swells.
-    return -1.75 + 0.035 * sin(local_z * 0.27 - seconds * RIVER_FLOW_MPS) + \
+static func river_surface_y(local_x: float, local_z: float, seconds: float,
+        base_height: float = -1.75) -> float:
+    # Match the directional ripples in the shared river and canal material.
+    return base_height + 0.035 * sin(local_z * 0.27 - seconds * RIVER_FLOW_MPS) + \
         0.018 * sin(local_x * 0.43 + local_z * 0.14 - seconds * 0.70)
 
 static func in_ocean_tile(local_x: float, local_z: float) -> bool:

@@ -135,6 +135,30 @@ func _block(parent: Node3D, label: String, center: Vector3,
         body.add_child(collider)
     return node
 
+func _legacy_floor(parent: Node3D) -> void:
+    # The streamed underlay must leave the hand-built west canal open.
+    var half: float = Geo.CELL_SIZE * 0.5
+    var edge: float = Geo.CITY_CENTER.y - half
+    var far_edge: float = edge + Geo.CELL_SIZE
+    var canal: Rect2 = Geo.WEST_PUBLIC_CANAL
+    var ground := StaticBody3D.new()
+    ground.name = "RingTwoTerrainUnderlay"
+    parent.add_child(ground)
+    var strips: Array[Rect2] = [
+        Rect2(-half, edge, Geo.CELL_SIZE, canal.position.y - edge),
+        Rect2(-half, canal.end.y, Geo.CELL_SIZE, far_edge - canal.end.y),
+        Rect2(-half, canal.position.y, canal.position.x + half, canal.size.y),
+        Rect2(canal.end.x, canal.position.y, half - canal.end.x, canal.size.y),
+    ]
+    for strip in strips:
+        var center: Vector2 = strip.get_center()
+        var collider := CollisionShape3D.new()
+        collider.position = Vector3(center.x, 0.0, center.y)
+        var shape := BoxShape3D.new()
+        shape.size = Vector3(strip.size.x, 1.0, strip.size.y)
+        collider.shape = shape
+        ground.add_child(collider)
+
 func _tone(ring: int) -> Color:
     match ring:
         1: return Color(0.68, 0.66, 0.62)
@@ -180,14 +204,9 @@ func _build_tile(parent: Node3D, tile: Vector2i) -> void:
     var ring: int = Geo.ring_for_position(center)
     var color: Color = _tone(ring)
     # The legacy V0.33-V0.53 3D city owns its own visible surfaces near x=0.
-    # This tile supplies unseen supporting terrain beneath old geometry, but
-    # the terrain mesh is hidden so no duplicate floor causes visual z-fight.
-    var legacy_tile: bool = tile == Vector2i.ZERO
-    var ground := _block(parent, "OneToOneGround256m", center,
-        Vector3(Geo.CELL_SIZE, 1.0, Geo.CELL_SIZE),
-        color, true)
-    if legacy_tile:
-        ground.visible = false
+    # The legacy tile supplies collision support beneath hand-built geometry.
+    if tile == Vector2i.ZERO:
+        _legacy_floor(parent)
         # Street link between V0.53's east-west avenue (x +/- 106) and
         # the new 256 m grid whose adjacent tile begins at x +/- 128.
         for side in [-1.0, 1.0]:
@@ -196,6 +215,8 @@ func _build_tile(parent: Node3D, tile: Vector2i) -> void:
                 Vector3(33.0, 0.075, 8.0),
                 Color(0.69, 0.65, 0.59))
         return
+    _block(parent, "OneToOneGround256m", center,
+        Vector3(Geo.CELL_SIZE, 1.0, Geo.CELL_SIZE), color, true)
     var road := Color(0.70, 0.68, 0.62) if ring < 5 else Color(0.55, 0.55, 0.54)
     _block(parent, "OneToOneEastWestStreet", center + Vector3(0, 0.55, 0),
         Vector3(Geo.CELL_SIZE, 0.09, 10.0), road)

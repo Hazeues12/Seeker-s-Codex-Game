@@ -4,6 +4,8 @@ extends RefCounted
 const CELL_SIZE: float = 256.0
 const CITY_CENTER: Vector2 = Vector2(-1700.0, 70.0)
 const CITY_RADIUS_M: float = 13000.0
+# Existing Ring II west public canal footprint in provisional game coordinates.
+const WEST_PUBLIC_CANAL: Rect2 = Rect2(-106.0, 44.5, 72.0, 6.0)
 const OUTER_BOUNDS_M: Array[float] = [
     1000.0, 2600.0, 4700.0, 6500.0, 8700.0, 10700.0, 13000.0
 ]

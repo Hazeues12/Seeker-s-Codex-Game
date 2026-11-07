@@ -215,22 +215,27 @@ func _run() -> void:
         return
     var saved: Dictionary = Integrity.load_best().get("data",{})
     var coords: Array = saved.get("position",[])
-    if coords.size() != 3 or float(coords[0]) > 80 or float(coords[0]) < -80:
-        _fail("temporary harbor saved 25km of unapproved geography into permanent character position")
+    if coords.size() != 3 or not Vector3(coords[0], coords[1], coords[2]).is_equal_approx(sign):
+        _fail("saving in the temporary harbor didn't preserve the city return point")
         return
 
     harbor.call("_leave")
-    await get_tree().process_frame
+    if not player.global_position.is_equal_approx(sign) or not player.velocity.is_zero_approx():
+        _fail("public harbor preview didn't immediately restore the saved street position and stop movement")
+        return
+
+    # The capsule can fall to street level after the teleport. Check the
+    # settled landing on physics ticks, independent of render frame timing.
+    for tick in range(32):
+        await get_tree().physics_frame
     if bool(harbor.call("is_active")) or harbor.get_manifest().get("loaded_visual_ocean",true) \
             or (harbor.get("ship_bodies") as Array).size() != 0:
         _fail("far ocean ships and water stay loaded after return to Magnara")
         return
-    if player.global_position.distance_to(sign) > 0.01:
-        _fail("public harbor preview doesn't return to accurate safe street" \
-            + " actual="+str(player.global_position) \
-            + " expected="+str(sign) \
-            + " cached="+str(harbor.get("return_position")) \
-            + " velocity="+str(player.velocity))
+    var landing: Vector3 = player.global_position
+    if not player.is_on_floor() or absf(landing.y - sign.y) > 0.5 \
+            or Vector2(landing.x, landing.z).distance_to(Vector2(sign.x, sign.z)) > 0.01:
+        _fail("public harbor preview didn't settle on the street at the survey counter: " + str(landing))
         return
 
     # At the old V0.56 Janoah river, the exact physical river
