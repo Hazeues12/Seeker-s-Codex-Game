@@ -1,6 +1,7 @@
 extends CharacterBody3D
 
 const SeekerRigScript = preload("res://characters/procedural_seeker.gd")
+const Posture = preload("res://combat/triad_posture_rules_v069.gd")
 
 # V0.36 procedural sparring AI. Keeps the V0.35 arena signal/API contract.
 signal attack_connected(damage: int)
@@ -23,6 +24,8 @@ var spawn_point: Vector3
 var display_name: String = "Sparring Construct"
 var style: String = "guardian"
 var health: int = MAX_HEALTH
+var posture: float = 65.0
+var posture_break_time: float = 0.0
 var active: bool = true
 var state: String = "patrol"
 var state_timer: float = 0.0
@@ -133,6 +136,9 @@ func _physics_process(delta: float) -> void:
     state_timer = maxf(0.0, state_timer - delta)
     guard_cooldown = maxf(0.0, guard_cooldown - delta)
     flank_cooldown = maxf(0.0, flank_cooldown - delta)
+    posture_break_time = maxf(0.0, posture_break_time - delta)
+    if posture_break_time <= 0.0:
+        posture = minf(65.0, Posture.recover(posture, delta))
     var toward: Vector3 = target_player.global_position - global_position
     toward.y = 0.0
     var distance: float = toward.length()
@@ -244,6 +250,23 @@ func _walk_toward(destination: Vector3, speed: float) -> void:
     velocity.x = step.x
     velocity.z = step.z
 
+# Common physical guard-pressure used by controlled practice constructs.
+# Construct posture is NOT the rare Steel (Kōshin) Will discipline.
+func receive_posture_damage(pressure: float, attacker_position: Vector3 = Vector3.ZERO) -> bool:
+    if not active or not is_finite(pressure) or pressure <= 0.0:
+        return false
+    var impact: Dictionary = Posture.posture_hit(posture, pressure, state == "guard", false)
+    if not bool(impact.get("valid", false)):
+        return false
+    posture = float(impact["remaining"])
+    if bool(impact["break"]):
+        posture_break_time = 1.7
+        state = "stagger"
+        state_timer = maxf(state_timer, 1.70)
+        velocity = Vector3.ZERO
+    _update_label()
+    return bool(impact["break"])
+
 # Psychic training demonstration: interrupts current action; no permanent control.
 func apply_psychic_disruption(duration: float) -> void:
     if not active:
@@ -258,7 +281,12 @@ func take_strike(damage: int, attacker_position: Vector3) -> bool:
         return false
     var blocked: bool = state == "guard"
     var actual_damage: int = maxi(1, int(round(float(damage) * 0.35))) if blocked else damage
+    if posture_break_time > 0.0:
+        actual_damage = maxi(1, int(round(float(actual_damage) * Posture.CRITICAL_MULTIPLIER)))
+        posture_break_time = 0.0
     health = maxi(0, health - actual_damage)
+    if health > 0:
+        receive_posture_damage(float(damage) * 0.95, attacker_position)
     if adaptive_field:
         var now_ms: int = Time.get_ticks_msec()
         rapid_hits = rapid_hits + 1 if now_ms - last_hit_ms < 1400 else 1
@@ -308,6 +336,8 @@ func reset_construct() -> void:
     rapid_hits = 0
     last_hit_ms = -10000
     health = MAX_HEALTH
+    posture = 65.0
+    posture_break_time = 0.0
     active = true
     state = "patrol"
     state_timer = 0.0
@@ -320,4 +350,4 @@ func reset_construct() -> void:
 
 func _update_label() -> void:
     if is_instance_valid(status_tag):
-        status_tag.text = "%s   %d/%d HP" % [display_name, health, MAX_HEALTH]
+        status_tag.text = "%s  %d/%d HP  |  P %d" % [display_name, health, MAX_HEALTH, int(posture)]
