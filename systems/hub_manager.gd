@@ -533,7 +533,9 @@ func _any_panel_open() -> bool:
     var shop_open: bool = is_instance_valid(shop_service) and bool(shop_service.call("is_open"))
     var stream: Node = get_tree().get_first_node_in_group("magnara_streamed_blocks_v067")
     var stream_open: bool = is_instance_valid(stream) and bool(stream.call("is_open"))
-    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or civic_open or population_open or shop_open or stream_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
+    var daily_pulse: Node = get_tree().get_first_node_in_group("margerina_public_pulse_v068")
+    var pulse_open: bool = is_instance_valid(daily_pulse) and bool(daily_pulse.call("is_open"))
+    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or civic_open or population_open or shop_open or stream_open or pulse_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
@@ -597,6 +599,10 @@ func _interact() -> void:
                 var expedition: Node = get_tree().get_first_node_in_group("multi_day_expedition_v050")
                 if is_instance_valid(expedition) and expedition.has_method("interact"):
                     expedition.call("interact", kind)
+            elif kind == "pulse_v068_public":
+                var news: Node = get_tree().get_first_node_in_group("margerina_public_pulse_v068")
+                if is_instance_valid(news) and news.has_method("interact"):
+                    news.call("interact", kind)
             elif kind.begins_with("street_v067_"):
                 var northern: Node = get_tree().get_first_node_in_group("magnara_streamed_blocks_v067")
                 if is_instance_valid(northern) and northern.has_method("interact"):
