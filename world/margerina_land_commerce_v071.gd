@@ -2,6 +2,8 @@ extends Node3D
 # V0.71 physical wagons on existing public roads, but "Janoah to X"
 # manifests represent proposed gameplay cargo networks ONLY; routes don't
 # physically jump national borders or claim canonical foreign cargo volume.
+# Existing goods pads are inland Ring II street-side points; they are not
+# the real main maritime docks, which the author placed in outermost Ring VII.
 const Trade = preload("res://systems/margerina_commerce_rules_v071.gd")
 const LocalFreightV073 = preload("res://systems/magnara_local_logistics_rules_v073.gd")
 var hub: Node
@@ -64,7 +66,7 @@ func _build_waypoints() -> void:
             Vector3(2.5,1.05,2.3),Color(0.54,0.41,0.30),true)
         var sign := Label3D.new()
         sign.name = "V071LandFreightMarker"
-        sign.text = "PUBLIC FREIGHT / LOCAL TRANSFER / GAME-ONLY ROUTES"
+        sign.text = "RING II INLAND FREIGHT / LAND WAGONS / LOCAL TRANSFER"
         sign.position = Vector3(13.0,3.45,z)
         sign.font_size = 24
         sign.pixel_size = 0.0042
@@ -106,7 +108,9 @@ func get_manifest() -> Dictionary:
         "real_world_shipment_across_borders":false,
         "country_labels_game_only":true,
         "real_physical_vehicle_colliders":true,
-        "preserves_original_rail_trolley":true}
+        "preserves_original_rail_trolley":true,
+        "street_transfers_ring":2,"major_ocean_port_ring":7,
+        "deepwater_docks_here":false}
 
 func _physics_process(delta: float) -> void:
     if not initialized:
@@ -119,7 +123,9 @@ func _physics_process(delta: float) -> void:
         body.global_position = state["pos"]
         body.rotation.y = PI if str(state["activity"]) == "city_bound" else 0.0
         # The existing physical wagon route triggers a consignment only
-        # after actually crossing the end-of-road northern freight depot.
+        # after actually crossing the end-of-road northern INLAND depot.
+        # Compatibility method called _register_wagon_dock is a road arrival
+        # event, not a sea vessel or canal landing.
         # No shipment is invented by loading the game, by opening a menu,
         # or by visually hiding the wagon with mobile LOD.
         var now_z: float = float((state["pos"] as Vector3).z)
