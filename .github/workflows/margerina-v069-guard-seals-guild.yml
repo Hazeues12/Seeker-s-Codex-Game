@@ -1,0 +1,141 @@
+name: Margerina V0.69 - Triad Seals Guild and Rooftop Freedom
+
+on:
+  push:
+    branches: [margerina-v069-will-seals-guild-staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-public-guard-and-city:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - name: Checkout isolated V0.69 staging
+        uses: actions/checkout@v4
+        with:
+          ref: margerina-v069-will-seals-guild-staging
+      - name: Check canon permissions and scene integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          scene=Path('scenes/main.tscn').read_text()
+          required=['SealTrainingBenchV069','PublicGuildDirectorV069','MagnaraLegacyRoofwaysV069','MagnaraStreamedBlocksV067','MagnaraBusinessesV066']
+          assert all(x in scene for x in required)
+          hub=Path('systems/hub_manager.gd').read_text()
+          player=Path('characters/player_controller.gd').read_text()
+          assert all(x in hub for x in ['guild_director_v069','seal_v069_practice','guild_v069_','_save_game'])
+          assert all(x in player for x in ['parry_age','guard_held_last_frame','v069_public_seals','v069_public_director'])
+          triad=Path('combat/triad_posture_rules_v069.gd').read_text()
+          assert '"Gold"' in triad and '"Grand"' in triad and 'creator_gate' in triad
+          assert 'on_impact' in Path('combat/combat_arena.gd').read_text()
+          assert 'receive_posture_damage' in Path('combat/sparring_construct.gd').read_text()
+          seals=Path('systems/alchemic_seal_rules_v069.gd').read_text()
+          assert 'MAX_STEPS: int = 3' in seals and 'eval(' not in seals
+          jobs=Path('systems/guild_public_director_v069.gd').read_text()
+          assert '"shop_watch"' in jobs and 'receipt_key' in jobs
+          assert 'Phantom Tola' not in Path('world/public_guild_director_v069.gd').read_text().split('func _make_board')[1]
+          roster=json.loads(Path('data/seeker_character_registry_v065.json').read_text())
+          assert len(roster['canon_cast'])==64 and len(roster['civilian_roster'])==31
+          assert next(x for x in roster['canon_cast'] if x['id']=='rin_kairo')['spawn_policy']=='scripted_only'
+          assert Path('docs/V069_TRIAD_SEALS_PUBLIC_GUILD_ROOFWAYS.md').is_file()
+          print('V0.69 TRIAD SEALS PUBLIC DIRECTOR CANON BOUNDARIES AND UI SOURCE AUDIT PASS')
+          PY
+      - name: Install Godot 4.4.1 and HTML5 templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+      - name: Import all scripts and boot full game
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 180s godot --headless --path . --editor --import --quit 2>&1 | tee v069-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v069-import.log; then exit 1; fi
+          timeout 150s godot --headless --path . --quit-after 220 2>&1 | tee v069-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v069-startup.log; then exit 1; fi
+      - name: Validate lore rank gates, safe alchemic runtime and public contract receipts
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v069-rules"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 135s godot --headless --path . res://tests/v069_will_seals_guild_rules_scene.tscn --quit-after 600 2>&1 | tee v069-rules.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v069-rules.log; then exit 1; fi
+          grep -Fq 'V0.69 TRIAD GOLD GRAND GATES POSTURE PARRY FINITE SEAL DIRECTOR DAILY CONTRACT RULES PASS' v069-rules.log
+      - name: Test real postures, 4 legacy rooftop paths, seal wards and one-time rewards
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v069-world"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 165s godot --headless --path . res://tests/v069_will_seals_guild_world_scene.tscn --quit-after 780 2>&1 | tee v069-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v069-world.log; then exit 1; fi
+          grep -Fq 'V0.69 REAL GUARD PARRY PHYSICAL ROOFWAYS PROGRAMMABLE WARD AND VERIFIED GUILD PAYOUT PASS' v069-world.log
+      - name: Run V0.54-V0.68 prior scenes and Seven Spokes regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          for item in \
+            'v068_roof_world:V0.68 PHYSICAL ROOF HOPS MODULAR CHUNK UNLOAD TOON HUD AURA VALIDATION PASS' \
+            'v067_stream_world:V0.67 STREAMING CHUNK UNLOAD RELOAD MODULAR MULTIMESH NPC LOD COLLISION CHAT PERSISTENCE PASS' \
+            'v066_business_world:V0.66 THREE PHYSICAL PUBLISHED BUSINESSES THIRTY-SEVEN SCHEDULED NPCS VERIFIED PURCHASES AND RELOAD PASS' \
+            'v065_population_world:V0.65 PHYSICAL TALKING BOAR 28 MOVING NPCS PUBLIC SQUAD GUILD SCHEDULE MEMORY PASS' \
+            'v064_civic_world:V0.64 THREE ENTERABLE CIVIC BUILDINGS INN CLINIC WORK AND PERSISTENT DAY CYCLE PASS' \
+            'v063_save_integrity:V0.63 VERIFIED BACKUP ATOMIC GAME SAVE AND INTERRUPTED-WRITE RECOVERY PASS' \
+            'v062_market_world:V0.62 ENTERABLE HOUSING STAFFED MARKET AND PERSISTENT TRADES PASS' \
+            'v061_workshop_world:V0.61 PHYSICAL WORKING STREETS SAFE EMPLOYMENT AND PERSISTENT WAGES PASS' \
+            'v054_geography:V0.54 KNOWN WORLD ATLAS AND 1:1 MAGNARA GEOGRAPHY PASS'; do
+            testfile="${item%%:*}"; expected="${item#*:}"
+            export XDG_DATA_HOME="$RUNNER_TEMP/v069-legacy-$testfile"
+            mkdir -p "$XDG_DATA_HOME"
+            timeout 145s godot --headless --path . "res://tests/${testfile}_scene.tscn" --quit-after 700 2>&1 | tee "${testfile}.log"
+            if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' "${testfile}.log"; then exit 1; fi
+            grep -Fq "$expected" "${testfile}.log"
+          done
+          export XDG_DATA_HOME="$RUNNER_TEMP/v069-muti"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 120s godot --headless --path . res://tests/v046_muti_scene.tscn --quit-after 500 2>&1 | tee v046_muti.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v046_muti.log; then exit 1; fi
+      - name: Export playable HTML5 browser game
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          timeout 180s godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v069-export.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v069-export.log; then exit 1; fi
+          for ext in html js wasm pck; do test -s "build/web/index.${ext}"; done
+      - name: Upload playable candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v069-guard-seals-guild-web
+          path: build/web/
+          if-no-files-found: error
+      - name: Upload diagnostics if failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v069-debug
+          if-no-files-found: ignore
+          path: |
+            v069-import.log
+            v069-startup.log
+            v069-rules.log
+            v069-world.log
+            v068_roof_world.log
+            v067_stream_world.log
+            v066_business_world.log
+            v065_population_world.log
+            v064_civic_world.log
+            v063_save_integrity.log
+            v062_market_world.log
+            v061_workshop_world.log
+            v054_geography.log
+            v046_muti.log
+            v069-export.log
