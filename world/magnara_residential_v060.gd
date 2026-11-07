@@ -152,14 +152,7 @@ func _make_resident(id: String, index: int) -> void:
     add_child(actor)
     var coat: Color = Color(0.52, 0.43, 0.34) if index == 0 else (
         Color(0.35, 0.49, 0.59) if index == 1 else Color(0.51, 0.58, 0.39))
-    _box(actor, "ResidentBody", Vector3(0, 1.21, 0), Vector3(0.65, 0.96, 0.36), coat)
-    _box(actor, "ResidentHead", Vector3(0, 1.98, 0), Vector3(0.41, 0.47, 0.41), Color(0.61, 0.47, 0.38))
-    _box(actor, "ResidentHair", Vector3(0, 2.25, 0.04), Vector3(0.46, 0.17, 0.47), Color(0.22, 0.23, 0.24))
-    for side in [-1.0, 1.0]:
-        _box(actor, "ResidentLeg", Vector3(side * 0.18, 0.43, 0),
-            Vector3(0.20, 0.82, 0.27), Color(0.30, 0.34, 0.36))
-        _box(actor, "ResidentArm", Vector3(side * 0.42, 1.28, 0),
-            Vector3(0.19, 0.75, 0.25), coat)
+    TownspersonVisual.add_to(actor, id, index % 2, coat)
     _tag(actor, Rules.name_for(id).to_upper() + " / TALK", Vector3(0, 2.9, 0))
     hub.call("_add_location", "npc_v060_" + id, Rules.name_for(id), actor.global_position, actor)
     residents[id] = actor

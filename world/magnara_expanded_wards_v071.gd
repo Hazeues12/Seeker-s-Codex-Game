@@ -279,6 +279,7 @@ func _build(cell: Vector2i) -> void:
     for i in range(Rules.PEOPLE):
         residents.append(Rules.resident(cell,i))
     var batch: MultiMesh = crowd.multimesh
+    batch.mesh = TownspersonVisual.mid_mesh()
     batch.instance_count = Rules.PEOPLE
     batch.visible_instance_count = 0
     active_chunks[id] = {"cell":cell,"node":chunk,"parcels":parcels,
@@ -328,10 +329,7 @@ func _make_citizen(root: Node3D, record: Dictionary) -> Node3D:
     person.name = "V071Citizen_"+id
     person.add_to_group("v071_public_resident")
     root.add_child(person)
-    var shade: Color = Rules.COLORS[posmod(id.hash(),Rules.COLORS.size())]
-    _box(person,"V071CitizenTorso",Vector3(0,1.1,0),Vector3(0.57,0.87,0.38),shade)
-    _box(person,"V071CitizenFace",Vector3(0,1.77,0),Vector3(0.34,0.35,0.32),Color(0.70,0.54,0.42))
-    _box(person,"V071CitizenFeet",Vector3(0,0.41,0),Vector3(0.41,0.65,0.35),shade.darkened(0.36))
+    TownspersonVisual.add_to(person, id).set_motion(0.65)
     var body := StaticBody3D.new()
     person.add_child(body)
     var collision := CollisionShape3D.new()
@@ -368,6 +366,9 @@ func _refresh_crowds() -> void:
                 if not close_models.has(id):
                     _make_citizen(root,record)
                 var actor: Node3D = close_models[id]
+                var travel: Vector3 = at - actor.global_position
+                if absf(travel.z) > 0.025:
+                    actor.rotation.y = PI if travel.z > 0.0 else 0.0
                 actor.position = at-root.global_position
                 actor.set_meta("public_activity",str(state["activity"]))
                 result["close"] = int(result["close"])+1
@@ -375,10 +376,10 @@ func _refresh_crowds() -> void:
                 _remove_close(id)
                 if tier == "mid":
                     multimesh.set_instance_transform(visible_mid,Transform3D(
-                        Basis.IDENTITY.scaled(Vector3(0.52,1.50,0.40)),
-                        at-root.global_position+Vector3(0,1.04,0)))
+                        Basis.IDENTITY.scaled(TownspersonVisual.mid_scale(id)),
+                        at-root.global_position))
                     multimesh.set_instance_color(visible_mid,
-                        Rules.COLORS[posmod(i+cell.y,Rules.COLORS.size())])
+                        TownspersonVisual.coat_for(id))
                     visible_mid += 1
                     result["mid"] = int(result["mid"])+1
                 else:

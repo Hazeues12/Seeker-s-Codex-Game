@@ -1,6 +1,5 @@
 extends Node3D
 
-const CivilianRig = preload("res://characters/procedural_seeker.gd")
 const ACQUIRE_DISTANCE: float = 38.0
 const RELEASE_DISTANCE: float = 48.0
 const PLACE: String = "Magnara / Ring Three / The Commons"
@@ -16,14 +15,13 @@ var hub: Node
 var active_tile: String = ""
 var picnic: Node3D
 var reading: Node3D
-var family: Array[CivilianRig] = []
-var poet: CivilianRig
+var family: Array[TownspersonVisual] = []
+var poet: TownspersonVisual
 
 func _ready() -> void:
     add_to_group("magnara_commons_life_v080")
     set_meta("canon_status", "game_only")
     hide()
-    set_process(false)
 
 func configure(hero: CharacterBody3D, city_hub: Node) -> void:
     player = hero
@@ -38,22 +36,23 @@ func _build_gathering() -> void:
     _picnic_prop("FoodBasket", mat_center + Vector3(0.0, 0.17, 0.05),
         Vector3(0.56, 0.30, 0.37), Color(0.62, 0.40, 0.24))
     family.append(_civilian(picnic, "PicnicGuestOne", Vector3(5.5, 0.72, 0.75), mat_center,
-        0.74, Color(0.32, 0.52, 0.48), Color(0.65, 0.46, 0.33)))
+        TownspersonVisual.Form.WOMAN, Color(0.32, 0.52, 0.48), Color(0.65, 0.46, 0.33)))
     family.append(_civilian(picnic, "PicnicGuestTwo", Vector3(7.5, 0.72, 0.60), mat_center,
-        0.76, Color(0.66, 0.48, 0.25), Color(0.50, 0.33, 0.25)))
+        TownspersonVisual.Form.MAN, Color(0.66, 0.48, 0.25), Color(0.50, 0.33, 0.25)))
     family.append(_civilian(picnic, "YoungPicnicGuest", Vector3(7.15, 0.72, 2.40), mat_center,
-        0.50, Color(0.52, 0.40, 0.59), Color(0.58, 0.40, 0.29)))
+        TownspersonVisual.Form.CHILD, Color(0.52, 0.40, 0.59), Color(0.58, 0.40, 0.29)))
     for guest in family:
-        guest.animate_state(0.1, 0.0, false, "picnic")
+        guest.set_motion(0.0, "sit")
 
     reading = Node3D.new()
     reading.name = "OpenSquareReading"
     add_child(reading)
     var poet_position := Vector3(2.85, 0.75, -1.45)
     var audience_side := Vector3(2.15, 0.75, 1.50)
-    poet = _civilian(reading, "PublicPoet", poet_position, audience_side, 0.78,
+    poet = _civilian(reading, "PublicPoet", poet_position, audience_side, TownspersonVisual.Form.MAN,
         Color(0.35, 0.41, 0.59), Color(0.72, 0.54, 0.40))
-    _civilian(reading, "PoetryListener", audience_side, poet_position, 0.74,
+    poet.set_motion(0.0, "recite")
+    _civilian(reading, "PoetryListener", audience_side, poet_position, TownspersonVisual.Form.WOMAN,
         Color(0.59, 0.39, 0.34), Color(0.45, 0.31, 0.22))
     var sign := Label3D.new()
     sign.text = "COMMONS READING"
@@ -65,15 +64,12 @@ func _build_gathering() -> void:
     reading.add_child(sign)
 
 func _civilian(parent: Node3D, title: String, at: Vector3, toward: Vector3,
-        height_scale: float, coat: Color, skin: Color) -> CivilianRig:
-    var actor := CivilianRig.new()
+        form: TownspersonVisual.Form, coat: Color, skin: Color) -> TownspersonVisual:
+    var actor := TownspersonVisual.add_to(parent, title, form, coat, skin)
     actor.name = title
     actor.position = at
     var direction: Vector3 = toward - at
     actor.rotation.y = atan2(-direction.x, -direction.z)
-    actor.scale = Vector3.ONE * height_scale
-    parent.add_child(actor)
-    actor.configure_anime_civilian(coat, skin, posmod(title.hash(), 4))
     return actor
 
 func _picnic_prop(title: String, at: Vector3, size: Vector3, tint: Color) -> void:
@@ -101,7 +97,6 @@ func refresh(tiles: Dictionary) -> void:
     if not picnic_time and not reading_time:
         active_tile = ""
         hide()
-        set_process(false)
         return
 
     var point: Vector3 = player.global_position
@@ -122,21 +117,12 @@ func refresh(tiles: Dictionary) -> void:
 
     if active_tile.is_empty():
         hide()
-        set_process(false)
         return
     if picnic == null:
         _build_gathering()
     picnic.visible = picnic_time
     reading.visible = reading_time
     show()
-    set_process(true)
-
-func _process(delta: float) -> void:
-    if picnic.visible:
-        for guest in family:
-            guest.animate_state(delta, 0.0, false, "picnic")
-    if reading.visible:
-        poet.animate_state(delta, 0.0, false, "recite")
 
 func get_nearest_interaction(point: Vector3, reach: float) -> Dictionary:
     if not visible or not reading.visible or not is_instance_valid(hub):

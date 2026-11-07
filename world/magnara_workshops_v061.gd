@@ -181,17 +181,7 @@ func _make_worker(id: String, index: int) -> void:
     add_child(actor)
     var coat := Color(0.39, 0.49, 0.58) if index == 0 else (
         Color(0.65, 0.53, 0.39) if index == 1 else Color(0.42, 0.47, 0.37))
-    _part(actor, "WorkmanTorso", Vector3(0, 1.35, 0),
-        Vector3(0.72, 0.96, 0.43), coat)
-    _part(actor, "WorkmanHead", Vector3(0, 2.12, 0),
-        Vector3(0.47, 0.53, 0.44), Color(0.60, 0.48, 0.37))
-    _part(actor, "WorkmanHat", Vector3(0, 2.45, 0),
-        Vector3(0.68, 0.18, 0.58), Color(0.29, 0.35, 0.38))
-    for side in [-1.0, 1.0]:
-        _part(actor, "WorkmanLeg", Vector3(side * 0.19, 0.44, 0),
-            Vector3(0.22, 0.85, 0.27), Color(0.25, 0.31, 0.32))
-        _part(actor, "WorkmanArm", Vector3(side * 0.45, 1.35, 0),
-            Vector3(0.2, 0.76, 0.28), coat)
+    TownspersonVisual.add_to(actor, id, index % 2, coat)
     hub.call("_add_location", "npc_v061_" + id, Rules.job_label(id) + " Worker", actor.global_position, actor)
     workers[id] = actor
 

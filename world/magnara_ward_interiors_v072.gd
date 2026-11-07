@@ -147,12 +147,7 @@ func _site(key: String, chunk: Node3D, cell: Vector2i) -> void:
     staff.add_to_group("v072_game_only_employee")
     staff.position = (spec["staff_world"] as Vector3)-Ward.origin(cell)
     building.add_child(staff)
-    _block(staff,"V072Uniform",Vector3(0,1.02,0),
-        Vector3(0.55,0.87,0.35),Color(0.28,0.37,0.46),false)
-    _block(staff,"V072Head",Vector3(0,1.69,0),
-        Vector3(0.35,0.38,0.32),Color(0.65,0.50,0.40),false)
-    _block(staff,"V072Shoes",Vector3(0,0.40,0),
-        Vector3(0.47,0.55,0.39),Color(0.22,0.24,0.28),false)
+    TownspersonVisual.add_to(staff, str(Ward.resident(cell, 11)["id"]))
     var employee_collision := StaticBody3D.new()
     employee_collision.name = "V072EmployeeBody"
     staff.add_child(employee_collision)
@@ -171,10 +166,7 @@ func _site(key: String, chunk: Node3D, cell: Vector2i) -> void:
     guest.add_to_group("v073_game_only_household_visitor")
     guest.position = c+Vector3(-inward*5.8,0.82,-depth*0.21-1.2)
     building.add_child(guest)
-    _block(guest,"V073VisitorCoat",Vector3(0,1.00,0),
-        Vector3(0.52,0.87,0.37),Color(0.54,0.41,0.46),false)
-    _block(guest,"V073VisitorHead",Vector3(0,1.69,0),
-        Vector3(0.35,0.37,0.32),Color(0.66,0.51,0.41),false)
+    TownspersonVisual.add_to(guest, str(Ward.resident(cell, 10)["id"]))
     var guest_body := StaticBody3D.new()
     guest_body.name = "V073EveningGuestBody"
     guest.add_child(guest_body)

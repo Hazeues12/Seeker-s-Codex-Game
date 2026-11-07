@@ -46,7 +46,7 @@ func _setup() -> void:
         resident.name = str(item["id"])
         resident.position = item["at"]
         add_child(resident)
-        _build_person(resident, item["coat"])
+        TownspersonVisual.add_to(resident, str(item["id"]), people.size() % 2, item["coat"])
         _tag(resident, str(item["name"]), Vector3(0.0, 2.45, 0.0), 30)
         var duty_label := Label3D.new()
         duty_label.name = "DutyStatus"
@@ -90,7 +90,8 @@ func _process(delta: float) -> void:
         npc.position = old_position.move_toward(destination, 1.6 * elapsed)
         var heading: Vector3 = destination - old_position
         if heading.length_squared() > 0.025:
-            npc.rotation.y = atan2(heading.x, heading.z)
+            npc.rotation.y = atan2(-heading.x, -heading.z)
+        (npc.get_node("Townsperson") as TownspersonVisual).set_motion(0.8 if heading.length_squared() > 0.025 else 0.0)
         var duty_label: Label3D = npc.get_node_or_null("DutyStatus") as Label3D
         if is_instance_valid(duty_label):
             duty_label.text = str(plan["duty"]).to_upper()

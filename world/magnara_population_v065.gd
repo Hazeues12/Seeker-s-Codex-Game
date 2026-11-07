@@ -212,38 +212,49 @@ func _make_actor(record: Dictionary) -> void:
     actor.position = Vector3(0, 0, 0)
     add_child(actor)
     var colors: Dictionary = _actor_palette(record)
-    _box(actor, "NPCV065Torso", Vector3(0, 1.16, 0),
-        Vector3(0.63, 0.92, 0.36), colors["body"])
-    _box(actor, "NPCV065Accent", Vector3(0, 1.49, 0.22),
-        Vector3(0.69, 0.17, 0.08), colors["accent"])
-    _box(actor, "NPCV065Head", Vector3(0, 1.89, 0),
-        Vector3(0.40, 0.43, 0.37), colors["head"])
-    _box(actor, "NPCV065Hair", Vector3(0, 2.17, -0.02),
-        Vector3(0.45, 0.17, 0.42), colors["hair"])
-    for side in [-1.0, 1.0]:
-        _box(actor, "NPCV065Arm", Vector3(side * 0.41, 1.15, 0),
-            Vector3(0.20, 0.74, 0.28), colors["body"])
-        _box(actor, "NPCV065Leg", Vector3(side * 0.18, 0.40, 0),
-            Vector3(0.20, 0.74, 0.27), Color(0.33, 0.34, 0.36))
-    if id == "ven":
+    if record.get("kind") == "game_only":
+        TownspersonVisual.add_to(actor, id, -1, colors["body"])
+    else:
+        _box(actor, "NPCV065Torso", Vector3(0, 1.16, 0),
+            Vector3(0.63, 0.92, 0.36), colors["body"])
+        _box(actor, "NPCV065Accent", Vector3(0, 1.49, 0.22),
+            Vector3(0.69, 0.17, 0.08), colors["accent"])
+        _box(actor, "NPCV065Head", Vector3(0, 1.89, 0),
+            Vector3(0.40, 0.43, 0.37), colors["head"])
+        _box(actor, "NPCV065Hair", Vector3(0, 2.17, -0.02),
+            Vector3(0.45, 0.17, 0.42), colors["hair"])
         for side in [-1.0, 1.0]:
-            _box(actor, "NPCV065TherianEar", Vector3(side * 0.16, 2.30, -0.04),
-                Vector3(0.17, 0.30, 0.17), colors["hair"])
-    if id == "kai_xander":
-        _box(actor, "NPCV065StaffSunProxy", Vector3(0.55, 1.05, -0.22),
-            Vector3(0.10, 2.0, 0.10), Color(0.47, 0.32, 0.18))
-    if id == "william_lockhart":
-        _box(actor, "NPCV065LightCoatHem", Vector3(0, 0.66, -0.08),
-            Vector3(0.79, 0.71, 0.45), colors["body"])
-        _box(actor, "NPCV065WeaponScabbard", Vector3(-0.45, 0.78, -0.20),
-            Vector3(0.12, 1.25, 0.17), Color(0.38, 0.37, 0.37))
+            _box(actor, "NPCV065Arm", Vector3(side * 0.41, 1.15, 0),
+                Vector3(0.20, 0.74, 0.28), colors["body"])
+            _box(actor, "NPCV065Leg", Vector3(side * 0.18, 0.40, 0),
+                Vector3(0.20, 0.74, 0.27), Color(0.33, 0.34, 0.36))
+        if id == "ven":
+            for side in [-1.0, 1.0]:
+                _box(actor, "NPCV065TherianEar", Vector3(side * 0.16, 2.30, -0.04),
+                    Vector3(0.17, 0.30, 0.17), colors["hair"])
+        if id == "kai_xander":
+            _box(actor, "NPCV065StaffSunProxy", Vector3(0.55, 1.05, -0.22),
+                Vector3(0.10, 2.0, 0.10), Color(0.47, 0.32, 0.18))
+        if id == "william_lockhart":
+            _box(actor, "NPCV065LightCoatHem", Vector3(0, 0.66, -0.08),
+                Vector3(0.79, 0.71, 0.45), colors["body"])
+            _box(actor, "NPCV065WeaponScabbard", Vector3(-0.45, 0.78, -0.20),
+                Vector3(0.12, 1.25, 0.17), Color(0.38, 0.37, 0.37))
     _caption(actor, str(record.get("name", id)), Vector3(0, 2.68, 0))
-    # The original story cast keeps recognizable, higher-detail close proxies.
-    # Mid range uses only two simplified boxes, with no physical collision.
-    _box(actor, "V067MidBody", Vector3(0, 1.14, 0),
-        Vector3(0.55, 1.08, 0.35), colors["body"]).visible = false
-    _box(actor, "V067MidHead", Vector3(0, 1.85, 0),
-        Vector3(0.39, 0.38, 0.35), colors["head"]).visible = false
+    if record.get("kind") == "game_only":
+        var mid := MeshInstance3D.new()
+        mid.name = "V067MidSilhouette"
+        mid.mesh = TownspersonVisual.mid_mesh()
+        mid.material_override = _mat(colors["body"])
+        mid.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+        mid.scale = TownspersonVisual.mid_scale(id)
+        mid.hide()
+        actor.add_child(mid)
+    else:
+        _box(actor, "V067MidBody", Vector3(0, 1.14, 0),
+            Vector3(0.55, 1.08, 0.35), colors["body"]).visible = false
+        _box(actor, "V067MidHead", Vector3(0, 1.85, 0),
+            Vector3(0.39, 0.38, 0.35), colors["head"]).visible = false
     var physical := StaticBody3D.new()
     physical.name = "V067NearNPCSolid"
     actor.add_child(physical)
@@ -296,12 +307,16 @@ func _tick() -> void:
         actor.visible = level != "far"
         if str(actor.get_meta("render_lod", "unset")) != level:
             for part in actor.get_children():
-                if part is MeshInstance3D or part is Label3D:
+                if part is MeshInstance3D or part is Label3D or part is TownspersonVisual:
                     if str(part.name).begins_with("V067Mid"):
                         part.visible = level == "mid"
                     else:
                         part.visible = level == "close"
             actor.set_meta("render_lod", level)
+
+        var townsperson := actor.get_node_or_null("Townsperson") as TownspersonVisual
+        if townsperson != null and level == "close":
+            townsperson.set_motion(0.75 if bool(status.get("moving", false)) else 0.0)
         var solid: CollisionShape3D = actor.get_node_or_null("V067NearNPCSolid/V067NearNPCShape") as CollisionShape3D
         if is_instance_valid(solid):
             solid.set_deferred("disabled", level != "close")

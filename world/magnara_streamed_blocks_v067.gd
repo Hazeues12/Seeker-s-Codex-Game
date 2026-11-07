@@ -316,7 +316,7 @@ func _crowd_geometry(root: Node3D) -> MultiMeshInstance3D:
     var people := MultiMesh.new()
     people.transform_format = MultiMesh.TRANSFORM_3D
     people.use_colors = true
-    people.mesh = building_mesh
+    people.mesh = TownspersonVisual.mid_mesh()
     people.instance_count = Rules.RESIDENTS_PER_CHUNK
     for i in range(Rules.RESIDENTS_PER_CHUNK):
         people.set_instance_transform(i, Transform3D(Basis.IDENTITY.scaled(Vector3(0.001,0.001,0.001)),
@@ -408,17 +408,7 @@ func _close_actor(parent: Node3D, resident: Dictionary) -> Node3D:
     parent.add_child(model)
     var choice: int = posmod(str(resident["id"]).hash(), MID_PALETTE.size())
     var coat: Color = MID_PALETTE[choice]
-    _mesh_piece(model, "V067CloseBody", Vector3(0, 1.15, 0),
-        Vector3(0.56, 0.87, 0.35), coat)
-    _mesh_piece(model, "V067CloseHead", Vector3(0, 1.86, 0),
-        Vector3(0.39, 0.39, 0.38), Color(0.63, 0.49, 0.37))
-    _mesh_piece(model, "V067CloseHair", Vector3(0, 2.10, -0.06),
-        Vector3(0.41, 0.16, 0.39), Color(0.22, 0.23, 0.26))
-    for side in [-1.0, 1.0]:
-        _mesh_piece(model, "V067CloseArm", Vector3(side * 0.38, 1.15, 0),
-            Vector3(0.16, 0.69, 0.25), coat)
-        _mesh_piece(model, "V067CloseLeg", Vector3(side * 0.17, 0.41, 0),
-            Vector3(0.17, 0.73, 0.26), Color(0.30, 0.31, 0.34))
+    TownspersonVisual.add_to(model, str(resident["id"]), -1, coat).set_motion(0.65)
     var label := Label3D.new()
     label.name = "V067CitizenName"
     label.text = str(resident["name"])
@@ -479,7 +469,7 @@ func _refresh_crowds() -> void:
                 # Close characters turn toward someone addressing them.
                 if distance < 6.0:
                     var toward: Vector3 = player.global_position - world_pos
-                    model.rotation.y = atan2(toward.x, toward.z)
+                    model.rotation.y = atan2(-toward.x, -toward.z)
                 else:
                     model.rotation.y = 0.0
                 sums["near"] = int(sums["near"]) + 1
@@ -487,10 +477,10 @@ func _refresh_crowds() -> void:
                 _remove_close_model(id)
                 if tier == "mid":
                     var offset: Vector3 = world_pos - chunk.global_position
-                    var body_scale := Vector3(0.54, 1.44, 0.35)
+                    var body_scale := TownspersonVisual.mid_scale(id)
                     midmesh.set_instance_transform(visible_mid,
-                        Transform3D(Basis.IDENTITY.scaled(body_scale), offset + Vector3(0, 1.03, 0)))
-                    midmesh.set_instance_color(visible_mid, MID_PALETTE[posmod(i + cell.y, MID_PALETTE.size())])
+                        Transform3D(Basis.IDENTITY.scaled(body_scale), offset))
+                    midmesh.set_instance_color(visible_mid, MID_PALETTE[posmod(id.hash(), MID_PALETTE.size())])
                     visible_mid += 1
                     sums["mid"] = int(sums["mid"]) + 1
                 else:

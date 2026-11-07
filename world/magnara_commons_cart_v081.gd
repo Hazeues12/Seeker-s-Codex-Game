@@ -3,7 +3,6 @@ extends Node3D
 const Geo = preload("res://systems/known_world_geometry_v054.gd")
 const Freight = preload("res://systems/magnara_local_logistics_rules_v073.gd")
 const Art = preload("res://systems/magnara_published_city_visual_rules_v076.gd")
-const Rig = preload("res://characters/procedural_seeker.gd")
 const COURT_TILE := Vector2i(2, 6)
 const SUPPLIER := Freight.INLAND_DEPOT_AT + Vector3(-7.0, -0.25, 0.0)
 const COUNTER_ID := "commons_v081_cart"
@@ -20,7 +19,7 @@ var player: CharacterBody3D
 var court: Vector3
 var enabled := false
 var cart: Node3D
-var vendor: Rig
+var vendor: TownspersonVisual
 var counter: Node3D
 var supplier: Node3D
 var panel: PanelContainer
@@ -103,11 +102,9 @@ func _build_cart() -> void:
     for side in [-1.0, 1.0]:
         _piece(cart, base + Vector3(0, 1.6, side * 0.95), Vector3(0.13, 0.9, 0.13), Color(0.40, 0.27, 0.19))
     _sign(cart, "FORGE BREAD CART", base + Vector3.UP * 2.55)
-    vendor = Rig.new()
+    vendor = TownspersonVisual.add_to(cart, "commons_baker", TownspersonVisual.Form.WOMAN,
+        Color(0.63, 0.43, 0.24), Color(0.55, 0.38, 0.27))
     vendor.name = "CommonsBaker"
-    vendor.scale = Vector3.ONE * 0.76
-    cart.add_child(vendor)
-    vendor.configure_anime_civilian(Color(0.63, 0.43, 0.24), Color(0.55, 0.38, 0.27), 2)
 
 func refresh(tiles: Dictionary) -> void:
     if not enabled:
@@ -120,7 +117,7 @@ func refresh(tiles: Dictionary) -> void:
         cart.visible = nearby
     set_process(nearby)
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
     var hour := _hour()
     var traveling := (hour >= 9.95 and hour < 10.0) or (hour >= 20.5 and hour < 20.55)
     vendor.visible = traveling or _open_hours()
@@ -138,7 +135,7 @@ func _process(delta: float) -> void:
         if hour >= 20.5:
             direction = -direction
         vendor.rotation.y = atan2(-direction.x, -direction.z)
-    vendor.animate_state(delta, 1.1 if traveling else 0.0)
+    vendor.set_motion(0.65 if traveling else 0.0)
 
 func get_nearest_interaction(point: Vector3, reach: float) -> Dictionary:
     if not enabled:

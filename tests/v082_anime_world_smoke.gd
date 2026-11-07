@@ -106,18 +106,20 @@ func _run() -> void:
         game.get_node("MagnaraGeographyV054").call("_refresh_cells")
         game.get_node("MagnaraSevenRingFoundationV074").call("_refresh_near")
     visuals.call("_refresh_tiles")
-    var vendor: Rig = cart.get("vendor")
-    var poet: Rig = life.get("poet")
+    var vendor: TownspersonVisual = cart.get("vendor")
+    var poet: TownspersonVisual = life.get("poet")
     var family: Array = life.get("family")
     if vendor == null or poet == null or family.size() != 3:
         _fail("Commons cast failed to stream at the evening courtyard")
         return
     for civilian in [vendor, poet] + family:
-        var civilian_face := civilian.body_root.get_node("Head") as MeshInstance3D
-        if not civilian.anime_style or not civilian_face.material_override is ShaderMaterial \
-                or civilian.aura_gem.visible:
-            _fail("Commons civilian lacks anime materials or is wearing a Seeker insignia")
+        if civilian.figure.skin == null or civilian.figure.material_override.shader != TownspersonVisual.CEL:
+            _fail("Commons civilian lacks the painted skinned outfit")
             return
+    if vendor.form != TownspersonVisual.Form.WOMAN or poet.form != TownspersonVisual.Form.MAN \
+            or family[2].form != TownspersonVisual.Form.CHILD or family[2].pose != "sit":
+        _fail("Commons residents lost their distinct models or seated pose")
+        return
     var data: Dictionary = visuals.get("decorated")
     var layer: Node3D = data[Geo.cell_id(Geo.tile_index(courtyard))]["root"]
     var paving := layer.get_node("V076CommonsParkGroundGPU") as MultiMeshInstance3D

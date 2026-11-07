@@ -62,17 +62,12 @@ func _process(delta: float) -> void:
         npc.position = previous.move_toward(destination, 1.7 * delta)
         var step: Vector3 = destination - previous
         if step.length_squared() > 0.03:
-            npc.rotation.y = atan2(step.x, step.z)
+            npc.rotation.y = atan2(-step.x, -step.z)
+        (npc.get_node("Townsperson") as TownspersonVisual).set_motion(0.8 if step.length_squared() > 0.03 else 0.0)
 
 func _body(npc: Node3D, role: int) -> void:
     var coat: Array[Color] = [Color(0.24, 0.58, 0.64), Color(0.67, 0.39, 0.25), Color(0.22, 0.36, 0.53)]
-    _block(npc, "Tunic", Vector3(0, 1.23, 0), Vector3(0.73, 0.91, 0.45), coat[role])
-    _block(npc, "LegL", Vector3(-0.20, 0.45, 0), Vector3(0.27, 0.72, 0.34), Color(0.18, 0.20, 0.28))
-    _block(npc, "LegR", Vector3(0.20, 0.45, 0), Vector3(0.27, 0.72, 0.34), Color(0.18, 0.20, 0.28))
-    _block(npc, "LeftArm", Vector3(-0.51, 1.35, 0), Vector3(0.22, 0.74, 0.29), coat[role])
-    _block(npc, "RightArm", Vector3(0.51, 1.35, 0), Vector3(0.22, 0.74, 0.29), coat[role])
-    _block(npc, "Head", Vector3(0, 1.98, 0), Vector3(0.47, 0.50, 0.43), Color(0.55, 0.37, 0.27))
-    _block(npc, "Hair", Vector3(0, 2.26, 0), Vector3(0.48, 0.13, 0.45), Color(0.17, 0.14, 0.14))
+    TownspersonVisual.add_to(npc, ROLES[role], role % 2, coat[role])
 
 func _make_market() -> void:
     # Decoration only, above the ground plane. No added collision or path blockers.
