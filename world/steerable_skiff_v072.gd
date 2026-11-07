@@ -123,6 +123,7 @@ func _make_wake() -> void:
     material.cull_mode = BaseMaterial3D.CULL_DISABLED
     wake_visual.material_override = material
     wake_visual.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+    wake_visual.custom_aabb = AABB(Vector3(-500,-3,-500),Vector3(1000,8,1000))
     add_child(wake_visual)
 
 func _make_helm_ui() -> void:
@@ -216,6 +217,9 @@ func get_manifest() -> Dictionary:
         "player_parenting":false,"manual_animated_body_physics":true,
         "same_ocean_wave_samples_as_merchant_ships":true,
         "automatic_foreign_voyage":false,"game_only":true}
+
+func is_helming() -> bool:
+    return initialized and active_helm
 
 func get_nearest_interaction(at: Vector3, reach: float) -> Dictionary:
     if not initialized or not is_instance_valid(body):
