@@ -226,7 +226,8 @@ func get_nearest_interaction(at: Vector3, reach: float) -> Dictionary:
                 best = distance
                 answer = {"id":"interior_v072_entry_"+str(key),
                     "position":door.global_position,"node":door,
-                    "name":str(slot["record"]["label"])}
+                    "name":str(slot["record"]["label"]),
+                    "title":str(slot["record"]["label"])}
         var employee: Node3D = slot["staff"]
         if is_instance_valid(employee) and employee.visible:
             var d: float = at.distance_to(employee.global_position)
@@ -235,6 +236,8 @@ func get_nearest_interaction(at: Vector3, reach: float) -> Dictionary:
                 answer = {"id":"interior_v072_staff_"+str(key),
                     "position":employee.global_position,"node":employee,
                     "name":str(Interior.staff_schedule(slot["cell"],
+                        float(hub.get("world_minutes")))["name"]),
+                    "title":str(Interior.staff_schedule(slot["cell"],
                         float(hub.get("world_minutes")))["name"])}
     return answer
 
