@@ -29,6 +29,11 @@ var guard_window: float = 0.0
 # Timed physical parries are ordinary guard practice. Not unlocked Kyōmei-shi.
 var parry_age: float = 999.0
 var guard_held_last_frame: bool = false
+# V0.71 ocean and provisional Janoah river use CPU-sampled surface
+# buoyancy, never solid fake water planes or script parenting.
+var water_contact_v071: bool = false
+var water_surface_y_v071: float = 0.0
+var water_current_v071: Vector3 = Vector3.ZERO
 
 # V0.39: movement-state rules are independent of action-button presses.
 var jumps_used: int = 0
@@ -158,6 +163,12 @@ func _physics_process(delta: float) -> void:
     var trial_ui: Node = get_tree().get_first_node_in_group("v070_spatial_trialboard")
     if is_instance_valid(trial_ui) and trial_ui.has_method("is_open"):
         editing = editing or bool(trial_ui.call("is_open"))
+    var new_wards: Node = get_tree().get_first_node_in_group("v071_expanded_magnara")
+    if is_instance_valid(new_wards) and new_wards.has_method("is_open"):
+        editing = editing or bool(new_wards.call("is_open"))
+    var open_sea: Node = get_tree().get_first_node_in_group("v071_public_ocean")
+    if is_instance_valid(open_sea) and open_sea.has_method("is_open"):
+        editing = editing or bool(open_sea.call("is_open"))
     var public_seals: Node = get_tree().get_first_node_in_group("v069_public_seals")
     if is_instance_valid(public_seals) and public_seals.has_method("is_open"):
         editing = editing or bool(public_seals.call("is_open"))
@@ -233,6 +244,21 @@ func _physics_process(delta: float) -> void:
     var wants_sprint: bool = Input.is_key_pressed(KEY_SHIFT) or mobile_sprinting
     var course: Node = get_tree().get_first_node_in_group("traversal_course")
     water_running = is_on_floor() and wants_sprint and sprint_allowed and direction.length() > 0.1 and is_instance_valid(course) and bool(course.call("is_water_at", global_position))
+    var water_read: Dictionary = {}
+    var ocean: Node = get_tree().get_first_node_in_group("v071_public_ocean")
+    if is_instance_valid(ocean) and ocean.has_method("surface_at"):
+        water_read = ocean.call("surface_at",global_position)
+    if water_read.is_empty():
+        var river: Node = get_tree().get_first_node_in_group("janoah_approach_v055")
+        if is_instance_valid(river) and river.has_method("get_water_surface_at"):
+            water_read = river.call("get_water_surface_at",global_position)
+    water_contact_v071 = false
+    water_current_v071 = Vector3.ZERO
+    if not water_read.is_empty():
+        water_surface_y_v071 = float(water_read.get("height",0.0))
+        water_contact_v071 = not is_on_floor() and global_position.y < water_surface_y_v071+0.38 \
+            and global_position.y > water_surface_y_v071-5.5
+        water_current_v071 = water_read.get("flow_velocity",Vector3.ZERO)
 
     # Detect actual solid wall geometry, not invisible proximity magic.
     wall_running = false
@@ -283,6 +309,8 @@ func _physics_process(delta: float) -> void:
         speed *= float(origin_modifiers.get("sprint_mult", 1.0))
     if water_running:
         speed *= 1.28
+    if water_contact_v071:
+        speed = minf(speed,3.75)
     if guard_active:
         speed = minf(speed, 2.5)
     if editing:
@@ -305,6 +333,14 @@ func _physics_process(delta: float) -> void:
     else:
         velocity.x = move_toward(velocity.x, target.x, rate * delta)
         velocity.z = move_toward(velocity.z, target.z, rate * delta)
+    if water_contact_v071:
+        # Simple physical buoyancy / swimming drag: safe vertical recovery
+        # while normal collision, moving boats, and directional input survive.
+        velocity.y = clampf((water_surface_y_v071+0.22-global_position.y)*3.1,-1.3,3.5)
+        if jump_requested_now:
+            velocity.y = 4.25
+        velocity.x = velocity.x*0.82 + water_current_v071.x * 0.18
+        velocity.z = velocity.z*0.82 + water_current_v071.z * 0.18
     move_and_slide()
     if is_instance_valid(seeker_rig):
         if direction.length_squared() > 0.04:
