@@ -1,4 +1,5 @@
 extends Node
+const PowerRulesV068 = preload("res://systems/seeker_power_rules_v068.gd")
 
 # V0.46: supervised, GAME-ONLY simulations of the Seven Spokes.
 # These are NOT trained abilities or permanent access to rare Arts.
@@ -146,6 +147,18 @@ func _try_art() -> void:
         _announce("Technique recovering: %.1f s" % cooldown_remaining)
         return
     var cost: int = COSTS[current_index]
+    var catalog: Dictionary = PowerRulesV068.load_catalog()
+    var components: Dictionary = PowerRulesV068.create_model(
+        "supervised_training_local", float(hub.get("aura")),
+        100.0, 35.0, 4.5, 1.0, ["Martial"])
+    var technique: Dictionary = PowerRulesV068.technique_by_id(catalog,
+        PowerRulesV068.training_technique_for(SPOKES[current_index]))
+    var authorized: Dictionary = PowerRulesV068.attempt(components, technique, true)
+    if not bool(authorized.get("allowed", false)):
+        _announce("Supervised %s Art unavailable: %s" % [
+            SPOKES[current_index], str(authorized.get("reason", "technique not valid"))])
+        return
+    cost = int(authorized.get("cost", cost))
     if float(hub.get("aura")) < float(cost):
         _announce("Need %d Aura to practice %s." % [cost, SPOKES[current_index]])
         return
