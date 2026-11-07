@@ -455,7 +455,8 @@ func get_nearest_interaction(point: Vector3, limit: float) -> Dictionary:
             var resident: Dictionary = resident_records.get(id, {})
             answer = {"id": "street_v067_" + str(id),
                 "position": node.global_position, "node": node,
-                "name": str(resident.get("name", id))}
+                "name": str(resident.get("name", id)),
+                "title": str(resident.get("name", id))}
     return answer
 
 func is_open() -> bool:
