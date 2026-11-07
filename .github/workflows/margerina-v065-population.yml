@@ -1,0 +1,129 @@
+name: Margerina V0.65 - Living Canon Characters and City Population
+
+on:
+  push:
+    branches: [margerina-v065-living-population-staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-population:
+    runs-on: ubuntu-latest
+    timeout-minutes: 52
+    steps:
+      - name: Checkout isolated population staging branch
+        uses: actions/checkout@v4
+        with:
+          ref: margerina-v065-living-population-staging
+      - name: Verify source-bound registry integrity and existing systems
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root=json.loads(Path('data/seeker_character_registry_v065.json').read_text())
+          cast=root['canon_cast']
+          civilians=root['civilian_roster']
+          assert len(cast)>=64 and len(civilians)>=22
+          ids=[a['id'] for a in cast+civilians]
+          assert len(ids)==len(set(ids))
+          assert all(a['canon_status']=='confirmed' for a in cast)
+          assert all(a['canon_status']=='game_only' for a in civilians)
+          assert all(a['spawn_policy']=='never_ambient' for a in cast if a['id'] in ('seizen_kairo','yobokari_morningstar','chief_inspector_nezubunta','onzu_squad'))
+          assert next(a for a in cast if a['id']=='rin_kairo')['spawn_policy']=='scripted_only'
+          scene=Path('scenes/main.tscn').read_text()
+          hub=Path('systems/hub_manager.gd').read_text()
+          player=Path('characters/player_controller.gd').read_text()
+          world=Path('world/magnara_population_v065.gd').read_text()
+          codex=Path('systems/personal_codex.gd').read_text()
+          assert all(s in scene for s in ['MagnaraPopulationV065','MagnaraCivicV064','MagnaraMarketsV062','MagnaraWorkshopsV061'])
+          assert 'npc_v065_' in hub and 'magnara_population_v065' in player
+          assert 'population_v065' in codex and 'population_v065' in world
+          assert 'TalkingBoarActualFloor' in world and 'PopulationV065Collision' in world
+          assert 'seeker_profile_v1.json' in codex and 'margerina_v033.json' in hub
+          assert Path('docs/V065_CANON_CHARACTERS_AND_LIVING_NPCS.md').is_file()
+          print('V0.65 REGISTERED CAST CIVILIANS FAMILY AND STORY LOCKS PASS')
+          PY
+      - name: Install Godot 4.4.1 and Web templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+      - name: Validate project import and boot
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 160s godot --headless --path . --editor --import --quit 2>&1 | tee v065-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v065-import.log; then exit 1; fi
+          timeout 120s godot --headless --path . --quit-after 190 2>&1 | tee v065-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v065-startup.log; then exit 1; fi
+      - name: Test canon-backed squads personalities equipment and safe schedules
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v065-rules"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 110s godot --headless --path . res://tests/v065_population_rules_scene.tscn --quit-after 460 2>&1 | tee v065-rules.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v065-rules.log; then exit 1; fi
+          grep -Fq 'V0.65 64 CANON CHARACTERS 22 CIVILIANS VERIFIED SQUADS GUILDS SCHEDULES SPOILER LOCKS PASS' v065-rules.log
+      - name: Test real guildhouse NPC movement dialogue and lasting relationship
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v065-world"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 155s godot --headless --path . res://tests/v065_population_world_scene.tscn --quit-after 620 2>&1 | tee v065-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v065-world.log; then exit 1; fi
+          grep -Fq 'V0.65 PHYSICAL TALKING BOAR 28 MOVING NPCS PUBLIC SQUAD GUILD SCHEDULE MEMORY PASS' v065-world.log
+      - name: Verify no regression in V0.54-V0.64 live game
+        shell: bash
+        run: |
+          set -euo pipefail
+          for item in \
+            'v064_civic_world:V0.64 THREE ENTERABLE CIVIC BUILDINGS INN CLINIC WORK AND PERSISTENT DAY CYCLE PASS' \
+            'v063_save_integrity:V0.63 VERIFIED BACKUP ATOMIC GAME SAVE AND INTERRUPTED-WRITE RECOVERY PASS' \
+            'v062_market_world:V0.62 ENTERABLE HOUSING STAFFED MARKET AND PERSISTENT TRADES PASS' \
+            'v061_workshop_world:V0.61 PHYSICAL WORKING STREETS SAFE EMPLOYMENT AND PERSISTENT WAGES PASS' \
+            'v054_geography:V0.54 KNOWN WORLD ATLAS AND 1:1 MAGNARA GEOGRAPHY PASS'; do
+            testfile="${item%%:*}"; expected="${item#*:}"
+            export XDG_DATA_HOME="$RUNNER_TEMP/v065-legacy-$testfile"
+            mkdir -p "$XDG_DATA_HOME"
+            timeout 150s godot --headless --path . "res://tests/${testfile}_scene.tscn" --quit-after 630 2>&1 | tee "${testfile}.log"
+            if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' "${testfile}.log"; then exit 1; fi
+            grep -Fq "$expected" "${testfile}.log"
+          done
+      - name: Export internal Godot HTML5 build
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          timeout 180s godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v065-export.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v065-export.log; then exit 1; fi
+          for ext in html js wasm pck; do test -s "build/web/index.${ext}"; done
+      - name: Upload internal Web artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v065-living-characters-internal
+          path: build/web/
+          if-no-files-found: error
+      - name: Upload diagnostics if broken
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v065-population-diagnostics
+          if-no-files-found: ignore
+          path: |
+            v065-import.log
+            v065-startup.log
+            v065-rules.log
+            v065-world.log
+            v064_civic_world.log
+            v063_save_integrity.log
+            v062_market_world.log
+            v061_workshop_world.log
+            v054_geography.log
+            v065-export.log
