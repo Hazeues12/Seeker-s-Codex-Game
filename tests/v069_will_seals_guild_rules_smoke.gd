@@ -62,8 +62,8 @@ func _run() -> void:
         return
 
     var ward: Dictionary = Seals.recipe("impact","ward")
-    var signal: Dictionary = Seals.recipe("aura_ready","signal")
-    if Seals.sanitize(ward).is_empty() or Seals.sanitize(signal).is_empty():
+    var signal_recipe: Dictionary = Seals.recipe("aura_ready","signal")
+    if Seals.sanitize(ward).is_empty() or Seals.sanitize(signal_recipe).is_empty():
         _fail("finite alchemic compiler can't encode legitimate 3-rune recipes")
         return
     if ward.get("steps",[]).size() != 3 or not (ward["steps"][1] as Dictionary).get("op","") == "aura_at_least":
