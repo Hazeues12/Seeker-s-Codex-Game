@@ -5,7 +5,8 @@ const Rules = preload("res://systems/character_population_rules_v065.gd")
 const PROFILE_PATH: String = "user://seeker_profile_v1.json"
 const GUILD_X: float = -30.0
 const GUILD_Z: float = 555.0
-const CULL_METERS: float = 125.0
+const CULL_METERS: float = 100.0
+const CLOSE_METERS: float = 20.0
 
 var initialized: bool = false
 var registry: Dictionary = {}
@@ -53,6 +54,7 @@ func get_manifest() -> Dictionary:
         "known_venues": (registry.get("known_venues", []) as Array).size(),
         "civilian_registry": (registry.get("civilian_roster", []) as Array).size(),
         "physical_npcs": actors.size(),
+        "v067_actor_distance_lod": "0-20m detailed 3D and collision; 20-100m simplified proxy; over100m hidden",
         "canonical_visible_only_when_legitimate": true,
         "story_phase": Rules.PHASE,
         "living_rules": true, "ring_two_guildhouse": "talking_boar",
@@ -236,6 +238,24 @@ func _make_actor(record: Dictionary) -> void:
         _box(actor, "NPCV065WeaponScabbard", Vector3(-0.45, 0.78, -0.20),
             Vector3(0.12, 1.25, 0.17), Color(0.38, 0.37, 0.37))
     _caption(actor, str(record.get("name", id)), Vector3(0, 2.68, 0))
+    # The original story cast keeps recognizable, higher-detail close proxies.
+    # Mid range uses only two simplified boxes, with no physical collision.
+    _box(actor, "V067MidBody", Vector3(0, 1.14, 0),
+        Vector3(0.55, 1.08, 0.35), colors["body"]).visible = false
+    _box(actor, "V067MidHead", Vector3(0, 1.85, 0),
+        Vector3(0.39, 0.38, 0.35), colors["head"]).visible = false
+    var physical := StaticBody3D.new()
+    physical.name = "V067NearNPCSolid"
+    actor.add_child(physical)
+    var touching := CollisionShape3D.new()
+    touching.name = "V067NearNPCShape"
+    touching.position = Vector3(0, 1.03, 0)
+    var capsule := CapsuleShape3D.new()
+    capsule.radius = 0.30
+    capsule.height = 1.67
+    touching.shape = capsule
+    touching.disabled = true
+    physical.add_child(touching)
     actor.visible = false
     actors[id] = actor
     spawned[id] = record
@@ -267,7 +287,24 @@ func _tick() -> void:
             point += Vector3(float(index % 3) * 2.9 - 2.7, 0, float(index / 3) * 3.2 - 1.6)
         var onstage: bool = bool(status.get("visible", false))
         actor.position = point
-        actor.visible = onstage and player.global_position.distance_to(point) <= CULL_METERS
+        var distance: float = player.global_position.distance_to(point)
+        var level: String = "far"
+        if onstage and distance <= CLOSE_METERS:
+            level = "close"
+        elif onstage and distance <= CULL_METERS:
+            level = "mid"
+        actor.visible = level != "far"
+        if str(actor.get_meta("render_lod", "unset")) != level:
+            for part in actor.get_children():
+                if part is MeshInstance3D or part is Label3D:
+                    if str(part.name).begins_with("V067Mid"):
+                        part.visible = level == "mid"
+                    else:
+                        part.visible = level == "close"
+            actor.set_meta("render_lod", level)
+        var solid: CollisionShape3D = actor.get_node_or_null("V067NearNPCSolid/V067NearNPCShape") as CollisionShape3D
+        if is_instance_valid(solid):
+            solid.set_deferred("disabled", level != "close")
         actor.set_meta("activity", str(status.get("activity", "unknown")))
 
 func _process(delta: float) -> void:
