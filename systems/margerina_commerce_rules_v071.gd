@@ -3,6 +3,7 @@ extends RefCounted
 # gameplay lane labels, not confirmed geographic/cultural commercial treaties.
 # No phantom currencies, hidden Order shipments, or Abyssal shipping.
 const REGISTRY: String = "res://data/margerina_water_commerce_registry_v071.json"
+const PortV0731 = preload("res://systems/magnara_port_geography_v0731.gd")
 const SHIP_COUNT: int = 6
 const WAGON_COUNT: int = 3
 const DOCK_CYCLE_SEC: float = 160.0
@@ -41,6 +42,21 @@ static func valid_registry(data: Dictionary) -> bool:
         return false
     if data.get("harbors",[]).size() != 2:
         return false
+    var major: Dictionary = data["harbors"][0]
+    var preview: Dictionary = data["harbors"][1]
+    if major.get("id","") != PortV0731.MAIN_PORT_ID \
+            or int(major.get("ring",-1)) != PortV0731.MAJOR_SEAPORT_RING \
+            or bool(major.get("inland_ring_two_maritime_access",true)):
+        return false
+    if int(preview.get("represents_actual_ring",-1)) != PortV0731.MAJOR_SEAPORT_RING \
+            or int(preview.get("entry_counter_ring",-1)) != PortV0731.RING_TWO \
+            or bool(preview.get("real_inter_ring_transport",true)):
+        return false
+    var canal: Dictionary = data.get("local_canals",{})
+    if int(canal.get("ring",-1)) != PortV0731.RING_TWO \
+            or bool(canal.get("ocean_vessels_allowed",true)) \
+            or bool(canal.get("large_commercial_seaport",true)):
+        return false
     var sea: Array = data.get("maritime_simulation",[])
     if sea.size() != SHIP_COUNT:
         return false
@@ -68,7 +84,9 @@ static func ship_manifest(index: int, day: int, data: Dictionary) -> Dictionary:
         "cargo":SAFE_CARGO[posmod(day+index*2,SAFE_CARGO.size())],
         "cargo_units":(index+2+posmod(day,5))*3,
         "status":"game_only_trade_preview",
-        "arrives_at_nation":false,"military":false}
+        "arrives_at_nation":false,"military":false,
+        "major_seaport_ring":PortV0731.MAJOR_SEAPORT_RING,
+        "ring_two_ocean_dock":false}
 
 static func ship_state(index: int, seconds: float, day: int,
         data: Dictionary) -> Dictionary:
