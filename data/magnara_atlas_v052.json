@@ -6,7 +6,7 @@
   "ring_count": 7,
   "city_plan_status": "ring_two_ward_interior_expansion_in_progress",
   "canon_status": "mixed_confirmed_and_game_only",
-  "source_note": "Author's Seeker's Codex lore, Chapter 90 and Magnara canon blueprint; placements are provisional unless confirmed.",
+  "source_note": "Author's Seeker's Codex lore, Chapter 90 and November 2026 location correction: primary maritime docks are in Magnara's outermost Ring VII. Exact coastline and quay coordinates remain unplaced.",
   "rings": [
     {
       "ring": 1,
@@ -22,7 +22,8 @@
         "public residential precinct",
         "professional Seeker precinct",
         "secured Seeker Citadel",
-        "black-and-gold hexagonal citadel with thirteen towers"
+        "black-and-gold hexagonal citadel with thirteen towers",
+        "minor canal-side landing quays for small local craft only"
       ],
       "implemented_cells": [
         "central_hub",
@@ -68,8 +69,11 @@
     {
       "ring": 7,
       "name": null,
-      "planning_status": "unassigned",
-      "canonical_features": []
+      "planning_status": "author_confirmed_port_ring_coordinates_unplaced",
+      "canonical_features": [
+        "primary ocean-going seaport and principal docks",
+        "Iron Cothon maritime harbor basins / exact shoreline location not locked"
+      ]
     }
   ],
   "landmarks_without_locked_positions": [
@@ -170,5 +174,18 @@
   },
   "geography_source_of_truth": "res://data/known_world_v054.json",
   "geography_status": "legacy local Ring Two layout; canonical metro coordinates remain provisional",
-  "planning_measurements_status": "V0.54 author-supplied editable proposals; not book measurement"
+  "planning_measurements_status": "V0.54 author-supplied editable proposals; not book measurement",
+  "port_geography": {
+    "source": "author_direct_correction_2026-11-07",
+    "main_seaport_ring": 7,
+    "outermost_ring": 7,
+    "primary_harbor": "Iron Cothon",
+    "main_docks": "Ring VII",
+    "sea_going_vessel_access": "Ring VII seaport and maritime approaches only",
+    "ring_two_landings": "minor canal-side piers for shallow-draft local service only",
+    "ring_two_depot": "inland warehouse and land freight distribution; NOT a seaport or maritime berth",
+    "canals_to_seaport_route_status": "not mapped or author-approved; do not fabricate direct continuous navigable canal",
+    "exact_coastline_coordinates": "unfinalized",
+    "scenic_demo_visitor_entry": "Ring II survey counter accesses isolated Ring VII ocean preview; no actual inter-ring travel"
+  }
 }
