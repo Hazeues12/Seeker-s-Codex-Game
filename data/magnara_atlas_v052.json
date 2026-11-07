@@ -186,6 +186,7 @@
     "ring_two_depot": "inland warehouse and land freight distribution; NOT a seaport or maritime berth",
     "canals_to_seaport_route_status": "not mapped or author-approved; do not fabricate direct continuous navigable canal",
     "exact_coastline_coordinates": "unfinalized",
-    "scenic_demo_visitor_entry": "Ring II survey counter accesses isolated Ring VII ocean preview; no actual inter-ring travel"
+    "scenic_demo_visitor_entry": "Ring II survey counter accesses isolated Ring VII ocean preview; no actual inter-ring travel",
+    "inland_distribution_ring": 2
   }
 }
