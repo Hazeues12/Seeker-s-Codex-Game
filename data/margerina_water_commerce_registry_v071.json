@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "era": "1500 A.S.",
+  "world": "Margerina",
+  "scope": "known_world_only",
+  "secrecy": "Abyssal Line and beyond excluded from all public routes/ship spawns",
+  "geography_policy": "Named water bodies are creator-known; exact coastlines, positions, river assignments and trade lanes not inventoried or plot-locked remain unplaced. Godot scenic positions do not equal series geography.",
+  "waters": [
+    {
+      "id": "janoah_sea",
+      "label": "Janoah Sea",
+      "class": "sea",
+      "nation": null,
+      "status": "creator_known",
+      "physical_map_status": "no_locked_coastline"
+    },
+    {
+      "id": "gulf_of_janoah",
+      "label": "Gulf of Janoah",
+      "class": "gulf",
+      "nation": "Janoah",
+      "status": "creator_known",
+      "physical_map_status": "no_locked_coastline"
+    },
+    {
+      "id": "south_chun_sea",
+      "label": "South Chun Sea",
+      "class": "sea",
+      "nation": "Chun",
+      "status": "creator_known",
+      "physical_map_status": "no_locked_coastline"
+    },
+    {
+      "id": "viridian_sea",
+      "label": "Viridian Sea",
+      "class": "sea",
+      "nation": null,
+      "status": "creator_known",
+      "physical_map_status": "no_locked_coastline"
+    },
+    {
+      "id": "tsarian_straits",
+      "label": "Tsarian Straits",
+      "class": "strait",
+      "nation": "Tsar Empire",
+      "status": "creator_known",
+      "physical_map_status": "no_locked_coastline"
+    },
+    {
+      "id": "britannia_strait",
+      "label": "Britannia Strait",
+      "class": "strait",
+      "nation": "Britannia",
+      "status": "creator_known",
+      "physical_map_status": "no_locked_coastline"
+    },
+    {
+      "id": "gulf_americana",
+      "label": "Gulf of Americana",
+      "class": "gulf",
+      "nation": "Americana",
+      "status": "creator_known",
+      "physical_map_status": "no_locked_coastline"
+    },
+    {
+      "id": "saribbean_sea",
+      "label": "Saribbean Sea",
+      "class": "sea",
+      "nation": null,
+      "status": "creator_known",
+      "physical_map_status": "no_locked_coastline"
+    },
+    {
+      "id": "abyssal_ocean",
+      "label": "Abyssal Ocean",
+      "class": "ocean",
+      "nation": null,
+      "status": "creator_known_sealed",
+      "physical_map_status": "not_in_known_world_playable"
+    },
+    {
+      "id": "lake_lukka",
+      "label": "Lake Lukka",
+      "class": "lake",
+      "nation": "Africanus",
+      "status": "creator_locked_named_largest_lake",
+      "physical_map_status": "no_locked_coordinates"
+    },
+    {
+      "id": "lake_tsar",
+      "label": "Lake Tsar",
+      "class": "lake",
+      "nation": null,
+      "status": "known_named_location_unassigned_nation",
+      "physical_map_status": "no_locked_coordinates"
+    },
+    {
+      "id": "lake_lucia_lucita",
+      "label": "Lake Lucia / Lucita",
+      "class": "lake",
+      "nation": null,
+      "status": "variant_name_needs_confirmation",
+      "physical_map_status": "no_locked_coordinates"
+    },
+    {
+      "id": "lake_terragigantus",
+      "label": "Lake Terragigantus",
+      "class": "lake",
+      "nation": null,
+      "status": "mapped_name",
+      "physical_map_status": "outside_first_playable_scope"
+    },
+    {
+      "id": "lake_silva",
+      "label": "Lake Silva",
+      "class": "lake",
+      "nation": null,
+      "status": "mapped_name",
+      "physical_map_status": "no_locked_coordinates"
+    },
+    {
+      "id": "emerald_river",
+      "label": "Emerald River",
+      "class": "river",
+      "nation": null,
+      "status": "named_unplaced",
+      "physical_map_status": "no_locked_coordinates"
+    },
+    {
+      "id": "janoah_approach_river_v056",
+      "label": "Provisional Janoah approach river",
+      "class": "river",
+      "nation": "Janoah",
+      "status": "game_only",
+      "physical_map_status": "visible_in_v056_approach",
+      "water_y_m": -1.75
+    }
+  ],
+  "harbors": [
+    {
+      "id": "iron_cothon",
+      "label": "Iron Cothon",
+      "nation": "Janoah",
+      "city": "Magnara",
+      "status": "creator_known",
+      "functions": [
+        "commercial_trade_basin",
+        "restricted_military_basin"
+      ],
+      "military_access": "never_ambient_civilians",
+      "coordinates": "unfinalized"
+    },
+    {
+      "id": "iron_cothon_civil_survey_v071",
+      "label": "Iron Cothon civil-basin scenic simulation",
+      "nation": "Janoah",
+      "city": "Magnara",
+      "status": "game_only_visualization",
+      "scene_anchor_m": [
+        25000,
+        0,
+        4000
+      ],
+      "physical_map_status": "isolated_remote_preview_not_actual_city_coordinate"
+    }
+  ],
+  "maritime_simulation": [
+    {
+      "id": "janoah_chun_preview",
+      "origin": "Janoah",
+      "destination": "Chun",
+      "known_water_reference": "south_chun_sea",
+      "status": "game_only_hypothetical_cargo_lane",
+      "ship_class": "medium"
+    },
+    {
+      "id": "janoah_britannia_preview",
+      "origin": "Janoah",
+      "destination": "Britannia",
+      "known_water_reference": "britannia_strait",
+      "status": "game_only_hypothetical_cargo_lane",
+      "ship_class": "large"
+    },
+    {
+      "id": "janoah_rajistan_preview",
+      "origin": "Janoah",
+      "destination": "Rajistan",
+      "known_water_reference": "janoah_sea",
+      "status": "game_only_hypothetical_cargo_lane",
+      "ship_class": "small"
+    },
+    {
+      "id": "janoah_germania_preview",
+      "origin": "Janoah",
+      "destination": "Germania",
+      "known_water_reference": "janoah_sea",
+      "status": "game_only_hypothetical_cargo_lane",
+      "ship_class": "medium"
+    },
+    {
+      "id": "janoah_americana_preview",
+      "origin": "Janoah",
+      "destination": "Americana",
+      "known_water_reference": "gulf_americana",
+      "status": "game_only_hypothetical_cargo_lane",
+      "ship_class": "large"
+    },
+    {
+      "id": "janoah_vinlan_preview",
+      "origin": "Janoah",
+      "destination": "Vinlan",
+      "known_water_reference": "janoah_sea",
+      "status": "game_only_hypothetical_cargo_lane",
+      "ship_class": "small"
+    }
+  ],
+  "land_simulation": [
+    {
+      "id": "janoah_rajistan_road_preview",
+      "origin": "Janoah",
+      "destination": "Rajistan",
+      "transport": "wagon",
+      "status": "game_only_hypothetical_route_no_locked_path"
+    },
+    {
+      "id": "janoah_chun_road_preview",
+      "origin": "Janoah",
+      "destination": "Chun",
+      "transport": "wagon",
+      "status": "game_only_hypothetical_route_no_locked_path"
+    },
+    {
+      "id": "janoah_britannia_freight_preview",
+      "origin": "Janoah",
+      "destination": "Britannia",
+      "transport": "freight_transfer",
+      "status": "game_only_hypothetical_route_no_locked_path"
+    }
+  ],
+  "forbidden_runtime": [
+    "literal intercontinental movement across unplaced coasts",
+    "ship crossing into Abyssal Ocean",
+    "civilian docking in Iron Cothon military basin",
+    "claiming random national rivers exist",
+    "real exchange rate or phantom tola speculation",
+    "spawning known Seeker characters as random port workers"
+  ]
+}
