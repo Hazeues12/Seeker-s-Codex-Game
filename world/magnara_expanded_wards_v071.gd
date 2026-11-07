@@ -204,12 +204,12 @@ func _make_access(root: Node3D, cell: Vector2i, parcels: Array) -> Array:
             var b_top: float = 0.56 + float(b["height"]) + 0.30
             var z0: float = float((a["center"] as Vector3).z)+float(a["depth"])*0.5-1.0
             var z1: float = float((b["center"] as Vector3).z)-float(b["depth"])*0.5+1.0
-            var count: int = maxi(6,maxi(ceili((z1-z0)/3.0),ceili(absf(b_top-a_top)/1.0)))
-            for step in range(count):
-                var t: float = float(step+1)/float(count+1)
+            var link_count: int = maxi(6,maxi(ceili((z1-z0)/3.0),ceili(absf(b_top-a_top)/1.0)))
+            for step in range(link_count):
+                var link_t: float = float(step+1)/float(link_count+1)
                 _platform(root,"V071RoofLink_%d_%d_%d" % [side,row,step],
                     Vector3(float((a["center"] as Vector3).x),
-                        lerpf(a_top,b_top,t)-0.12,lerpf(z0,z1,t)),
+                        lerpf(a_top,b_top,link_t)-0.12,lerpf(z0,z1,link_t)),
                     Vector3(3.5,0.24,3.12),colliders,visual_specs)
     _gpu_batch(root,"V071RoofAccessGPU",visual_specs)
     return colliders
