@@ -202,7 +202,6 @@ func request_dodge() -> void:
 func consume_dodge() -> bool:
     if dodge_requested:
         dodge_requested = false
-    burst_requested = false
         return true
     return false
 
@@ -221,6 +220,7 @@ func release_controls() -> void:
     jump_requested = false
     attack_requested = false
     dodge_requested = false
+    burst_requested = false
     active_fingers.clear()
     joystick_finger = -1
     camera_finger = -1
