@@ -191,7 +191,11 @@ func _run() -> void:
     ray.exclude = [player.get_rid()]
     var ship_hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(ray)
     if ship_hit.is_empty() or ship_hit.get("collider") != vessel:
-        _fail("merchant vessel cannot physically carry a walking player")
+        var hit_collider: Node = ship_hit.get("collider") as Node
+        _fail("merchant vessel cannot physically carry a walking player / ship=" \
+            + str(vessel.global_position) + " sea=" + str(harbor.get("harbor").global_position) \
+            + " actual-hit=" + (str(hit_collider.name) if is_instance_valid(hit_collider) else "none") \
+            + " hit-at=" + str(ship_hit.get("position",Vector3.ZERO)))
         return
     # Test real water interaction away from docks and ship routes.
     player.global_position = OceanWorld.ANCHOR+Vector3(100,-0.22,30)
