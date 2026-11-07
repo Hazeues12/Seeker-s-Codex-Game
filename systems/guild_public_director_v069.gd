@@ -36,7 +36,7 @@ static func sanitize(source: Variant) -> Dictionary:
             var parts: PackedStringArray = stamp.split(":")
             if parts.size() != 3 or parts[0] != "day" or not parts[1].is_valid_int() or not JOBS.has(parts[2]):
                 continue
-            if int(parts[1]) < 1 or int(parts[1]) > DAY_LIMIT or raw["receipts"][raw_key] != true:
+            if int(parts[1]) < 1 or int(parts[1]) > DAY_LIMIT or typeof(raw["receipts"][raw_key]) != TYPE_BOOL or not bool(raw["receipts"][raw_key]):
                 continue
             receipts[stamp] = true
             if receipts.size() >= MAX_RECEIPTS:
