@@ -2526,6 +2526,258 @@
       "source_refs": [
         "V0.65 ambient citizen generator"
       ]
+    },
+    {
+      "id": "citizen_v065_23",
+      "name": "Nell Rusk",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "region_id": "magnara_ring_two",
+      "role": "night_diner",
+      "personality": [
+        "wry and sociable"
+      ],
+      "speech_style": "original game-only citizen; local life dialogue",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "market_lodging",
+      "work_anchor": "shop_lebells",
+      "leisure_anchor": "civic_square",
+      "shift_offset": -30,
+      "walk_speed": 1.3,
+      "appearance_variant": 5,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.66 game-only public retail traffic"
+      ]
+    },
+    {
+      "id": "citizen_v065_24",
+      "name": "Faro Min",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "region_id": "magnara_ring_two",
+      "role": "forge_bread_runner",
+      "personality": [
+        "diligent and impatient"
+      ],
+      "speech_style": "original game-only citizen; local life dialogue",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "worker_row",
+      "work_anchor": "shop_lebells",
+      "leisure_anchor": "market_square",
+      "shift_offset": 18,
+      "walk_speed": 1.46,
+      "appearance_variant": 6,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.66 game-only public retail traffic"
+      ]
+    },
+    {
+      "id": "citizen_v065_25",
+      "name": "Selma Orro",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "region_id": "magnara_ring_two",
+      "role": "kitchen_apprentice",
+      "personality": [
+        "curious and warm"
+      ],
+      "speech_style": "original game-only citizen; local life dialogue",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "inn_public",
+      "work_anchor": "shop_lebells",
+      "leisure_anchor": "guild_entry",
+      "shift_offset": 42,
+      "walk_speed": 1.62,
+      "appearance_variant": 7,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.66 game-only public retail traffic"
+      ]
+    },
+    {
+      "id": "citizen_v065_26",
+      "name": "Vigo Lane",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "region_id": "magnara_ring_two",
+      "role": "jewel_courier",
+      "personality": [
+        "careful and quiet"
+      ],
+      "speech_style": "original game-only citizen; local life dialogue",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "townhouse_row",
+      "work_anchor": "shop_avicci",
+      "leisure_anchor": "civic_square",
+      "shift_offset": 16,
+      "walk_speed": 1.78,
+      "appearance_variant": 0,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.66 game-only public retail traffic"
+      ]
+    },
+    {
+      "id": "citizen_v065_27",
+      "name": "Tessa Nori",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "region_id": "magnara_ring_two",
+      "role": "jewelry_apprentice",
+      "personality": [
+        "ambitious and respectful"
+      ],
+      "speech_style": "original game-only citizen; local life dialogue",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "worker_row",
+      "work_anchor": "shop_avicci",
+      "leisure_anchor": "market_square",
+      "shift_offset": -32,
+      "walk_speed": 1.3,
+      "appearance_variant": 1,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.66 game-only public retail traffic"
+      ]
+    },
+    {
+      "id": "citizen_v065_28",
+      "name": "Roni Kehl",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "region_id": "magnara_ring_two",
+      "role": "luxury_shopper",
+      "personality": [
+        "charming and observant"
+      ],
+      "speech_style": "original game-only citizen; local life dialogue",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "market_lodging",
+      "work_anchor": "shop_avicci",
+      "leisure_anchor": "guild_entry",
+      "shift_offset": 22,
+      "walk_speed": 1.46,
+      "appearance_variant": 2,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.66 game-only public retail traffic"
+      ]
+    },
+    {
+      "id": "citizen_v065_29",
+      "name": "Aven Rell",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "region_id": "magnara_ring_two",
+      "role": "perfume_courier",
+      "personality": [
+        "methodical and kind"
+      ],
+      "speech_style": "original game-only citizen; local life dialogue",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "townhouse_row",
+      "work_anchor": "shop_vernal",
+      "leisure_anchor": "market_square",
+      "shift_offset": -25,
+      "walk_speed": 1.62,
+      "appearance_variant": 3,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.66 game-only public retail traffic"
+      ]
+    },
+    {
+      "id": "citizen_v065_30",
+      "name": "Fiona Vail",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "region_id": "magnara_ring_two",
+      "role": "fragrance_apprentice",
+      "personality": [
+        "creative and thoughtful"
+      ],
+      "speech_style": "original game-only citizen; local life dialogue",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "inn_public",
+      "work_anchor": "shop_vernal",
+      "leisure_anchor": "civic_square",
+      "shift_offset": 35,
+      "walk_speed": 1.78,
+      "appearance_variant": 4,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.66 game-only public retail traffic"
+      ]
+    },
+    {
+      "id": "citizen_v065_31",
+      "name": "Boro Lin",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "region_id": "magnara_ring_two",
+      "role": "night_supply_runner",
+      "personality": [
+        "practical and funny"
+      ],
+      "speech_style": "original game-only citizen; local life dialogue",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "market_lodging",
+      "work_anchor": "shop_vernal",
+      "leisure_anchor": "guild_entry",
+      "shift_offset": -18,
+      "walk_speed": 1.3,
+      "appearance_variant": 5,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.66 game-only public retail traffic"
+      ]
     }
   ],
   "source_notes": [
@@ -2535,6 +2787,7 @@
     "No random eye, rare Muti, rank, family or clan assignment to generated civilians.",
     "No claim that all known canonical shops physically exist in the game until authored.",
     "Latest published Pt8: Rin covert on Magnara rooftops; do not expose to ambient conversations.",
-    "The published 91 chapters are a web check as of 2026-11-06; future releases require a new audit."
+    "The published 91 chapters are a web check as of 2026-11-06; future releases require a new audit.",
+    "V0.66 nine additional game-only shoppers/couriers/apprentices; not franchise canon or named series staff."
   ]
 }
