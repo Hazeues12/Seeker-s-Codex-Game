@@ -104,7 +104,7 @@ static func resident(cell: Vector2i, number: int) -> Dictionary:
     if not allowed(cell) or number < 0 or number >= PEOPLE:
         return {}
     var token: int = stable(cell,number*31+13,2048)
-    var home_index: int = number/3
+    var home_index: int = int(number/3)
     return {"id":"ward_v071_%d_%d_%d" % [cell.x,cell.y,number],
         "name":FIRST[posmod(token+number,FIRST.size())]+" "+
             LAST[posmod(int(token/9)+number*2,LAST.size())],
