@@ -1,0 +1,181 @@
+name: Margerina V0.71 - Magnara City Ocean and Commerce
+
+on:
+  push:
+    branches: [margerina-v071-city-ocean-commerce-staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-magnara-ocean-cargo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - name: Checkout isolated V0.71 staging
+        uses: actions/checkout@v4
+        with:
+          ref: margerina-v071-city-ocean-commerce-staging
+      - name: Audit known-world hydrology, civilian density, shipping and existing scene
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          scene=Path('scenes/main.tscn').read_text()
+          required=['SealTrainingBenchV069','PublicGuildDirectorV069','MagnaraLegacyRoofwaysV069','MagnaraStreamedBlocksV067','MagnaraBusinessesV066']
+          assert all(x in scene for x in required)
+          hub=Path('systems/hub_manager.gd').read_text()
+          player=Path('characters/player_controller.gd').read_text()
+          assert all(x in hub for x in ['guild_director_v069','seal_v069_practice','guild_v069_','_save_game'])
+          assert all(x in player for x in ['parry_age','guard_held_last_frame','v069_public_seals','v069_public_director'])
+          triad=Path('combat/triad_posture_rules_v069.gd').read_text()
+          assert '"Gold"' in triad and '"Grand"' in triad and 'creator_gate' in triad
+          assert 'on_impact' in Path('combat/combat_arena.gd').read_text()
+          assert 'receive_posture_damage' in Path('combat/sparring_construct.gd').read_text()
+          seals=Path('systems/alchemic_seal_rules_v069.gd').read_text()
+          assert 'MAX_STEPS: int = 3' in seals and 'eval(' not in seals
+          jobs=Path('systems/guild_public_director_v069.gd').read_text()
+          assert '"shop_watch"' in jobs and 'receipt_key' in jobs
+          assert 'Phantom Tola' not in Path('world/public_guild_director_v069.gd').read_text().split('func _make_board')[1]
+          roster=json.loads(Path('data/seeker_character_registry_v065.json').read_text())
+          assert len(roster['canon_cast'])==64 and len(roster['civilian_roster'])==31
+          assert next(x for x in roster['canon_cast'] if x['id']=='rin_kairo')['spawn_policy']=='scripted_only'
+          assert Path('docs/V069_TRIAD_SEALS_PUBLIC_GUILD_ROOFWAYS.md').is_file()
+          assert all(x in scene for x in ('MagnaraMovingCarrierV070','SpatialPracticeTrialboardV070'))
+          assert 'BurstButton' in Path('ui/mobile_controls.tscn').read_text()
+          assert 'try_aura_burst' in hub and 'position_to_save' in hub
+          assert 'burst_remaining' in player and 'jump_buffer_seconds' in player
+          carrier=Path('world/magnara_moving_carrier_v070.gd').read_text()
+          assert all(x in carrier for x in ('AnimatableBody3D','PathFollow3D','sync_to_physics = false','V070CarrierFloorCollision'))
+          trial=Path('world/spatial_practice_trialboard_v070.gd').read_text()
+          assert all(x in trial for x in ('room.queue_free()','get_safe_save_position','_create_room'))
+          assert 'carrier_safety' in Path('systems/guild_public_director_v069.gd').read_text()
+          catalog=json.loads(Path('data/seeker_power_components_v068.json').read_text())
+          momentum=next(t for t in catalog['techniques'] if t['id']=='aura_momentum_v070')
+          assert momentum['aura_cost']==16 and momentum['spokes']==['Martial'] and momentum['canonical_status']=='game_only_training'
+          assert Path('docs/V070_AURA_PARKOUR_MOVING_CARRIER_SPATIAL_TRIAL.md').is_file()
+          for module in ('MagnaraExpandedWardsV071','MargerinaLandCommerceV071','MargerinaOceanCommerceV071'):
+              assert module in scene, module
+          totals=Path('systems/magnara_expansion_rules_v071.gd').read_text()
+          assert all(v in totals for v in ('const PEOPLE: int = 12','const PARCELS: int = 6','MAX_ACTIVE: int = 9','game_only'))
+          assert all(v in hub for v in ('ocean_v071','get_safe_save_position','ward_v071_'))
+          assert 'water_contact_v071' in player and 'surface_at' in player
+          assert Path('shaders/margerina_coastal_waves_v071.gdshader').is_file()
+          assert Path('shaders/margerina_river_currents_v071.gdshader').is_file()
+          sea=Path('world/margerina_ocean_commerce_v071.gd').read_text()
+          assert all(v in sea for v in ('AnimatableBody3D','ShaderMaterial','V071ShipWalkableDeckCollision','military'))
+          atlas=json.loads(Path('data/margerina_water_commerce_registry_v071.json').read_text())
+          assert atlas['scope']=='known_world_only'
+          lukka=next(w for w in atlas['waters'] if w['id']=='lake_lukka')
+          assert lukka['nation']=='Africanus'
+          assert next(w for w in atlas['waters'] if w['id']=='emerald_river')['nation'] is None
+          assert all(x['status'].startswith('game_only') for x in atlas['maritime_simulation'])
+          assert not any(x['destination'] in ('Zuba','Abyssal Ocean','Terragigantus') for x in atlas['maritime_simulation'])
+          assert Path('docs/V071_MAGNARA_OCEAN_TRADE_WATERS.md').is_file()
+          print('V0.71 OCEAN CITY POPULATION PROVENANCE AND TRADE CANON BOUNDARIES PASS')
+          PY
+      - name: Install Godot 4.4.1 and HTML5 templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+      - name: Import all scripts and boot full game
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 180s godot --headless --path . --editor --import --quit 2>&1 | tee v071-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v071-import.log; then exit 1; fi
+          timeout 150s godot --headless --path . --quit-after 220 2>&1 | tee v071-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v071-startup.log; then exit 1; fi
+      - name: Validate thirty extra public city cells and atmospheric hydrodynamics
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v069-rules"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 135s godot --headless --path . res://tests/v071_city_ocean_rules_scene.tscn --quit-after 600 2>&1 | tee v071-rules.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v071-rules.log; then exit 1; fi
+          grep -Fq 'V0.71 THIRTY NEW STREAMED MAGNARA BLOCKS 360 NPC HOUSEHOLDS WEATHER OCEAN RIVER LAKE REGISTRY PUBLIC TRADE RULES PASS' v071-rules.log
+      - name: Test actual city NPC roof, wave-body ships, swimming and provisional river
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v069-world"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 165s godot --headless --path . res://tests/v071_city_ocean_world_scene.tscn --quit-after 780 2>&1 | tee v071-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v071-world.log; then exit 1; fi
+          grep -Fq 'V0.71 LIVE 180 BUILDING EXTENSION 360 HOUSEHOLDS SWIMMABLE WEATHER OCEAN SIX BUOYANT SHIPS ROAD FREIGHT AND PROVISIONAL RIVER PASS' v071-world.log
+      - name: Run V0.54-V0.70 full-city/safe-save/parkour/Spokes regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          for item in \
+            'v070_mobility_carrier_trial_world:V0.70 LIVE AURA BURST IPHONE PLATFORM CARRY REAL RAIL PHYSICS AND SAFE TRIALBOARD SAVE PASS' \
+            'v069_will_seals_guild_world:V0.69 REAL GUARD PARRY PHYSICAL ROOFWAYS PROGRAMMABLE WARD AND VERIFIED GUILD PAYOUT PASS' \
+            'v068_roof_world:V0.68 PHYSICAL ROOF HOPS MODULAR CHUNK UNLOAD TOON HUD AURA VALIDATION PASS' \
+            'v067_stream_world:V0.67 STREAMING CHUNK UNLOAD RELOAD MODULAR MULTIMESH NPC LOD COLLISION CHAT PERSISTENCE PASS' \
+            'v066_business_world:V0.66 THREE PHYSICAL PUBLISHED BUSINESSES THIRTY-SEVEN SCHEDULED NPCS VERIFIED PURCHASES AND RELOAD PASS' \
+            'v065_population_world:V0.65 PHYSICAL TALKING BOAR 28 MOVING NPCS PUBLIC SQUAD GUILD SCHEDULE MEMORY PASS' \
+            'v064_civic_world:V0.64 THREE ENTERABLE CIVIC BUILDINGS INN CLINIC WORK AND PERSISTENT DAY CYCLE PASS' \
+            'v063_save_integrity:V0.63 VERIFIED BACKUP ATOMIC GAME SAVE AND INTERRUPTED-WRITE RECOVERY PASS' \
+            'v062_market_world:V0.62 ENTERABLE HOUSING STAFFED MARKET AND PERSISTENT TRADES PASS' \
+            'v061_workshop_world:V0.61 PHYSICAL WORKING STREETS SAFE EMPLOYMENT AND PERSISTENT WAGES PASS' \
+            'v054_geography:V0.54 KNOWN WORLD ATLAS AND 1:1 MAGNARA GEOGRAPHY PASS'; do
+            testfile="${item%%:*}"; expected="${item#*:}"
+            export XDG_DATA_HOME="$RUNNER_TEMP/v071-legacy-$testfile"
+            mkdir -p "$XDG_DATA_HOME"
+            timeout 145s godot --headless --path . "res://tests/${testfile}_scene.tscn" --quit-after 700 2>&1 | tee "${testfile}.log"
+            if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' "${testfile}.log"; then exit 1; fi
+            grep -Fq "$expected" "${testfile}.log"
+          done
+          export XDG_DATA_HOME="$RUNNER_TEMP/v071-guild-rules"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 135s godot --headless --path . res://tests/v069_will_seals_guild_rules_scene.tscn --quit-after 600 2>&1 | tee v069_guild_rules.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v069_guild_rules.log; then exit 1; fi
+          grep -Fq 'V0.69 TRIAD GOLD GRAND GATES POSTURE PARRY FINITE SEAL DIRECTOR DAILY CONTRACT RULES PASS' v069_guild_rules.log
+          export XDG_DATA_HOME="$RUNNER_TEMP/v071-muti"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 120s godot --headless --path . res://tests/v046_muti_scene.tscn --quit-after 500 2>&1 | tee v046_muti.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v046_muti.log; then exit 1; fi
+      - name: Export playable HTML5 browser game
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          timeout 180s godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v071-export.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v071-export.log; then exit 1; fi
+          for ext in html js wasm pck; do test -s "build/web/index.${ext}"; done
+      - name: Upload playable candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v071-magnara-ocean-commerce-web
+          path: build/web/
+          if-no-files-found: error
+      - name: Upload diagnostics if failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v071-debug
+          if-no-files-found: ignore
+          path: |
+            v071-import.log
+            v071-startup.log
+            v071-rules.log
+            v071-world.log
+            v068_roof_world.log
+            v067_stream_world.log
+            v066_business_world.log
+            v065_population_world.log
+            v064_civic_world.log
+            v063_save_integrity.log
+            v062_market_world.log
+            v061_workshop_world.log
+            v054_geography.log
+            v046_muti.log
+            v070_mobility_carrier_trial_world.log
+            v069_guild_rules.log
+            v071-export.log
