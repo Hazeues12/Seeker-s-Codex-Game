@@ -25,6 +25,9 @@ var dodge_direction: Vector3 = Vector3.ZERO
 var seeker_rig: Node3D
 var guard_active: bool = false
 var guard_window: float = 0.0
+# Timed physical parries are ordinary guard practice. Not unlocked Kyōmei-shi.
+var parry_age: float = 999.0
+var guard_held_last_frame: bool = false
 
 # V0.39: movement-state rules are independent of action-button presses.
 var jumps_used: int = 0
@@ -155,7 +158,15 @@ func _physics_process(delta: float) -> void:
     dodge_cooldown = maxf(0.0, dodge_cooldown - delta)
     dodge_time = maxf(0.0, dodge_time - delta)
     guard_window = maxf(0.0, guard_window - delta)
-    guard_active = is_instance_valid(mobile_controls) and bool(mobile_controls.get("guarding")) and not editing and guard_window <= 0.0 and dodge_time <= 0.0
+    guard_active = (is_instance_valid(mobile_controls) and bool(mobile_controls.get("guarding"))
+        or Input.is_key_pressed(KEY_G)) and not editing and guard_window <= 0.0 and dodge_time <= 0.0
+    if guard_active and not guard_held_last_frame:
+        parry_age = 0.0
+    elif guard_active:
+        parry_age = minf(99.0, parry_age + delta)
+    else:
+        parry_age = 999.0
+    guard_held_last_frame = guard_active
     var wants_attack: bool = Input.is_key_pressed(KEY_F)
     var wants_dodge: bool = Input.is_key_pressed(KEY_Q)
     if is_instance_valid(mobile_controls):
