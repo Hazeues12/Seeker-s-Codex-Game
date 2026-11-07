@@ -5,6 +5,7 @@ extends Node3D
 # pairings are explicit GAME-ONLY examples. Restricted military basin sealed.
 const Waves = preload("res://systems/ocean_hydrodynamics_v071.gd")
 const Trade = preload("res://systems/margerina_commerce_rules_v071.gd")
+const SkiffScriptV072 = preload("res://world/steerable_skiff_v072.gd")
 const WATER_SHADER = preload("res://shaders/margerina_coastal_waves_v071.gdshader")
 const ANCHOR: Vector3 = Vector3(25000.0,0.0,4000.0)
 const PUBLIC_ENTRY: Vector3 = Vector3(28.5,0.84,26.0)
@@ -19,6 +20,7 @@ var harbor: Node3D
 var sea_mesh: MeshInstance3D
 var sea_material: ShaderMaterial
 var ship_bodies: Array[AnimatableBody3D] = []
+var skiff_controller: Node3D
 var crew: Array[Node3D] = []
 var route_catalog: Dictionary = {}
 var return_position: Vector3 = PUBLIC_ENTRY
@@ -182,6 +184,7 @@ func get_manifest() -> Dictionary:
         "offshore_wind_swell":true,"buoyancy_sample_points":4,
         "ship_classes":["small","medium","large"],
         "ships":ship_bodies.size(),"public_dock_workers":crew.size(),
+        "v072_helm_enabled":true,"v072_skiff":is_instance_valid(skiff_controller),
         "trade_route_status":"game_only_hypothetical_visualization",
         "atlas_waters":route_catalog.get("waters",[]).size(),
         "canon_harbor_military_basin_access":false,
@@ -205,6 +208,7 @@ func _info() -> void:
     details.text += "Civil vessels visible: %d | Incoming: %d | Outbound: %d\n" % [
         ship_bodies.size(),int(trade.get("inbound",0)),int(trade.get("outbound",0))]
     details.text += "3 classes: small boats, coastal cargo, large merchant vessels.\n"
+    details.text += "V0.72: One extra player-steerable public skiff and animated foam wake.\n"
     details.text += "Ship decks bob and pitch on CPU-sampled waves; the sea is animated on the GPU.\n"
     details.text += "Known sea names and Lake Lukka appear in the atlas; their borders are NOT invented.\n"
     details.text += "This is a provisional public commercial basin with no military-basin access.\n"
@@ -232,10 +236,20 @@ func interact(key: String) -> void:
     elif key.begins_with("ocean_v071_ship_"):
         if not active:
             return
+    elif key.begins_with("skiff_v072_"):
+        if active and is_instance_valid(skiff_controller):
+            skiff_controller.call("interact",key)
+        return
     else:
         return
     _info()
     info_panel.show()
+
+func get_nearest_skiff_interaction(point: Vector3, reach: float) -> Dictionary:
+    if active and is_instance_valid(skiff_controller) \
+            and skiff_controller.has_method("get_nearest_interaction"):
+        return skiff_controller.call("get_nearest_interaction",point,reach)
+    return {}
 
 func _make_harbor() -> void:
     harbor = Node3D.new()
@@ -284,6 +298,15 @@ func _make_harbor() -> void:
                 Vector3(1.3,0.52,1.3),Color(0.22,0.24,0.27),true)
         _sign(harbor,"PUBLIC CARGO BERTH %d" % (index+1),
             Vector3(-312,3.70,pier_z),22)
+    # This dedicated public berth sits south of the commercial lanes.
+    # Its slim pier touches the main quay yet stays outside the skiff deck,
+    # leaving a real jumpable gap without overlapping physics colliders.
+    _block(harbor,"V072SkiffQuayConnector",Vector3(-329,1.18,-293.0),
+        Vector3(7.5,0.30,23.0),Color(0.58,0.53,0.44),true)
+    _block(harbor,"V072SkiffPublicFingerPier",Vector3(-266,1.18,-304.0),
+        Vector3(137,0.30,4.6),Color(0.57,0.52,0.44),true)
+    _sign(harbor,"PUBLIC HELM TRAINING / BOARD ON FOOT / GAME-ONLY",
+        Vector3(-310,4.4,-304.0),19)
     for i in range(15):
         var z: float = -273.0+float(i)*39.0
         _block(harbor,"V071WarehouseCargoStack",Vector3(-390,1.60,z),
@@ -295,6 +318,10 @@ func _make_harbor() -> void:
         Vector3(-348,8.2,-32),30)
     _make_workers()
     _make_ships()
+    skiff_controller = SkiffScriptV072.new()
+    skiff_controller.name = "V072PublicSteerableHarborSkiff"
+    harbor.add_child(skiff_controller)
+    skiff_controller.call("setup",player,hub,self)
     var marker := Node3D.new()
     marker.name = "V071ReturnToCity"
     marker.position = Vector3(-346,2.1,-44)
@@ -389,6 +416,9 @@ func _leave() -> void:
         if str(registered[i].get("id","")) == "ocean_v071_return":
             registered.remove_at(i)
     hub.set("locations",registered)
+    if is_instance_valid(skiff_controller) and skiff_controller.has_method("release_helm"):
+        skiff_controller.call("release_helm")
+    skiff_controller = null
     ship_bodies.clear()
     crew.clear()
     sea_mesh = null
