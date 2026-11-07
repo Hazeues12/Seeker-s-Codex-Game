@@ -240,9 +240,12 @@ func interact(key: String) -> void:
 func _make_harbor() -> void:
     harbor = Node3D.new()
     harbor.name = "V071PhysicalCivilHarborPreview"
-    harbor.global_position = ANCHOR
     harbor.add_to_group("v071_streamed_ocean_tile")
     add_child(harbor)
+    # A global transform may only be applied AFTER a Node3D enters tree.
+    # Earlier placement emitted Godot's !is_inside_tree() warning and could
+    # desynchronize the ship physics hulls from the ocean survey geometry.
+    harbor.global_position = ANCHOR
     var patch := PlaneMesh.new()
     patch.size = Vector2(Waves.TILE_WIDTH,Waves.TILE_WIDTH)
     patch.subdivide_width = 96
