@@ -152,6 +152,12 @@ func _physics_process(delta: float) -> void:
     var market_quarter: Node = get_tree().get_first_node_in_group("magnara_markets_v062")
     if is_instance_valid(market_quarter) and market_quarter.has_method("is_open"):
         editing = editing or bool(market_quarter.call("is_open"))
+    var carrier_info: Node = get_tree().get_first_node_in_group("v070_public_carrier")
+    if is_instance_valid(carrier_info) and carrier_info.has_method("is_open"):
+        editing = editing or bool(carrier_info.call("is_open"))
+    var trial_ui: Node = get_tree().get_first_node_in_group("v070_spatial_trialboard")
+    if is_instance_valid(trial_ui) and trial_ui.has_method("is_open"):
+        editing = editing or bool(trial_ui.call("is_open"))
     var public_seals: Node = get_tree().get_first_node_in_group("v069_public_seals")
     if is_instance_valid(public_seals) and public_seals.has_method("is_open"):
         editing = editing or bool(public_seals.call("is_open"))
