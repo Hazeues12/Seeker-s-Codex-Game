@@ -37,7 +37,7 @@ static func sanitize(source: Variant) -> Dictionary:
     var steps: Array = value["steps"]
     if steps.size() != MAX_STEPS or steps != expected["steps"]:
         return {}
-    expected["armed"] = value.get("armed", false) == true
+    expected["armed"] = typeof(value.get("armed", false)) == TYPE_BOOL and bool(value.get("armed", false))
     return expected
 
 static func arm(value: Variant) -> Dictionary:
@@ -60,7 +60,7 @@ static func ledger(raw: Variant) -> Dictionary:
         if parts.size() != 2 or parts[0] != "day" or not parts[1].is_valid_int():
             continue
         var day: int = int(parts[1])
-        if day < 1 or day > MAX_DAY or original[stamp] != true:
+        if day < 1 or day > MAX_DAY or typeof(original[stamp]) != TYPE_BOOL or not bool(original[stamp]):
             continue
         clean[key] = true
         if clean.size() >= MAX_RECEIPTS:
