@@ -3,6 +3,7 @@ extends Node3D
 # V0.35 first combat sandbox: real enemy HP, cone/range hits, visible windups,
 # chase/patrol AI, player HP, dodge avoidance, combo practice and safe respawn.
 const ConstructScript = preload("res://combat/sparring_construct.gd")
+const Posture = preload("res://combat/triad_posture_rules_v069.gd")
 const AmbientLifeScript = preload("res://world/ambient_life.gd")
 const PLAYER_MAX_HEALTH: int = 100
 const PLAYER_HIT_GRACE: float = 0.75
@@ -10,6 +11,10 @@ const ENEMY_RESPAWN_SECONDS: float = 6.0
 
 var player: CharacterBody3D
 var player_health: int = PLAYER_MAX_HEALTH
+var player_posture: float = Posture.MAX_POSTURE
+var player_posture_break_time: float = 0.0
+var perfect_parry_count: int = 0
+var posture_notice: Label
 var hurt_grace: float = 0.0
 var ko_timer: float = 0.0
 var alchemy_shield_time: float = 0.0
@@ -54,6 +59,9 @@ func _process(delta: float) -> void:
     hurt_grace = maxf(0.0, hurt_grace - delta)
     alchemy_shield_time = maxf(0.0, alchemy_shield_time - delta)
     combat_notice_timer = maxf(0.0, combat_notice_timer - delta)
+    player_posture_break_time = maxf(0.0, player_posture_break_time - delta)
+    if player_posture_break_time <= 0.0:
+        player_posture = Posture.recover(player_posture,delta)
     if ko_timer > 0.0:
         ko_timer -= delta
         if ko_timer <= 0.0:
@@ -240,12 +248,43 @@ func _receive_enemy_attack(amount: int) -> void:
         alchemy_shield_time = 0.0
         _announce("ALCHEMY: your temporary ward absorbed a sparring hit.", 2.0)
         return
+    # Newly raised guard grants a short physical reflex-parry. This is
+    # not player Kyōmei-shi mastery: Sight requires mentor/story permission.
+    if player_posture_break_time <= 0.0 and Posture.parry(float(player.get("parry_age")),
+            bool(player.get("guard_active"))):
+        var hub_parry: Node = get_tree().get_first_node_in_group("hub_manager")
+        if is_instance_valid(hub_parry) and float(hub_parry.get("stamina")) >= 5.0:
+            hub_parry.set("stamina", maxf(0.0, float(hub_parry.get("stamina")) - 5.0))
+            player.set("parry_age", 999.0)
+            player_posture = minf(Posture.MAX_POSTURE, player_posture + 14.0)
+            perfect_parry_count += 1
+            var source: CharacterBody3D = null
+            var nearest: float = 3.6
+            for enemy in enemies + field_enemies:
+                if not is_instance_valid(enemy) or not bool(enemy.call("is_active")):
+                    continue
+                var distance: float = enemy.global_position.distance_to(player.global_position)
+                if distance < nearest:
+                    nearest = distance
+                    source = enemy
+            if is_instance_valid(source) and source.has_method("receive_posture_damage"):
+                source.call("receive_posture_damage", 33.0, player.global_position)
+            _announce("PERFECT PARRY! +14 posture; enemy guard pressured.", 1.7)
+            _refresh_hud()
+            return
     var guarded: bool = false
-    if bool(player.get("guard_active")):
+    if player_posture_break_time <= 0.0 and bool(player.get("guard_active")):
         var hub: Node = get_tree().get_first_node_in_group("hub_manager")
         if is_instance_valid(hub) and hub.has_method("spend_guard_stamina"):
             guarded = bool(hub.call("spend_guard_stamina"))
     var final_damage: int = maxi(1, int(round(float(amount) * 0.30))) if guarded else amount
+    var pressure: Dictionary = Posture.posture_hit(player_posture, float(amount) * 1.65, guarded)
+    if bool(pressure.get("valid", false)):
+        player_posture = float(pressure.get("remaining", player_posture))
+        if bool(pressure.get("break", false)):
+            player_posture_break_time = 1.5
+            guarded = false
+            final_damage = amount
     player_health = maxi(0, player_health - final_damage)
     _flash_damage()
     hurt_grace = PLAYER_HIT_GRACE
@@ -267,6 +306,8 @@ func _recover_player() -> void:
     if not is_instance_valid(player):
         return
     player_health = PLAYER_MAX_HEALTH
+    player_posture = Posture.MAX_POSTURE
+    player_posture_break_time = 0.0
     player.global_position = Vector3(0.0, 1.0, 2.0)
     player.velocity = Vector3.ZERO
     combo = 0
@@ -351,6 +392,15 @@ func _create_hud() -> void:
     style.bg_color = Color(0.86, 0.22, 0.32)
     player_health_bar.add_theme_stylebox_override("fill", style)
     root.add_child(player_health_bar)
+    posture_notice = Label.new()
+    posture_notice.name = "V069PhysicalPostureHud"
+    posture_notice.add_theme_font_size_override("font_size", 17)
+    posture_notice.offset_left = 22.0
+    posture_notice.offset_top = 181.0
+    posture_notice.offset_right = 470.0
+    posture_notice.offset_bottom = 206.0
+    posture_notice.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    root.add_child(posture_notice)
     combat_notice = Label.new()
     combat_notice.add_theme_font_size_override("font_size", 21)
     combat_notice.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -396,6 +446,10 @@ func _refresh_hud() -> void:
     if is_instance_valid(player_health_bar):
         player_health_bar.value = player_health
     if is_instance_valid(player_health_text):
-        player_health_text.text = "HEALTH  %d / %d   |   V0.36 COMBAT" % [player_health, PLAYER_MAX_HEALTH]
+        player_health_text.text = "HEALTH  %d / %d   |   V0.69 GUARD" % [player_health, PLAYER_MAX_HEALTH]
+    if is_instance_valid(posture_notice):
+        posture_notice.text = "POSTURE %d/100 | PARRY: raise GUARD near impact" % int(player_posture)
+        if player_posture_break_time > 0.0:
+            posture_notice.text = "POSTURE BROKEN | recover %.1fs" % player_posture_break_time
     if is_instance_valid(combat_notice) and combat_notice_timer <= 0.0:
         combat_notice.text = ""
