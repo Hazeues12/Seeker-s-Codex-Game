@@ -1,0 +1,320 @@
+name: Margerina V0.75 - All Ring Street Networks and Skyline Variation
+
+on:
+  push:
+    branches: [margerina-v075-connected-streetscapes-staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-full-city-streets-and-junctions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - name: Checkout isolated V0.75 staging
+        uses: actions/checkout@v4
+        with:
+          ref: margerina-v075-connected-streetscapes-staging
+      - name: Audit seven-ring street mesh, real road junction coordinates, varied GPU roofs and original canon protections
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          scene=Path('scenes/main.tscn').read_text()
+          required=['SealTrainingBenchV069','PublicGuildDirectorV069','MagnaraLegacyRoofwaysV069','MagnaraStreamedBlocksV067','MagnaraBusinessesV066']
+          assert all(x in scene for x in required)
+          hub=Path('systems/hub_manager.gd').read_text()
+          player=Path('characters/player_controller.gd').read_text()
+          assert all(x in hub for x in ['guild_director_v069','seal_v069_practice','guild_v069_','_save_game'])
+          assert all(x in player for x in ['parry_age','guard_held_last_frame','v069_public_seals','v069_public_director'])
+          triad=Path('combat/triad_posture_rules_v069.gd').read_text()
+          assert '"Gold"' in triad and '"Grand"' in triad and 'creator_gate' in triad
+          assert 'on_impact' in Path('combat/combat_arena.gd').read_text()
+          assert 'receive_posture_damage' in Path('combat/sparring_construct.gd').read_text()
+          seals=Path('systems/alchemic_seal_rules_v069.gd').read_text()
+          assert 'MAX_STEPS: int = 3' in seals and 'eval(' not in seals
+          jobs=Path('systems/guild_public_director_v069.gd').read_text()
+          assert '"shop_watch"' in jobs and 'receipt_key' in jobs
+          assert 'Phantom Tola' not in Path('world/public_guild_director_v069.gd').read_text().split('func _make_board')[1]
+          roster=json.loads(Path('data/seeker_character_registry_v065.json').read_text())
+          assert len(roster['canon_cast'])==64 and len(roster['civilian_roster'])==31
+          assert next(x for x in roster['canon_cast'] if x['id']=='rin_kairo')['spawn_policy']=='scripted_only'
+          assert Path('docs/V069_TRIAD_SEALS_PUBLIC_GUILD_ROOFWAYS.md').is_file()
+          assert all(x in scene for x in ('MagnaraMovingCarrierV070','SpatialPracticeTrialboardV070'))
+          assert 'BurstButton' in Path('ui/mobile_controls.tscn').read_text()
+          assert 'try_aura_burst' in hub and 'position_to_save' in hub
+          assert 'burst_remaining' in player and 'jump_buffer_seconds' in player
+          carrier=Path('world/magnara_moving_carrier_v070.gd').read_text()
+          assert all(x in carrier for x in ('AnimatableBody3D','PathFollow3D','sync_to_physics = false','V070CarrierFloorCollision'))
+          trial=Path('world/spatial_practice_trialboard_v070.gd').read_text()
+          assert all(x in trial for x in ('room.queue_free()','get_safe_save_position','_create_room'))
+          assert 'carrier_safety' in Path('systems/guild_public_director_v069.gd').read_text()
+          catalog=json.loads(Path('data/seeker_power_components_v068.json').read_text())
+          momentum=next(t for t in catalog['techniques'] if t['id']=='aura_momentum_v070')
+          assert momentum['aura_cost']==16 and momentum['spokes']==['Martial'] and momentum['canonical_status']=='game_only_training'
+          assert Path('docs/V070_AURA_PARKOUR_MOVING_CARRIER_SPATIAL_TRIAL.md').is_file()
+          for module in ('MagnaraExpandedWardsV071','MargerinaLandCommerceV071','MargerinaOceanCommerceV071'):
+              assert module in scene, module
+          totals=Path('systems/magnara_expansion_rules_v071.gd').read_text()
+          assert all(v in totals for v in ('const PEOPLE: int = 12','const PARCELS: int = 6','MAX_ACTIVE: int = 9','game_only'))
+          assert all(v in hub for v in ('ocean_v071','get_safe_save_position','ward_v071_'))
+          assert 'water_contact_v071' in player and 'surface_at' in player
+          assert Path('shaders/margerina_coastal_waves_v071.gdshader').is_file()
+          assert Path('shaders/margerina_river_currents_v071.gdshader').is_file()
+          sea=Path('world/margerina_ocean_commerce_v071.gd').read_text()
+          assert all(v in sea for v in ('AnimatableBody3D','ShaderMaterial','V071ShipWalkableDeckCollision','military'))
+          atlas=json.loads(Path('data/margerina_water_commerce_registry_v071.json').read_text())
+          assert atlas['scope']=='known_world_only'
+          lukka=next(w for w in atlas['waters'] if w['id']=='lake_lukka')
+          assert lukka['nation']=='Africanus'
+          assert next(w for w in atlas['waters'] if w['id']=='emerald_river')['nation'] is None
+          assert all(x['status'].startswith('game_only') for x in atlas['maritime_simulation'])
+          assert not any(x['destination'] in ('Zuba','Abyssal Ocean','Terragigantus') for x in atlas['maritime_simulation'])
+          assert Path('docs/V071_MAGNARA_OCEAN_TRADE_WATERS.md').is_file()
+          assert 'MagnaraWardInteriorsV072' in scene
+          assert 'v072_enterable_wards' in hub and 'interior_v072_' in hub
+          assert 'skiff_v072_' in hub and 'get_nearest_skiff_interaction' in hub
+          assert 'v072_steerable_skiff' in player
+          assert 'V072RealPublicFloor' in Path('world/magnara_ward_interiors_v072.gd').read_text()
+          assert 'V072OpenDoorFacade' in Path('world/magnara_ward_interiors_v072.gd').read_text()
+          assert 'inside_public_venue' in Path('systems/magnara_expansion_rules_v071.gd').read_text()
+          assert 'InteriorRulesV072.VENUE_SLOT' in Path('world/magnara_expanded_wards_v071.gd').read_text()
+          skiff=Path('world/steerable_skiff_v072.gd').read_text()
+          assert all(term in skiff for term in ('AnimatableBody3D','V072WalkableSteeringDeckCollider','V072FoamAndWaveWakeGPU','LEFT','FASTER','SLOWER','RIGHT'))
+          assert 'skiff_controller' in sea and 'V072SkiffPublicFingerPier' in sea
+          assert 'SAFE_INNER_BOUND' in Path('systems/ocean_helm_rules_v072.gd').read_text()
+          assert Path('docs/V072_PUBLIC_INTERIORS_STEERABLE_SKIFF.md').is_file()
+          assert 'MagnaraLocalLogisticsV073' in scene
+          assert 'v073_public_logistics' in hub and 'local_trade_v073' in hub
+          assert 'DOCK_TRIGGER_Z' in Path('world/margerina_land_commerce_v071.gd').read_text()
+          assert 'V073PhysicalCarriedCargo' in Path('world/magnara_local_logistics_v073.gd').read_text()
+          assert 'V073PublicStockCrate' in Path('world/magnara_ward_interiors_v072.gd').read_text()
+          assert 'V073SameExistingEveningHouseholdGuest' in Path('world/magnara_ward_interiors_v072.gd').read_text()
+          assert 'evening_household_visit' in Path('systems/magnara_expansion_rules_v071.gd').read_text()
+          freight=Path('systems/magnara_local_logistics_rules_v073.gd').read_text()
+          assert all(x in freight for x in ('WAGON_COUNT: int = 3','DELIVERY_UNITS: int = 4','RECEIPT_LIMIT','pending','receipts','STOCK_LIMIT'))
+          assert not any(x in freight for x in ('eval(', 'OS.execute', 'Abyssal Ocean crossing'))
+          assert Path('docs/V073_MAGNARA_LOCAL_FREIGHT_EVENING_LIFE.md').is_file()
+          # Latest author correction: ocean-going port is outermost Ring VII.
+          mag=json.loads(Path('data/magnara_atlas_v052.json').read_text())
+          water=json.loads(Path('data/margerina_water_commerce_registry_v071.json').read_text())
+          assert mag['ring_count']==7
+          assert mag['port_geography']['main_seaport_ring']==7
+          assert mag['port_geography']['inland_distribution_ring']==2
+          assert next(x for x in water['harbors'] if x['id']=='iron_cothon')['ring']==7
+          assert water['local_canals']['ring']==2
+          assert water['local_canals']['ocean_vessels_allowed'] is False
+          assert water['local_canals']['large_commercial_seaport'] is False
+          assert next(x for x in water['harbors'] if x['id']=='iron_cothon_civil_survey_v071')['real_inter_ring_transport'] is False
+          view=Path('world/margerina_ocean_commerce_v071.gd').read_text()
+          assert 'RING VII SEAPORT' in view and 'REMOTE SURVEY' in view
+          assert 'ring_two_has_major_ocean_berth":false' in view
+          freight=Path('world/magnara_local_logistics_v073.gd').read_text()
+          assert 'INLAND GOODS DEPOT' in freight and 'maritime_dock":false' in freight
+          assert 'INLAND_DEPOT_AT' in Path('systems/magnara_local_logistics_rules_v073.gd').read_text()
+          assert 'PortV0731.MAJOR_SEAPORT_RING' in Path('systems/margerina_commerce_rules_v071.gd').read_text()
+          assert Path('docs/MAGNARA_CANON_BLUEPRINT.md').is_file()
+          assert 'MagnaraSevenRingFoundationV074' in scene
+          ring=Path('systems/magnara_seven_ring_rules_v074.gd').read_text()
+          assert 'CITY_DIAMETER_M: float = 26000.0' in ring
+          assert 'RADIAL_COUNT: int = 12' in ring and 'PLOTS_PER_TILE: int = 64' in ring
+          assert 'MAX_CLOSE_COLLIDERS: int = 34' in ring
+          assert 'protected_existing_ward' in ring and 'actual_interior":false' in ring
+          assert 'V074AllSevenRingsAndTwelveRadialAvenues' in Path('world/magnara_seven_ring_foundation_v074.gd').read_text()
+          assert 'V074TwoKilometerLongRangeCitySkylineGPU' in Path('world/magnara_seven_ring_foundation_v074.gd').read_text()
+          assert 'V074CityMapButton' in Path('world/magnara_seven_ring_foundation_v074.gd').read_text()
+          assert 'magnara_seven_ring_foundation_v074' in hub
+          assert 'magnara_seven_ring_foundation_v074' in player
+          assert 'MARITIME / HARBOR PLANNING' not in Path('systems/known_world_geometry_v054.gd').read_text()
+          assert 'outer_maritime_port' in Path('data/known_world_v054.json').read_text()
+          assert len(json.loads(Path('data/known_world_v054.json').read_text())['magnara']['ring_specs'])==7
+          assert Path('docs/V074_ALL_SEVEN_RINGS_CITY_FIRST.md').is_file()
+          assert 'MagnaraStreetscapeV075' in scene
+          assert Path('systems/magnara_streetscape_rules_v075.gd').is_file()
+          strips=Path('world/magnara_streetscape_v075.gd').read_text()
+          assert all(name in strips for name in ('V075ContinuousInterBuildingStreetsGPU','V075ProvisionalRoofCrownShapesGPU','V075ProvisionalFacadeReliefGPU','V075RealRingRadialJunction_'))
+          assert 'MAX_NEAR_STREET_CHUNKS: int = 9' in Path('systems/magnara_streetscape_rules_v075.gd').read_text()
+          assert 'MAX_JUNCTION_MARKERS: int = 5' in Path('systems/magnara_streetscape_rules_v075.gd').read_text()
+          assert 'protected_existing_ward' in strips
+          assert 'StreetsV075.junction' in Path('ui/magnara_ring_map_v074.gd').read_text()
+          assert Path('docs/V075_CONNECTED_STREETS_COMBAT_BACKLOG.md').is_file()
+          print('V0.75 SEVEN RINGS LOCAL ROAD AND VARIED SKYLINE SOURCE AUDIT PASS')
+          PY
+      - name: Install Godot 4.4.1 and HTML5 templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+      - name: Import all scripts and boot full game
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 180s godot --headless --path . --editor --import --quit 2>&1 | tee v074-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v074-import.log; then exit 1; fi
+          timeout 150s godot --headless --path . --quit-after 220 2>&1 | tee v074-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v074-startup.log; then exit 1; fi
+      - name: Validate all seven rings local street/junction architecture rules
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v075-rules"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 150s godot --headless --path . res://tests/v075_connected_streets_rules_scene.tscn --quit-after 800 2>&1 | tee v075-rules.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v075-rules.log; then exit 1; fi
+          grep -Fq 'V0.75 ALL SEVEN RINGS LOCAL 28M STREET FABRIC 84 REAL AVENUE JUNCTIONS VARIED GPU ROOFS NO INVENTED LANDMARKS PASS' v075-rules.log
+      - name: Test actual city across all seven rings with real local roads and 3D junctions
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v075-world"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 190s godot --headless --path . res://tests/v075_connected_streets_world_scene.tscn --quit-after 1300 2>&1 | tee v075-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v075-world.log; then exit 1; fi
+          grep -Fq 'V0.75 LIVE ALL SEVEN 26KM RINGS LOCAL WALKABLE STREET FABRIC GPU ROOF VARIETY ROAD JUNCTION SIGNS ORIGINAL QUARTER AND SAVES PASS' v075-world.log
+      - name: Validate complete seven ring city geometry and urban density rules
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v074-rules"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 145s godot --headless --path . res://tests/v074_all_seven_ring_rules_scene.tscn --quit-after 600 2>&1 | tee v074-rules.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v074-rules.log; then exit 1; fi
+          grep -Fq 'V0.74 ALL SEVEN RINGS PHYSICAL 26KM CITY 531KM2 DENSE URBAN PARCELS 12 RADIAL ROADS RING VII PORT CANON RULES PASS' v074-rules.log
+      - name: Validate all seven rings inside the actual Godot game scene
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v074-world"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 185s godot --headless --path . res://tests/v074_all_seven_ring_world_scene.tscn --quit-after 1200 2>&1 | tee v074-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v074-world.log; then exit 1; fi
+          grep -Fq 'V0.74 LIVE SEVEN TRAVERSABLE MAGNARA RINGS 26KM CITY ALL 12 AVENUES DENSE GPU BLOCKS PHYSICS 2KM SKYLINE IPHONE MAP AND OLD SAVE PASS' v074-world.log
+      - name: Validate author Ring VII port geography inside the real game
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v0731-port-rules"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 145s godot --headless --path . res://tests/v0731_ring_vii_port_canon_scene.tscn --quit-after 680 2>&1 | tee v074-port.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v074-port.log; then exit 1; fi
+          grep -Fq 'V0.73.1 OUTERMOST RING VII SEA PORT RING II LOCAL CANAL ONLY INLAND FREIGHT AND REMOTE SURVEY CANON PASS' v074-port.log
+      - name: Validate wagon courier paths, once-only stock and shared after-hours resident routines
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v072-rules"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 135s godot --headless --path . res://tests/v073_local_freight_rules_scene.tscn --quit-after 600 2>&1 | tee v0731-rules.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v0731-rules.log; then exit 1; fi
+          grep -Fq 'V0.73 PHYSICAL PUBLIC WAGON COURIER STOCK ON ARRIVAL ONCE ONLY VERIFIED RECEIPTS TWELVE WARDS AND HOUSEHOLD NIGHT VISITS PASS' v0731-rules.log
+      - name: Test real wagon crossing, visible courier, save/reload and live stock in workroom
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v072-world"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 165s godot --headless --path . res://tests/v073_local_freight_world_scene.tscn --quit-after 780 2>&1 | tee v0731-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v0731-world.log; then exit 1; fi
+          grep -Fq 'V0.73 LIVE WAGON TO ROAD COURIER REAL SIX CRATES SAVED ONCE DELIVERY EVENING FAMILY AND ORIGINAL OCEAN PASS' v0731-world.log
+      - name: Run previous Ring VII and V0.73-V0.54 live city, sea, freight and combat regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          for item in \
+            'v073_local_freight_world:V0.73 LIVE WAGON TO ROAD COURIER REAL SIX CRATES SAVED ONCE DELIVERY EVENING FAMILY AND ORIGINAL OCEAN PASS' \
+            'v072_interiors_helm_world:V0.72 REAL ENTERABLE THIRTY WARD WORKROOMS HOUSEHOLD SHIFT OPEN DOOR HELM AND PLAYER-CARRIED OCEAN WAKE SAVE PASS' \
+            'v071_city_ocean_world:V0.71 LIVE 180 BUILDING EXTENSION 360 HOUSEHOLDS SWIMMABLE WEATHER OCEAN SIX BUOYANT SHIPS ROAD FREIGHT AND PROVISIONAL RIVER PASS' \
+            'v070_mobility_carrier_trial_world:V0.70 LIVE AURA BURST IPHONE PLATFORM CARRY REAL RAIL PHYSICS AND SAFE TRIALBOARD SAVE PASS' \
+            'v069_will_seals_guild_world:V0.69 REAL GUARD PARRY PHYSICAL ROOFWAYS PROGRAMMABLE WARD AND VERIFIED GUILD PAYOUT PASS' \
+            'v068_roof_world:V0.68 PHYSICAL ROOF HOPS MODULAR CHUNK UNLOAD TOON HUD AURA VALIDATION PASS' \
+            'v067_stream_world:V0.67 STREAMING CHUNK UNLOAD RELOAD MODULAR MULTIMESH NPC LOD COLLISION CHAT PERSISTENCE PASS' \
+            'v066_business_world:V0.66 THREE PHYSICAL PUBLISHED BUSINESSES THIRTY-SEVEN SCHEDULED NPCS VERIFIED PURCHASES AND RELOAD PASS' \
+            'v065_population_world:V0.65 PHYSICAL TALKING BOAR 28 MOVING NPCS PUBLIC SQUAD GUILD SCHEDULE MEMORY PASS' \
+            'v064_civic_world:V0.64 THREE ENTERABLE CIVIC BUILDINGS INN CLINIC WORK AND PERSISTENT DAY CYCLE PASS' \
+            'v063_save_integrity:V0.63 VERIFIED BACKUP ATOMIC GAME SAVE AND INTERRUPTED-WRITE RECOVERY PASS' \
+            'v062_market_world:V0.62 ENTERABLE HOUSING STAFFED MARKET AND PERSISTENT TRADES PASS' \
+            'v061_workshop_world:V0.61 PHYSICAL WORKING STREETS SAFE EMPLOYMENT AND PERSISTENT WAGES PASS' \
+            'v054_geography:V0.54 KNOWN WORLD ATLAS AND 1:1 MAGNARA GEOGRAPHY PASS'; do
+            testfile="${item%%:*}"; expected="${item#*:}"
+            export XDG_DATA_HOME="$RUNNER_TEMP/v073-legacy-$testfile"
+            mkdir -p "$XDG_DATA_HOME"
+            timeout 145s godot --headless --path . "res://tests/${testfile}_scene.tscn" --quit-after 700 2>&1 | tee "${testfile}.log"
+            if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' "${testfile}.log"; then exit 1; fi
+            grep -Fq "$expected" "${testfile}.log"
+          done
+          export XDG_DATA_HOME="$RUNNER_TEMP/v074-legacy-v073-rules"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 145s godot --headless --path . res://tests/v073_local_freight_rules_scene.tscn --quit-after 650 2>&1 | tee v073_local_freight_rules.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v073_local_freight_rules.log; then exit 1; fi
+          grep -Fq 'V0.73 PHYSICAL PUBLIC WAGON COURIER STOCK ON ARRIVAL ONCE ONLY VERIFIED RECEIPTS TWELVE WARDS AND HOUSEHOLD NIGHT VISITS PASS' v073_local_freight_rules.log
+          export XDG_DATA_HOME="$RUNNER_TEMP/v073-legacy-v072-rules"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 135s godot --headless --path . res://tests/v072_interiors_helm_rules_scene.tscn --quit-after 600 2>&1 | tee v072_interiors_helm_rules.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v072_interiors_helm_rules.log; then exit 1; fi
+          grep -Fq 'V0.72 THIRTY ENTERABLE GROUND FLOORS SHARED NPC SHIFT STEERABLE WIND SKIFF FOUR POINT WATER WAKE AND SEA BOUNDS PASS' v072_interiors_helm_rules.log
+          export XDG_DATA_HOME="$RUNNER_TEMP/v073-legacy-v071-rules"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 135s godot --headless --path . res://tests/v071_city_ocean_rules_scene.tscn --quit-after 600 2>&1 | tee v071_city_ocean_rules.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v071_city_ocean_rules.log; then exit 1; fi
+          grep -Fq 'V0.71 THIRTY NEW STREAMED MAGNARA BLOCKS 360 NPC HOUSEHOLDS WEATHER OCEAN RIVER LAKE REGISTRY PUBLIC TRADE RULES PASS' v071_city_ocean_rules.log
+          export XDG_DATA_HOME="$RUNNER_TEMP/v073-guild-rules"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 135s godot --headless --path . res://tests/v069_will_seals_guild_rules_scene.tscn --quit-after 600 2>&1 | tee v069_guild_rules.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v069_guild_rules.log; then exit 1; fi
+          grep -Fq 'V0.69 TRIAD GOLD GRAND GATES POSTURE PARRY FINITE SEAL DIRECTOR DAILY CONTRACT RULES PASS' v069_guild_rules.log
+          export XDG_DATA_HOME="$RUNNER_TEMP/v073-muti"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 120s godot --headless --path . res://tests/v046_muti_scene.tscn --quit-after 500 2>&1 | tee v046_muti.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v046_muti.log; then exit 1; fi
+      - name: Export playable HTML5 browser game
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          timeout 180s godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v074-export.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v074-export.log; then exit 1; fi
+          for ext in html js wasm pck; do test -s "build/web/index.${ext}"; done
+      - name: Upload playable candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v075-seven-ring-streetscape-web
+          path: build/web/
+          if-no-files-found: error
+      - name: Upload diagnostics if failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v075-debug
+          if-no-files-found: ignore
+          path: |
+            v074-import.log
+            v074-startup.log
+            v0731-rules.log
+            v0731-world.log
+            v068_roof_world.log
+            v067_stream_world.log
+            v066_business_world.log
+            v065_population_world.log
+            v064_civic_world.log
+            v063_save_integrity.log
+            v062_market_world.log
+            v061_workshop_world.log
+            v054_geography.log
+            v046_muti.log
+            v075-world.log
+            v075-rules.log
+            v074-world.log
+            v074-rules.log
+            v073_local_freight_world.log
+            v072_interiors_helm_world.log
+            v072_interiors_helm_rules.log
+            v071_city_ocean_world.log
+            v070_mobility_carrier_trial_world.log
+            v071_city_ocean_rules.log
+            v069_guild_rules.log
+            v074-export.log
