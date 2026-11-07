@@ -108,6 +108,33 @@ func _run() -> void:
         if ring == 3 and int(manifest.get("commons_courts", 0)) < 1:
             _fail("Ring III has no streamed public courtyards")
             return
+        if ring == 3:
+            var lantern_position := Vector3.ZERO
+            for entry in decorated.values():
+                if not entry["lanterns"].is_empty():
+                    lantern_position = entry["root"].to_global(entry["lanterns"][0]["at"])
+                    break
+            if lantern_position == Vector3.ZERO:
+                _fail("Commons courtyards have no streamed lanterns")
+                return
+            player.global_position = lantern_position - Vector3.UP * 2.0
+            var lights: Array = visuals.get("commons_lights")
+            hub.set("world_minutes", 720.0)
+            visuals.call("_refresh_commons_lights")
+            if lights.any(func(light: OmniLight3D) -> bool: return light.visible):
+                _fail("Commons lamps cast light during the day")
+                return
+            hub.set("world_minutes", 1470.0)
+            visuals.call("_refresh_commons_lights")
+            if lights.size() != 4 or not lights[0].visible \
+                    or not lights[0].global_position.is_equal_approx(lantern_position):
+                _fail("night lighting did not pick the closest streamed lamp")
+                return
+            player.global_position = Vector3.ZERO
+            visuals.call("_refresh_commons_lights")
+            if lights.any(func(light: OmniLight3D) -> bool: return light.visible):
+                _fail("Commons lights stayed active outside their range")
+                return
         roles[ring]=int(manifest[index])
 
     # The original developed public Ring II remains precisely where it

@@ -4,7 +4,13 @@ extends Node3D
 # authored map, physical harbor, NPC faction war or canon shop locations.
 const Geo = preload("res://systems/known_world_geometry_v054.gd")
 const Rules = preload("res://systems/magnara_published_city_visual_rules_v076.gd")
+const MAX_COMMONS_LIGHTS: int = 4
+const COMMONS_LIGHT_DISTANCE: float = 24.0
+const LANTERN_COLOR := Color(1.0, 0.78, 0.43)
 var city: Node3D
+var hub: Node
+var commons_lights: Array[OmniLight3D] = []
+var material_lantern: StandardMaterial3D
 var player: CharacterBody3D
 var initialized: bool = false
 var decorated: Dictionary = {}
@@ -49,6 +55,19 @@ func _setup() -> void:
     material_masonry = _material(0.88,0.04)
     material_glass = _material(0.31,0.15)
     material_ground = _material(0.97,0.0)
+    hub = get_tree().get_first_node_in_group("hub_manager")
+    material_lantern = _material(0.55, 0.0)
+    material_lantern.emission_enabled = true
+    material_lantern.emission = LANTERN_COLOR
+    for index in range(MAX_COMMONS_LIGHTS):
+        var light := OmniLight3D.new()
+        light.name = "CommonsLanternLight%d" % index
+        light.light_color = LANTERN_COLOR
+        light.omni_range = 8.0
+        light.shadow_enabled = false
+        light.hide()
+        add_child(light)
+        commons_lights.append(light)
     initialized = true
     _refresh_tiles()
     set_process(true)
@@ -90,7 +109,8 @@ func _attach_to_tile(key: String,chunk: Dictionary) -> void:
         return
     var tile: Vector2i = chunk["cell"]
     var art: Dictionary = Rules.tile_art(tile)
-    var count: int = art["boxes"].size()+art["domes"].size()+art["parks"].size()
+    var count: int = art["boxes"].size() + art["domes"].size() \
+        + art["parks"].size() + art["lanterns"].size()
     if count == 0:
         return
     var layer := Node3D.new()
@@ -103,7 +123,8 @@ func _attach_to_tile(key: String,chunk: Dictionary) -> void:
         art["domes"],dome_mesh,material_glass)
     _gpu(layer,"V076CommonsParkGroundGPU",
         art["parks"],wall_mesh,material_ground)
-    decorated[key] = {"root":layer,"tile":tile,
+    _gpu(layer, "CommonsLanternGlassGPU", art["lanterns"], wall_mesh, material_lantern)
+    decorated[key] = {"root":layer,"tile":tile,"lanterns":art["lanterns"],
         "count":count,"stats":art["stats"]}
 
 func _refresh_tiles() -> void:
@@ -133,6 +154,35 @@ func _refresh_tiles() -> void:
         total_market_awnings += int(stat["market_awnings"])
         total_port_skylines += int(stat["outer_ring_gantries"])
         batch_instances += int(decorated[key]["count"])
+
+    _refresh_commons_lights()
+
+func _refresh_commons_lights() -> void:
+    for light in commons_lights:
+        light.hide()
+    if not is_instance_valid(hub):
+        return
+    var hour: float = fposmod(float(hub.get("world_minutes")), 1440.0) / 60.0
+    # Fade in at dusk and out at dawn using the saved city clock.
+    var night: float = maxf(smoothstep(18.0, 19.0, hour), 1.0 - smoothstep(5.0, 6.0, hour))
+    material_lantern.emission_energy_multiplier = night * 1.6
+    if night <= 0.0:
+        return
+    var candidates: Array[Dictionary] = []
+    for entry in decorated.values():
+        var layer: Node3D = entry["root"]
+        for lantern in entry["lanterns"]:
+            var at: Vector3 = layer.to_global(lantern["at"])
+            var distance: float = player.global_position.distance_squared_to(at)
+            if distance <= COMMONS_LIGHT_DISTANCE * COMMONS_LIGHT_DISTANCE:
+                candidates.append({"at": at, "distance": distance})
+    candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+        return a["distance"] < b["distance"])
+    for index in range(mini(candidates.size(), commons_lights.size())):
+        var light: OmniLight3D = commons_lights[index]
+        light.global_position = candidates[index]["at"]
+        light.light_energy = night * 1.2
+        light.show()
 
 func get_manifest() -> Dictionary:
     return {"version":76,"initialized":initialized,
