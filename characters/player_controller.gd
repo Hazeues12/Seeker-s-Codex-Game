@@ -163,6 +163,9 @@ func _physics_process(delta: float) -> void:
     var trial_ui: Node = get_tree().get_first_node_in_group("v070_spatial_trialboard")
     if is_instance_valid(trial_ui) and trial_ui.has_method("is_open"):
         editing = editing or bool(trial_ui.call("is_open"))
+    var interior_venues: Node = get_tree().get_first_node_in_group("v072_enterable_wards")
+    if is_instance_valid(interior_venues) and interior_venues.has_method("is_open"):
+        editing = editing or bool(interior_venues.call("is_open"))
     var new_wards: Node = get_tree().get_first_node_in_group("v071_expanded_magnara")
     if is_instance_valid(new_wards) and new_wards.has_method("is_open"):
         editing = editing or bool(new_wards.call("is_open"))
