@@ -96,7 +96,8 @@ func _run() -> void:
         return
     player.global_position = doorway+Vector3(inward*0.8,0.0,0)
     var nearest: Dictionary = hub.call("_nearest_location")
-    if str(nearest.get("id","")) != "interior_v072_entry_2:2":
+    if str(nearest.get("id","")) != "interior_v072_entry_2:2" \
+            or not nearest.has("title"):
         _fail("real open door isn't discoverable with existing phone TALK / USE")
         return
     hub.call("_interact")
@@ -113,7 +114,8 @@ func _run() -> void:
         return
     player.global_position = (room_data["staff"] as Node3D).global_position+Vector3(0,0,0.70)
     var worker_nearest: Dictionary = hub.call("_nearest_location")
-    if str(worker_nearest.get("id","")) != "interior_v072_staff_2:2":
+    if str(worker_nearest.get("id","")) != "interior_v072_staff_2:2" \
+            or not worker_nearest.has("title"):
         _fail("on-shift employee cannot be addressed as a physical NPC")
         return
     hub.set("world_minutes",1120.0)
@@ -174,7 +176,8 @@ func _run() -> void:
     for n in range(8):
         await get_tree().physics_frame
     var skiff_approach: Dictionary = hub.call("_nearest_location")
-    if str(skiff_approach.get("id","")) != "skiff_v072_helm":
+    if str(skiff_approach.get("id","")) != "skiff_v072_helm" \
+            or not skiff_approach.has("title"):
         _fail("the player can't take boat helm using the existing TALK / USE action")
         return
     hub.call("_interact")
