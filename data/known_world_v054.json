@@ -61,9 +61,9 @@
     },
     "ring_specs": [
       {
-        "id": "government",
+        "id": "inner_core_planning",
         "ring": 1,
-        "name": "Government Core",
+        "name": "Inner Core / Provisional",
         "inner_radius_m": 0,
         "outer_radius_m": 1000,
         "envelope_area_km2_proposed": 3.14,
@@ -83,9 +83,9 @@
         "landmarks_placed": []
       },
       {
-        "id": "civic",
+        "id": "unassigned_civic_planning",
         "ring": 3,
-        "name": "Civic / Guild / Spectacle",
+        "name": "Ring III / Urban Planning Reserve",
         "inner_radius_m": 2600,
         "outer_radius_m": 4700,
         "envelope_area_km2_proposed": 48.16,
@@ -116,26 +116,28 @@
         "landmarks_placed": []
       },
       {
-        "id": "harbor",
+        "id": "outer_infrastructure_planning",
         "ring": 6,
-        "name": "Iron Cothon / Harbor",
+        "name": "Ring VI / Unassigned Outer Infrastructure",
         "inner_radius_m": 8700,
         "outer_radius_m": 10700,
         "envelope_area_km2_proposed": 121.89,
         "design_status": "author_supplied_planning",
         "boundary_status": "provisional_ideal_ring",
-        "landmarks_placed": []
+        "landmarks_placed": [],
+        "port_status": "not_the_primary_seaport"
       },
       {
-        "id": "outer",
+        "id": "outer_maritime_port",
         "ring": 7,
-        "name": "Outer / Soot Wards",
+        "name": "Outermost Ring VII / Iron Cothon Maritime Port Reserve",
         "inner_radius_m": 10700,
         "outer_radius_m": 13000,
         "envelope_area_km2_proposed": 171.25,
         "design_status": "author_supplied_planning",
         "boundary_status": "provisional_ideal_ring",
-        "landmarks_placed": []
+        "landmarks_placed": [],
+        "port_status": "author_confirmed_outermost_seaport_location_exact_coastline_unplaced"
       }
     ],
     "known_landmarks_without_approved_coordinates": [
@@ -154,7 +156,18 @@
     ],
     "coastline_status": "unfinalized: ring VI is NOT rendered as canonical seawater",
     "ring_two_legacy_location": "existing hub near x0,z0 and Chapter90-inspired Ring Two z30..130 prototype",
-    "current_detail_level": "V0.53 small urban corridor; geographically incomplete"
+    "current_detail_level": "V0.53 small urban corridor; geographically incomplete",
+    "masterplan_v074": {
+      "status": "seven_ring_foundation_in_3d_no_new_narrative_placements",
+      "horizon_m": 1910,
+      "ring_avenue_loops": 7,
+      "radial_routes": 12,
+      "outermost_main_port_ring": 7,
+      "ring_two_minor_canals_only": true,
+      "coastline_and_port_position": "unplaced_pending_author_approved_coast",
+      "published_places_relocated": false,
+      "planning_footprint_is_not_book_lock": true
+    }
   },
   "nations": [
     {
