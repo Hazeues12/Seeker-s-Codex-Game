@@ -62,7 +62,9 @@ func _run() -> void:
         wards.call("_refresh_chunks")
     wards.call("_refresh_crowds")
     var chunks: Dictionary = wards.get("active_chunks")
-    if int(wards.call("active_chunk_count")) < 4 \
+    # At the eastmost column only three eligible V0.71 cells border the
+    # existing legacy V0.67 district; no phantom fourth tile is allowed.
+    if int(wards.call("active_chunk_count")) < 3 \
             or int(wards.call("active_chunk_count")) > Wards.MAX_ACTIVE:
         _fail("new city didn't stream on demand or broke nine-chunk mobile cap")
         return
