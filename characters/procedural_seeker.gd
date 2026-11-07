@@ -4,6 +4,7 @@ extends Node3D
 # Cosmetic only; collision, damage, Aura and movement stay in existing scripts.
 const ANIME_SHADER = preload("res://shaders/seeker_anime_v082.gdshader")
 const INK_SHADER = preload("res://shaders/seeker_ink_v082.gdshader")
+const ShinobiVisual = preload("res://characters/shinobi_black_visual.gd")
 const POSE_INTERVAL := 1.0 / 12.0
 var anime_style := false
 var pose_clock := 0.0
@@ -25,6 +26,7 @@ const RANK_TRIM: Dictionary = {
 var spoke_sash: MeshInstance3D
 var rank_cape: MeshInstance3D
 var cape_edge: MeshInstance3D
+var shinobi_visual: ShinobiVisual
 var appearance: String = "seeker"
 var animation_time: float = 0.0
 var attack_time: float = 0.0
@@ -74,6 +76,16 @@ func configure_anime_player() -> void:
     cape_edge = _cloth_panel("RankCapeTrim", 0.90, 1.0, Color.WHITE)
     GameState.rank_changed.connect(apply_rank_clothing)
     apply_rank_clothing(GameState.seeker_rank)
+
+func apply_shinobi_outfit(enabled: bool) -> void:
+    if enabled and shinobi_visual == null:
+        shinobi_visual = ShinobiVisual.new()
+        shinobi_visual.name = "ShinobiBlack"
+        add_child(shinobi_visual)
+    if shinobi_visual != null:
+        shinobi_visual.visible = enabled
+    body_root.visible = not enabled
+    last_pose = "outfit_change"
 
 func _cloth_panel(title: String, top: float, bottom: float, tint: Color) -> MeshInstance3D:
     var cloth := SurfaceTool.new()
@@ -418,7 +430,8 @@ func trigger_attack() -> void:
 func trigger_impact() -> void:
     impact_time = 0.24
 
-func animate_state(delta: float, planar_speed: float, dodging: bool = false, posture: String = "") -> void:
+func animate_state(delta: float, planar_speed: float, dodging: bool = false, posture: String = "",
+        airborne: bool = false) -> void:
     if not is_instance_valid(body_root):
         return
     animation_time += delta * (4.2 + minf(planar_speed, 9.0) * 0.90)
@@ -427,6 +440,8 @@ func animate_state(delta: float, planar_speed: float, dodging: bool = false, pos
     var pose: String = "dodge" if dodging else posture
     if pose.is_empty() and attack_time > 0.0:
         pose = "strike" if attack_time > 0.12 else "recover"
+    if pose.is_empty() and airborne:
+        pose = "air"
     if anime_style:
         pose_clock += delta
         if pose == last_pose and pose_clock < POSE_INTERVAL:
@@ -434,6 +449,9 @@ func animate_state(delta: float, planar_speed: float, dodging: bool = false, pos
         pose_clock = fposmod(pose_clock, POSE_INTERVAL)
         last_pose = pose
     var stride: float = clampf(planar_speed / 5.5, 0.0, 1.35)
+    if is_instance_valid(shinobi_visual) and shinobi_visual.visible:
+        shinobi_visual.present(animation_time, stride, pose)
+        return
     var wave: float = sin(animation_time)
     var swing: float = wave * stride * 0.62
     var seated: bool = posture == "picnic"
@@ -478,6 +496,9 @@ func animate_state(delta: float, planar_speed: float, dodging: bool = false, pos
 
 func apply_player_appearance(skin_id: int, hair_id: int, coat_id: int, aura_id: int) -> void:
     if not is_instance_valid(body_root) or appearance != "seeker":
+        return
+    if is_instance_valid(shinobi_visual) and shinobi_visual.visible:
+        shinobi_visual.set_skin(skin_id)
         return
     var skins: Array[Color] = [Color(0.69, 0.48, 0.37), Color(0.35, 0.23, 0.18), Color(0.85, 0.65, 0.52), Color(0.61, 0.49, 0.31)]
     var coats: Array[Color] = [Color(0.19, 0.32, 0.47), Color(0.19, 0.39, 0.31), Color(0.13, 0.15, 0.22), Color(0.51, 0.20, 0.25)]

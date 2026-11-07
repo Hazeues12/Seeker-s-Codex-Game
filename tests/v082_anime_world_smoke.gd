@@ -18,6 +18,8 @@ func _run() -> void:
     var player := game.get_node("Player") as CharacterBody3D
     var rig := player.get_node("AnimatedSeeker") as Rig
     var creator := game.get_node("SeekerCreator")
+    (creator.get("outfit_option") as OptionButton).select(0)
+    creator.call("_apply_preview")
     var sashes: OptionButton = creator.get("sash_option")
     sashes.select(2)
     creator.call("_save_appearance")

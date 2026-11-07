@@ -375,7 +375,8 @@ func _physics_process(delta: float) -> void:
         if direction.length_squared() > 0.04:
             var turn_to: float = atan2(-direction.x, -direction.z)
             seeker_rig.rotation.y = lerp_angle(seeker_rig.rotation.y, turn_to, minf(1.0, delta * 12.0))
-        seeker_rig.call("animate_state", delta, Vector2(velocity.x, velocity.z).length(), dodge_time > 0.0, "guard" if guard_active else "")
+        seeker_rig.call("animate_state", delta, Vector2(velocity.x, velocity.z).length(),
+            dodge_time > 0.0, "guard" if guard_active else "", not is_on_floor())
 
 
 func _hold_impact_frame() -> bool:

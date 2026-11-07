@@ -7,6 +7,7 @@ const SKINS: Array[String] = ["Warm", "Deep", "Light", "Olive"]
 const HAIRS: Array[String] = ["Short", "Spiky", "Topknot", "Cropped"]
 const COATS: Array[String] = ["Seeker Blue", "Forest Green", "Night Black", "Crimson"]
 const AURAS: Array[String] = ["Azure", "Gold", "Violet", "Jade"]
+const OUTFITS: Array[String] = ["Seeker Clothing", "Shinobi Black"]
 
 var player: CharacterBody3D
 var panel: PanelContainer
@@ -16,6 +17,7 @@ var hair_option: OptionButton
 var coat_option: OptionButton
 var aura_option: OptionButton
 var sash_option: OptionButton
+var outfit_option: OptionButton
 const SASHES: Array[String] = ["None", "Martial", "Elemental", "Spirit", "Psychic", "Spatial", "Alchemy", "Abyssal"]
 var feedback: Label
 var open_button: Button
@@ -93,6 +95,8 @@ func _make_ui() -> void:
     name_edit.custom_minimum_size.y = 42
     name_edit.text_changed.connect(_on_look_changed)
     stack.add_child(name_edit)
+    outfit_option = _choice(stack, "OUTFIT", OUTFITS)
+    outfit_option.select(1)
     skin_option = _choice(stack, "SKIN TONE", SKINS)
     hair_option = _choice(stack, "HAIRSTYLE", HAIRS)
     coat_option = _choice(stack, "SEEKER CLOTHING", COATS)
@@ -164,8 +168,14 @@ func _on_look_changed(_unused: Variant = null) -> void:
 func _apply_preview() -> void:
     if not is_instance_valid(player) or not is_instance_valid(skin_option):
         return
+    var shinobi: bool = outfit_option.selected == 1
+    hair_option.disabled = shinobi
+    coat_option.disabled = shinobi
+    aura_option.disabled = shinobi
+    sash_option.disabled = shinobi
     var rig: Node = player.get_node_or_null("AnimatedSeeker")
     if is_instance_valid(rig) and rig.has_method("apply_player_appearance"):
+        rig.call("apply_shinobi_outfit", shinobi)
         rig.call("apply_player_appearance", skin_option.selected, hair_option.selected, coat_option.selected, aura_option.selected)
         rig.call("apply_spoke_sash", SASHES[sash_option.selected])
         var codex: Node = get_tree().get_first_node_in_group("personal_codex")
@@ -189,7 +199,8 @@ func _save_appearance() -> void:
         "hair": hair_option.selected,
         "coat": coat_option.selected,
         "aura": aura_option.selected,
-        "spoke_sash": SASHES[sash_option.selected]
+        "spoke_sash": SASHES[sash_option.selected],
+        "outfit": OUTFITS[outfit_option.selected],
     }
     var file := FileAccess.open(SAVE_FILE, FileAccess.WRITE)
     if file == null:
@@ -219,3 +230,4 @@ func _load_appearance() -> void:
     coat_option.select(clampi(int(data.get("coat", 0)), 0, COATS.size() - 1))
     aura_option.select(clampi(int(data.get("aura", 0)), 0, AURAS.size() - 1))
     sash_option.select(maxi(0, SASHES.find(str(data.get("spoke_sash", "None")))))
+    outfit_option.select(maxi(0, OUTFITS.find(str(data.get("outfit", "Seeker Clothing")))))

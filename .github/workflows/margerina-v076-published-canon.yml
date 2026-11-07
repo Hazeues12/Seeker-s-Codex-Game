@@ -177,7 +177,18 @@ jobs:
         run: |
           set -euo pipefail
           timeout 180s godot --headless --path . --editor --import --quit 2>&1 | tee v074-import.log
-          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v074-import.log; then exit 1; fi
+          # Godot 4.4.1 tries to create a GLB editor thumbnail with the dummy renderer.
+          # Keep the known preview-only diagnostic out of the import error gate (godotengine/godot#108994).
+          if awk '
+            /reimport: step [0-9]+: shinobi_black\.glb$/ { shinobi = 1 }
+            shinobi && /^ERROR: Parameter "t" is null\.$/ {
+              error = $0
+              if (getline > 0 && /at: texture_2d_get .*dummy\/storage\/texture_storage\.h:/) next
+              print error
+            }
+            /^import: end$/ { shinobi = 0 }
+            { print }
+          ' v074-import.log | grep -E 'ERROR:|SCRIPT ERROR:|Parse Error'; then exit 1; fi
           timeout 150s godot --headless --path . --quit-after 220 2>&1 | tee v074-startup.log
           if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v074-startup.log; then exit 1; fi
       - name: Validate published Magnara ring canon, gameplay planning and deterministic city art
@@ -302,6 +313,7 @@ jobs:
         run: |
           set -euo pipefail
           for item in \
+            'v087_shinobi_visual:V0.87 SHINOBI BLACK SKINNED AVATAR POSES AND APPEARANCE SAVE PASS' \
             'v086_realtime_impact:V0.86 REAL-TIME STRIKE HIT-STOP KNOCKBACK AND DODGE PASS' \
             'v073_local_freight_world:V0.73 LIVE WAGON TO ROAD COURIER REAL SIX CRATES SAVED ONCE DELIVERY EVENING FAMILY AND ORIGINAL OCEAN PASS' \
             'v072_interiors_helm_world:V0.72 REAL ENTERABLE THIRTY WARD WORKROOMS HOUSEHOLD SHIFT OPEN DOOR HELM AND PLAYER-CARRIED OCEAN WAKE SAVE PASS' \
@@ -391,7 +403,7 @@ jobs:
                   const [result] = await Promise.all([
                       test.waitForEvent("console", {
                           predicate: message => message.text().includes(marker)
-                              || /V0\.82 ANIME WORLD:|V0\.86 REAL-TIME IMPACT:/.test(message.text()),
+                              || /V0\.82 ANIME WORLD:|V0\.86 REAL-TIME IMPACT:|V0\.87 SHINOBI VISUAL:/.test(message.text()),
                           timeout: 65000,
                       }),
                       test.goto("http://127.0.0.1:8765/qa.html"),
@@ -424,8 +436,11 @@ jobs:
                       requestAnimationFrame(() => requestAnimationFrame(resolve))));
                   if (errors.length) throw new Error(errors.join("\n"));
                   console.log("MARGERINA EXPORTED GAME STARTED IN CHROME");
+                  await page.locator("#canvas").screenshot({ path: "v087-gameplay.png" });
                   await page.close();
 
+                  await checkScene(browser, "res://tests/v087_shinobi_visual_scene.tscn",
+                      "V0.87 SHINOBI BLACK SKINNED AVATAR POSES AND APPEARANCE SAVE PASS", "v087-turnaround.png");
                   await checkScene(browser, "res://tests/v081_commons_trade_world_scene.tscn", tradePass);
                   console.log("MARGERINA EXPORTED COMMONS TRADE PASSED IN CHROME");
                   await checkScene(browser, "res://tests/v086_realtime_impact_scene.tscn",
@@ -447,14 +462,17 @@ jobs:
       - name: Upload playable candidate
         uses: actions/upload-artifact@v4
         with:
-          name: seeker-codex-v086-realtime-combat-web
+          name: seeker-codex-v087-shinobi-black-web
           path: build/web/
           if-no-files-found: error
       - name: Keep the Chrome visual check
         uses: actions/upload-artifact@v4
         with:
-          name: v085-chrome-render-check
-          path: v085-render.png
+          name: v087-chrome-render-check
+          path: |
+            v087-gameplay.png
+            v087-turnaround.png
+            v085-render.png
           if-no-files-found: error
       - name: Upload diagnostics if failed
         if: failure()
@@ -482,6 +500,7 @@ jobs:
             v080-commons-world.log
             v081-commons-trade.log
             v086_realtime_impact.log
+            v087_shinobi_visual.log
             v082-anime-world.log
             v081-browser.log
             v081-browser-server.log
