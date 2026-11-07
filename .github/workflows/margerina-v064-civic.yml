@@ -1,0 +1,123 @@
+name: Margerina V0.64 - Living Civic Streets and Services
+
+on:
+  push:
+    branches: [margerina-v064-civic-life-staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-physical-civic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 54
+    steps:
+      - name: Checkout protected V0.64 staging
+        uses: actions/checkout@v4
+        with:
+          ref: margerina-v064-civic-life-staging
+      - name: Check canon provenance and linked old systems
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          scene=Path("scenes/main.tscn").read_text()
+          world=Path("world/magnara_civic_v064.gd").read_text()
+          hub=Path("systems/hub_manager.gd").read_text()
+          rules=Path("systems/magnara_civic_rules_v064.gd").read_text()
+          runner=Path("characters/player_controller.gd").read_text()
+          codex=Path("systems/personal_codex.gd").read_text()
+          geography=Path("world/magnara_geography_v054.gd").read_text()
+          assert all(n in scene for n in ["MagnaraCivicV064","MagnaraMarketsV062","MagnaraWorkshopsV061","MagnaraResidentialV060","Player"])
+          assert all(n in world for n in ["CivicV064NorthStreet","CivicV064CrossAvenue","CivicV064InteriorFloor","CivicV064GuestBed","CivicV064RecoveryCot","CivicV064WorldCollision"])
+          assert "civic_v064" in hub and "civic_v064_" in hub and "magnara_civic_v064" in runner
+          assert "civic_v064" in codex and "CivicV064" in world
+          assert "SaveIntegrityV063.write_verified(data)" in hub and '"civic_v064": civic_v064' in hub
+          assert 'margerina_v033.json' in hub and 'seeker_profile_v1.json' in codex
+          assert "tile == Vector2i(0, 2)" in geography
+          assert all(key in rules for key in ["nights","slept","treatments","helped"])
+          assert Path("docs/V064_LIVING_CIVIC_QUARTER.md").is_file()
+          print("V0.64 CANON-BOUND CIVIC CITY AND PREVIOUS GAME LINKS PASS")
+          PY
+      - name: Install Godot 4.4.1 with Web templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+      - name: Import and boot full Margerina prototype
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 165s godot --headless --path . --editor --import --quit 2>&1 | tee v064-import.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v064-import.log; then exit 1; fi
+          timeout 125s godot --headless --path . --quit-after 190 2>&1 | tee v064-startup.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v064-startup.log; then exit 1; fi
+      - name: Test civic inn clinic and records daily rules
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v064-rules"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 100s godot --headless --path . res://tests/v064_civic_rules_scene.tscn --quit-after 450 2>&1 | tee v064-rules.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v064-rules.log; then exit 1; fi
+          grep -Fq 'V0.64 PUBLIC INN CLINIC CIVIC HOURS RECEIPTS AND DAILY LIMITS PASS' v064-rules.log
+      - name: Test actual civic roads doors beds staff transactions and save reload
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/v064-world"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 145s godot --headless --path . res://tests/v064_civic_world_scene.tscn --quit-after 560 2>&1 | tee v064-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v064-world.log; then exit 1; fi
+          grep -Fq 'V0.64 THREE ENTERABLE CIVIC BUILDINGS INN CLINIC WORK AND PERSISTENT DAY CYCLE PASS' v064-world.log
+      - name: Validate prior versions remain operational
+        shell: bash
+        run: |
+          set -euo pipefail
+          for item in \
+            'v063_save_integrity:V0.63 VERIFIED BACKUP ATOMIC GAME SAVE AND INTERRUPTED-WRITE RECOVERY PASS' \
+            'v062_market_rules:V0.62 DAILY MARKET INVENTORY PRICES SOCIAL MEMORY AND SAVE RULES PASS' \
+            'v062_market_world:V0.62 ENTERABLE HOUSING STAFFED MARKET AND PERSISTENT TRADES PASS' \
+            'v061_workshop_world:V0.61 PHYSICAL WORKING STREETS SAFE EMPLOYMENT AND PERSISTENT WAGES PASS' \
+            'v054_geography:V0.54 KNOWN WORLD ATLAS AND 1:1 MAGNARA GEOGRAPHY PASS'; do
+            t="${item%%:*}"; message="${item#*:}"
+            export XDG_DATA_HOME="$RUNNER_TEMP/v064-legacy-$t"
+            mkdir -p "$XDG_DATA_HOME"
+            timeout 145s godot --headless --path . "res://tests/${t}_scene.tscn" --quit-after 580 2>&1 | tee "${t}.log"
+            if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' "${t}.log"; then exit 1; fi
+            grep -Fq "$message" "${t}.log"
+          done
+      - name: Export playable internal Web build
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          timeout 175s godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v064-export.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v064-export.log; then exit 1; fi
+          for ext in html js wasm pck; do test -s "build/web/index.${ext}"; done
+      - name: Store internal V0.64 build
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v064-civic-city-internal
+          path: build/web/
+          if-no-files-found: error
+      - name: Save failure logs for diagnosis
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeker-codex-v064-civic-diagnostics
+          if-no-files-found: ignore
+          path: |
+            v064-import.log
+            v064-startup.log
+            v064-rules.log
+            v064-world.log
+            v063_save_integrity.log
+            v062_market_rules.log
+            v062_market_world.log
+            v061_workshop_world.log
+            v054_geography.log
+            v064-export.log
