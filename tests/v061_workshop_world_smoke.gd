@@ -88,7 +88,8 @@ func _run() -> void:
             _fail("the building entrance is disconnected " + id)
             return
         var actual_worker: Node = work.find_child("WorkshopWorker_" + id, true, false)
-        if actual_worker == null or actual_worker.find_child("WorkmanTorso", true, false) == null:
+        var look := actual_worker.get_node_or_null("Townsperson") as TownspersonVisual if actual_worker != null else null
+        if look == null or look.figure.skin == null:
             _fail("physical worker missing " + id)
             return
     var quarter_lantern: MeshInstance3D = work.find_child("WorkshopSafetySignal", true, false) as MeshInstance3D

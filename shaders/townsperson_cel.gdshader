@@ -8,7 +8,13 @@ uniform vec3 hair_linear = vec3(0.09, 0.07, 0.08);
 varying vec3 world_normal;
 
 void vertex() {
-    world_normal = MODEL_NORMAL_MATRIX * NORMAL;
+    vec3 normal = NORMAL;
+    if (UV.x >= 0.4 && UV.x < 0.6 && VERTEX.y > 1.05) {
+        float front = smoothstep(0.15, 0.88, -normal.z);
+        vec3 face = normalize(vec3(normal.x * 0.55, normal.y * 0.35, -0.92));
+        normal = normalize(mix(normal, face, front * 0.66));
+    }
+    world_normal = MODEL_NORMAL_MATRIX * normal;
 }
 
 void fragment() {

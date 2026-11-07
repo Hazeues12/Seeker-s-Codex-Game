@@ -52,7 +52,8 @@ func _run() -> void:
             _fail("house does not connect to the pedestrian street " + id)
             return
         var npc: Node3D = found_hub[id] as Node3D
-        if not is_instance_valid(npc) or npc.find_child("ResidentBody", true, false) == null:
+        var look := npc.get_node_or_null("Townsperson") as TownspersonVisual if is_instance_valid(npc) else null
+        if look == null or look.figure.skin == null:
             _fail("resident has no real 3D character " + id)
             return
     var corridor: Node = homes.find_child("ResidentialStreetWalkable", true, false)
