@@ -256,8 +256,11 @@ func _physics_process(delta: float) -> void:
     water_current_v071 = Vector3.ZERO
     if not water_read.is_empty():
         water_surface_y_v071 = float(water_read.get("height",0.0))
-        water_contact_v071 = not is_on_floor() and global_position.y < water_surface_y_v071+0.38 \
-            and global_position.y > water_surface_y_v071-5.5
+        # The prior floor bit can remain cached for one frame after
+        # teleporting from a quay. An actually submerged capsule still swims.
+        water_contact_v071 = global_position.y < water_surface_y_v071+0.38 \
+            and global_position.y > water_surface_y_v071-5.5 \
+            and (not is_on_floor() or global_position.y < water_surface_y_v071-0.10)
         water_current_v071 = water_read.get("flow_velocity",Vector3.ZERO)
 
     # Detect actual solid wall geometry, not invisible proximity magic.
