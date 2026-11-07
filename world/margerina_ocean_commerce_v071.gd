@@ -382,6 +382,13 @@ func _leave() -> void:
     var destination: Vector3 = get_safe_save_position()
     active = false
     set_physics_process(false)
+    # A temporarily spawned return point must not remain as a stale
+    # permanent location after its entire remote scene has been freed.
+    var registered: Array = hub.get("locations")
+    for i in range(registered.size()-1,-1,-1):
+        if str(registered[i].get("id","")) == "ocean_v071_return":
+            registered.remove_at(i)
+    hub.set("locations",registered)
     ship_bodies.clear()
     crew.clear()
     sea_mesh = null
