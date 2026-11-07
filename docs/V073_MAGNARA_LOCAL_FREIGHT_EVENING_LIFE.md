@@ -2,6 +2,11 @@
 
 **Engine:** Godot 4.4.1 Web / iPhone Compatibility. **Scope:** the physical known-world Ring II public streets of Magnara, 1500 A.S. All new receipt IDs, courier waypoints, routine visiting hours and cargo quantities are original **game-only simulations**, not canonical house names or an official national trade ledger.
 
+
+## Author-confirmed outermost Ring VII port correction (November 7, 2026)
+
+**Magnara's main sea-facing docks, large oceangoing harbor and Iron Cothon maritime freight basins belong to the OUTERMOST Ring VII.** Ring II is the Seeker Quarters: its public canals may have **small shallow-draft local landing piers only**. The existing Ring II goods yard and courier route at approximately (14, 1382) is an **inland land-wagon receiving depot**, never a coast, a port or a large-ship berth. The Ring II harbor-survey counter opens a **separately loaded remote Ring VII scenic preview**, not a physical inter-ring crossing. The exact shoreline and the route from Ring II canal to Ring VII seaport are not mapped or author-approved, so the game must not claim that ships or barges already traverse it.
+
 ## The cargo now travels through the city
 
 V0.71 had **three real moving public freight wagons** cycling along the road from z≈732 to z≈1400. Previously their cargo labels were illustrative and did not change other shop systems. In V0.73, crossing the north depot at z≈1395 during the **northbound** segment actually **queues a single physical local delivery**. A full 3D courier with cargo, a collision capsule, boots, coat and crate then walks a safe sequence of existing public street intersections to a workroom.
