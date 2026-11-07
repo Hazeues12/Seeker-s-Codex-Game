@@ -568,7 +568,11 @@ func _any_panel_open() -> bool:
     var carrier_open: bool = is_instance_valid(carrier) and bool(carrier.call("is_open"))
     var trialboard: Node = get_tree().get_first_node_in_group("v070_spatial_trialboard")
     var trial_open: bool = is_instance_valid(trialboard) and bool(trialboard.call("is_open"))
-    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or civic_open or population_open or shop_open or stream_open or pulse_open or seal_open or civic_director_open or carrier_open or trial_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
+    var outer_wards: Node = get_tree().get_first_node_in_group("v071_expanded_magnara")
+    var outer_open: bool = is_instance_valid(outer_wards) and bool(outer_wards.call("is_open"))
+    var maritime: Node = get_tree().get_first_node_in_group("v071_public_ocean")
+    var maritime_open: bool = is_instance_valid(maritime) and bool(maritime.call("is_open"))
+    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or civic_open or population_open or shop_open or stream_open or pulse_open or seal_open or civic_director_open or carrier_open or trial_open or outer_open or maritime_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
@@ -595,6 +599,12 @@ func _nearest_location() -> Dictionary:
         var visitor: Dictionary = city_people.call("get_nearest_interaction", player.global_position, best_distance)
         if not visitor.is_empty():
             closest = visitor
+    var new_wards: Node = get_tree().get_first_node_in_group("v071_expanded_magnara")
+    if is_instance_valid(new_wards) and new_wards.has_method("get_nearest_interaction"):
+        var neighbor: Dictionary = new_wards.call("get_nearest_interaction",player.global_position,
+            player.global_position.distance_to(closest["position"]) if not closest.is_empty() else best_distance)
+        if not neighbor.is_empty():
+            closest = neighbor
     return closest
 
 
@@ -632,6 +642,14 @@ func _interact() -> void:
                 var expedition: Node = get_tree().get_first_node_in_group("multi_day_expedition_v050")
                 if is_instance_valid(expedition) and expedition.has_method("interact"):
                     expedition.call("interact", kind)
+            elif kind.begins_with("ward_v071_"):
+                var district: Node = get_tree().get_first_node_in_group("v071_expanded_magnara")
+                if is_instance_valid(district) and district.has_method("interact"):
+                    district.call("interact",kind)
+            elif kind.begins_with("ocean_v071_"):
+                var sea: Node = get_tree().get_first_node_in_group("v071_public_ocean")
+                if is_instance_valid(sea) and sea.has_method("interact"):
+                    sea.call("interact",kind)
             elif kind.begins_with("carrier_v070_"):
                 var trolley: Node = get_tree().get_first_node_in_group("v070_public_carrier")
                 if is_instance_valid(trolley) and trolley.has_method("interact"):
@@ -967,6 +985,10 @@ func _save_game() -> bool:
     if is_instance_valid(trialboard) and trialboard.has_method("is_active") \
             and bool(trialboard.call("is_active")):
         position_to_save = trialboard.call("get_safe_save_position")
+    var sea_preview: Node = get_tree().get_first_node_in_group("v071_public_ocean")
+    if is_instance_valid(sea_preview) and sea_preview.has_method("is_active") \
+            and bool(sea_preview.call("is_active")):
+        position_to_save = sea_preview.call("get_safe_save_position")
     var data := {
         "version": 1,
         "tola": GameState.tola,
@@ -1020,6 +1042,10 @@ func _load_game(show_feedback: bool) -> void:
             _announce("Recovered the previous verified game after a damaged save.")
         else:
             _announce("Previous save loaded, but storage recovery failed. New saves are protected.")
+    var maritime: Node = get_tree().get_first_node_in_group("v071_public_ocean")
+    if is_instance_valid(maritime) and maritime.has_method("is_active") \
+            and bool(maritime.call("is_active")):
+        maritime.call("_leave")
     GameState.tola = maxi(0, int(data.get("tola", 100)))
     GameState.seeker_rank = str(data.get("rank", "Stray"))
     experience = maxi(0, int(data.get("xp", 0)))
