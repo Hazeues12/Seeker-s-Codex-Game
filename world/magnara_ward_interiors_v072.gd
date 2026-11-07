@@ -4,6 +4,7 @@ extends Node3D
 # No invented canonical shop owner, hidden faction or story-only Muti.
 const Interior = preload("res://systems/magnara_interiors_rules_v072.gd")
 const Ward = preload("res://systems/magnara_expansion_rules_v071.gd")
+const LocalV073 = preload("res://systems/magnara_local_logistics_rules_v073.gd")
 var player: CharacterBody3D
 var hub: Node
 var codex: Node
@@ -163,9 +164,46 @@ func _site(key: String, chunk: Node3D, cell: Vector2i) -> void:
     capsule.height = 1.58
     body_shape.shape = capsule
     employee_collision.add_child(body_shape)
+    # V0.73: a second EXISTING civilian from the same city roster
+    # visits after working hours. One person always has one world location.
+    var guest := Node3D.new()
+    guest.name = "V073SameExistingEveningHouseholdGuest"
+    guest.add_to_group("v073_game_only_household_visitor")
+    guest.position = c+Vector3(-inward*5.8,0.82,-depth*0.21-1.2)
+    building.add_child(guest)
+    _block(guest,"V073VisitorCoat",Vector3(0,1.00,0),
+        Vector3(0.52,0.87,0.37),Color(0.54,0.41,0.46),false)
+    _block(guest,"V073VisitorHead",Vector3(0,1.69,0),
+        Vector3(0.35,0.37,0.32),Color(0.66,0.51,0.41),false)
+    var guest_body := StaticBody3D.new()
+    guest_body.name = "V073EveningGuestBody"
+    guest.add_child(guest_body)
+    var guest_hit := CollisionShape3D.new()
+    guest_hit.name = "V073EveningGuestCollision"
+    guest_hit.position = Vector3(0,1.0,0)
+    var guest_capsule := CapsuleShape3D.new()
+    guest_capsule.height = 1.60
+    guest_capsule.radius = 0.26
+    guest_hit.shape = guest_capsule
+    guest_body.add_child(guest_hit)
+
+    # Cargo visuals are attached to the physically loaded workroom ONLY.
+    # The 6 bounded crates reflect the persisted ledger, but never stand
+    # across a doorway or block the existing seating/walkways.
+    var stock_crates: Array[MeshInstance3D] = []
+    for crate_index in range(6):
+        var at: Vector3 = c+Vector3(
+            -inward*(width*0.5-1.75),
+            1.02+float(int(crate_index/3))*0.72,
+            float(crate_index%3-1)*1.38)
+        var crate: MeshInstance3D = _block(building,"V073PublicStockCrate",
+            at,Vector3(0.9,0.66,1.06),Color(0.59,0.43,0.26),true)
+        stock_crates.append(crate)
     sites[key] = {"root":building,"cell":cell,"record":spec,
-        "door":door,"staff":staff,"staff_collision":body_shape}
+        "door":door,"staff":staff,"staff_collision":body_shape,
+        "guest":guest,"guest_collision":guest_hit,"stock_crates":stock_crates}
     _update_shift(key)
+    _update_stock_visuals(key)
 
 func _refresh() -> void:
     if not initialized:
@@ -183,6 +221,7 @@ func _refresh() -> void:
             _site(str(key),chunk["node"],chunk["cell"])
     for key in sites.keys():
         _update_shift(str(key))
+        _update_stock_visuals(str(key))
 
 func _update_shift(key: String) -> void:
     if not sites.has(key):
@@ -201,6 +240,31 @@ func _update_shift(key: String) -> void:
         var stride: float = sin(float(hub.get("world_minutes"))*0.035)*0.35
         employee.position = p-Ward.origin(slot["cell"])+Vector3(0,0,stride)
         employee.set_meta("public_shift",state["activity"])
+    var guest: Node3D = slot["guest"]
+    var guest_state: Dictionary = LocalV073.visitor(slot["cell"],
+        float(hub.get("world_minutes")))
+    guest.visible = bool(guest_state.get("present",false))
+    (slot["guest_collision"] as CollisionShape3D).set_deferred(
+        "disabled",not guest.visible)
+    if guest.visible:
+        guest.set_meta("household_visit",guest_state["household"])
+
+func _update_stock_visuals(key: String) -> void:
+    if not sites.has(key):
+        return
+    var slot: Dictionary = sites[key]
+    var current: int = LocalV073.stock(LocalV073.clean(
+        hub.get("local_trade_v073")),slot["cell"])
+    var crates: Array = slot["stock_crates"]
+    for index in range(crates.size()):
+        var crate: MeshInstance3D = crates[index]
+        if not is_instance_valid(crate):
+            continue
+        crate.visible = index < current
+        var hit: CollisionShape3D = crate.get_node_or_null(
+            "V073PublicStockCrate_Physics/V072RealWalkableInteriorCollision")
+        if is_instance_valid(hit):
+            hit.set_deferred("disabled",not crate.visible)
 
 func active_count() -> int:
     return sites.size()
@@ -212,7 +276,10 @@ func get_manifest() -> Dictionary:
         "unique_attendant_per_venue":true,
         "same_street_resident":Interior.STAFF_INDEX,
         "furniture_collision":true,"public_only":true,
-        "original_story_venues_unchanged":true}
+        "original_story_venues_unchanged":true,
+        "v073_stock_physically_visible":true,
+        "v073_evening_household_visitors":Interior.VENUES_TOTAL,
+        "v073_ledger_persistent":true}
 
 func get_nearest_interaction(at: Vector3, reach: float) -> Dictionary:
     var best: float = minf(reach,3.2)
@@ -228,6 +295,17 @@ func get_nearest_interaction(at: Vector3, reach: float) -> Dictionary:
                     "position":door.global_position,"node":door,
                     "name":str(slot["record"]["label"]),
                     "title":str(slot["record"]["label"])}
+        var guest: Node3D = slot["guest"]
+        if is_instance_valid(guest) and guest.visible:
+            var visitor_distance: float = at.distance_to(guest.global_position)
+            if visitor_distance < best:
+                best = visitor_distance
+                var visitor_state: Dictionary = LocalV073.visitor(slot["cell"],
+                    float(hub.get("world_minutes")))
+                answer = {"id":"interior_v072_guest_"+str(key),
+                    "position":guest.global_position,"node":guest,
+                    "name":str(visitor_state["name"]),
+                    "title":str(visitor_state["name"])}
         var employee: Node3D = slot["staff"]
         if is_instance_valid(employee) and employee.visible:
             var d: float = at.distance_to(employee.global_position)
@@ -301,17 +379,22 @@ func interact(identifier: String) -> void:
     if not initialized:
         return
     var employee: bool = identifier.begins_with("interior_v072_staff_")
-    var key: String = identifier.trim_prefix(
+    var is_guest: bool = identifier.begins_with("interior_v072_guest_")
+    var prefix: String = "interior_v072_guest_" if is_guest else (
         "interior_v072_staff_" if employee else "interior_v072_entry_")
+    var key: String = identifier.trim_prefix(prefix)
     if not sites.has(key):
         return
     var spot: Dictionary = sites[key]
-    var anchor: Node3D = spot["staff"] if employee else spot["door"]
+    var anchor: Node3D = spot["guest"] if is_guest else (
+        spot["staff"] if employee else spot["door"])
     if not is_instance_valid(anchor) or player.global_position.distance_to(anchor.global_position) > 3.4:
         return
     current_site = key
-    title.text = str(spot["record"]["label"])+(" / ON-DUTY WORKER" if employee else " / PUBLIC INTERIOR")
-    _topic("Work")
+    title.text = str(spot["record"]["label"])+(
+        " / EVENING NEIGHBOR" if is_guest else (
+        " / ON-DUTY WORKER" if employee else " / PUBLIC INTERIOR"))
+    _topic("Household" if is_guest else "Work")
     panel.show()
 
 func _topic(topic: String) -> void:
@@ -323,12 +406,16 @@ func _topic(topic: String) -> void:
         float(hub.get("world_minutes")))
     var day: int = 1+floori(float(hub.get("world_minutes"))/1440.0)
     if topic == "Household":
-        story.text = "%s belongs to household %s. This is a working civilian with a daily schedule, not a canonical Seeker." % [
-            str(staff["name"]),str(staff["household"])]
+        var visitor: Dictionary = LocalV073.visitor(spot["cell"],
+            float(hub.get("world_minutes")))
+        story.text = "%s belongs to household %s. An existing neighbor, %s, visits this common table during the evening (17:40–20:20 game time); both have one shared identity across the ward and venue. These residents are game-only civilians." % [
+            str(staff["name"]),str(staff["household"]),str(visitor["name"])]
     elif topic == "Local Commerce":
         var note: Dictionary = Interior.inventory_note(spot["cell"],day)
-        story.text = "Today the local focus is %s. Households, shopkeepers and freight crews trade ordinary goods here; these figures are game-only, with no invented foreign exchange rate or secret cargo." % [
-            str(note["public_stock_category"])]
+        var ledger: Dictionary = LocalV073.clean(hub.get("local_trade_v073"))
+        var units: int = LocalV073.stock(ledger,spot["cell"])
+        story.text = "Today the local focus is %s. Physical stock here: %d public goods units (up to 6 represented by real crates). The original Ring II freight wagons send couriers along neighborhood roads; inventory is credited only when the courier actually reaches this room. No invented foreign exchange rate or secret cargo." % [
+            str(note["public_stock_category"]),units]
     else:
         story.text = "%s serves this neighborhood through %s. Their current activity: %s. The front doorway is open, furnishings have collision, and you can step inside." % [
             str(spec["label"]),str(spec["work"]),str(staff["activity"])]
