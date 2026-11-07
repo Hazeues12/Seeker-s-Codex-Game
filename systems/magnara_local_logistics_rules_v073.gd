@@ -11,12 +11,16 @@ const INITIAL_STOCK: int = 2
 const DELIVERY_UNITS: int = 4
 const STOCK_LIMIT: int = 18
 const DELIVERY_SPEED_MPS: float = 6.5
-const DOCK_AT: Vector3 = Vector3(14.0,0.84,1382.0)
+# Legacy DOCK_AT name kept for existing saved scripts/tests only:
+# this point is a LAND FREIGHT DEPOT, nowhere near the maritime harbor.
+const INLAND_DEPOT_AT: Vector3 = Vector3(14.0,0.84,1382.0)
+const DOCK_AT: Vector3 = INLAND_DEPOT_AT
 const RECEIPT_LIMIT: int = 120
 const MAX_PENDING: int = 3
 const MAX_ELAPSED: float = 500.0
 const MAX_DAY: int = 100000
-const DOCK_TRIGGER_Z: float = 1395.0
+const INLAND_FREIGHT_ARRIVAL_Z: float = 1395.0
+const DOCK_TRIGGER_Z: float = INLAND_FREIGHT_ARRIVAL_Z
 const SCENE_REACH_M: float = 170.0
 const VISITOR_INDEX: int = 10
 const VISIT_START: float = 1060.0
@@ -95,7 +99,8 @@ static func delivery(day: int, wagon: int) -> Dictionary:
         "wagon":wagon,"cell":Ward.key(cell),"site":str(venue["id"]),
         "category":str(venue["work"]),"units":DELIVERY_UNITS,
         "target":venue["door_world"],"source":"public_ring_two_freight_depot",
-        "origin":DOCK_AT,"canon_status":"game_only_local",
+        "origin":INLAND_DEPOT_AT,"canon_status":"game_only_local",
+        "source_ring":2,"maritime_port":false,"outer_seaport_ring":7,
         "crosses_national_border":false,"money_transfer":0}
 
 static func path(day: int, wagon: int) -> Array[Vector3]:
