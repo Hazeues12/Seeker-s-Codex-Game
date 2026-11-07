@@ -7,10 +7,13 @@ const CITY_RADIUS_M: float = 13000.0
 const OUTER_BOUNDS_M: Array[float] = [
     1000.0, 2600.0, 4700.0, 6500.0, 8700.0, 10700.0, 13000.0
 ]
+# Zone titles follow confirmed placement rules, not an invented final plan.
+# Ring II = Seeker Quarters; IV trade; V foundry; VII seaport.
+# Ring VI had an incorrect 'harbor' title in V0.54, now corrected.
 const RING_NAMES: Array[String] = [
-    "GOVERNMENT", "SEEKER QUARTERS", "CIVIC", "MERCHANT",
-    "ARTISAN / FOUNDRY", "MARITIME / HARBOR PLANNING",
-    "OUTER / SOOT WARDS"
+    "INNER CORE / PROVISIONAL", "SEEKER QUARTERS", "UNASSIGNED URBAN ZONE",
+    "TRADE / MERCHANT DISTRICTS", "FORGE / MANUFACTURING ZONE",
+    "OUTER INFRASTRUCTURE / UNASSIGNED", "OUTERMOST SEAPORT / IRON COTHON RESERVE"
 ]
 
 static func radial_m(point: Vector3) -> float:
