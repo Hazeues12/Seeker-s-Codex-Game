@@ -56,9 +56,14 @@ static func valid_catalog(value: Variant) -> bool:
             if bool(technique.get("usable", true)) or technique.get("aura_cost", 0) != null:
                 return false
         else:
-            if not bool(technique.get("usable", false)) or typeof(technique.get("aura_cost", null)) != TYPE_INT:
+            var raw_cost: Variant = technique.get("aura_cost", null)
+            if not bool(technique.get("usable", false)):
                 return false
-            if int(technique.get("aura_cost", 0)) <= 0:
+            # Godot JSON decodes numeric literals as floating-point on some
+            # builds; accept only positive integral values, in either type.
+            if typeof(raw_cost) != TYPE_INT and typeof(raw_cost) != TYPE_FLOAT:
+                return false
+            if float(raw_cost) <= 0.0 or not is_finite(float(raw_cost)) or not is_equal_approx(float(raw_cost),float(int(raw_cost))):
                 return false
     if names.size() < 10:
         return false
