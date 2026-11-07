@@ -6,6 +6,7 @@ var sprinting: bool = false
 var jump_requested: bool = false
 var attack_requested: bool = false
 var dodge_requested: bool = false
+var burst_requested: bool = false
 var guarding: bool = false
 var camera_drag: Vector2 = Vector2.ZERO
 
@@ -51,6 +52,7 @@ func _ready() -> void:
     jump_button.pressed.connect(request_jump)
     $AttackButton.pressed.connect(request_attack)
     $DodgeButton.pressed.connect(request_dodge)
+    $BurstButton.pressed.connect(request_burst)
     $GuardButton.toggle_mode = true
     $GuardButton.toggled.connect(_on_guard_toggled)
     $GuardButton.text = "GUARD OFF"
@@ -148,7 +150,8 @@ func _on_action_button(position: Vector2) -> bool:
         or sprint_button.get_global_rect().has_point(position)
         or $AttackButton.get_global_rect().has_point(position)
         or $DodgeButton.get_global_rect().has_point(position)
-        or $GuardButton.get_global_rect().has_point(position))
+        or $GuardButton.get_global_rect().has_point(position)
+        or $BurstButton.get_global_rect().has_point(position))
 
 func _update_movement(position: Vector2) -> void:
     var center: Vector2 = joystick.get_global_rect().get_center()
@@ -199,6 +202,16 @@ func request_dodge() -> void:
 func consume_dodge() -> bool:
     if dodge_requested:
         dodge_requested = false
+    burst_requested = false
+        return true
+    return false
+
+func request_burst() -> void:
+    burst_requested = true
+
+func consume_burst() -> bool:
+    if burst_requested:
+        burst_requested = false
         return true
     return false
 
