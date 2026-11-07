@@ -1,4 +1,4 @@
-[gd_scene load_steps=39 format=3]
+[gd_scene load_steps=42 format=3]
 
 [ext_resource type="PackedScene" path="res://characters/player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://ui/mobile_controls.tscn" id="2"]
@@ -35,6 +35,9 @@
 [ext_resource type="Script" path="res://world/magnara_legacy_roofways_v069.gd" id="33"]
 [ext_resource type="Script" path="res://world/magnara_moving_carrier_v070.gd" id="34"]
 [ext_resource type="Script" path="res://world/spatial_practice_trialboard_v070.gd" id="35"]
+[ext_resource type="Script" path="res://world/magnara_expanded_wards_v071.gd" id="36"]
+[ext_resource type="Script" path="res://world/margerina_land_commerce_v071.gd" id="37"]
+[ext_resource type="Script" path="res://world/margerina_ocean_commerce_v071.gd" id="38"]
 
 [sub_resource type="BoxMesh" id="GroundMesh"]
 size = Vector3(60, 1, 60)
@@ -166,3 +169,12 @@ script = ExtResource("34")
 
 [node name="SpatialPracticeTrialboardV070" type="Node3D" parent="."]
 script = ExtResource("35")
+
+[node name="MagnaraExpandedWardsV071" type="Node3D" parent="."]
+script = ExtResource("36")
+
+[node name="MargerinaLandCommerceV071" type="Node3D" parent="."]
+script = ExtResource("37")
+
+[node name="MargerinaOceanCommerceV071" type="Node3D" parent="."]
+script = ExtResource("38")
