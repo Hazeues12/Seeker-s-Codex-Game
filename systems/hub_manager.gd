@@ -7,6 +7,7 @@ const GuildDirectorV069 = preload("res://systems/guild_public_director_v069.gd")
 const PowerRulesV068 = preload("res://systems/seeker_power_rules_v068.gd")
 const ParkourV070 = preload("res://systems/aura_parkour_rules_v070.gd")
 const ShopRulesV066 = preload("res://systems/magnara_business_rules_v066.gd")
+const FreightV073 = preload("res://systems/magnara_local_logistics_rules_v073.gd")
 
 # Seeker's Codex — Margerina V0.33
 # A self-contained starter hub. The three contracts are prototype gameplay,
@@ -35,6 +36,7 @@ var market_stock_v062: Dictionary = {}
 var civic_v064: Dictionary = {}
 var shop_stock_v066: Dictionary = {}
 var guild_director_v069: Dictionary = {}
+var local_trade_v073: Dictionary = FreightV073.clean({})
 var aura: float = 100.0
 var stamina: float = 100.0
 var guild_rep: int = 0
@@ -574,7 +576,9 @@ func _any_panel_open() -> bool:
     var maritime_open: bool = is_instance_valid(maritime) and bool(maritime.call("is_open"))
     var indoor: Node = get_tree().get_first_node_in_group("v072_enterable_wards")
     var indoor_open: bool = is_instance_valid(indoor) and bool(indoor.call("is_open"))
-    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or civic_open or population_open or shop_open or stream_open or pulse_open or seal_open or civic_director_open or carrier_open or trial_open or outer_open or maritime_open or indoor_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
+    var freight: Node = get_tree().get_first_node_in_group("v073_public_logistics")
+    var freight_open: bool = is_instance_valid(freight) and bool(freight.call("is_open"))
+    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or civic_open or population_open or shop_open or stream_open or pulse_open or seal_open or civic_director_open or carrier_open or trial_open or outer_open or maritime_open or indoor_open or freight_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
@@ -658,6 +662,10 @@ func _interact() -> void:
                 var expedition: Node = get_tree().get_first_node_in_group("multi_day_expedition_v050")
                 if is_instance_valid(expedition) and expedition.has_method("interact"):
                     expedition.call("interact", kind)
+            elif kind == "logistics_v073_depot":
+                var freight: Node = get_tree().get_first_node_in_group("v073_public_logistics")
+                if is_instance_valid(freight) and freight.has_method("interact"):
+                    freight.call("interact",kind)
             elif kind.begins_with("interior_v072_"):
                 var district_venue: Node = get_tree().get_first_node_in_group("v072_enterable_wards")
                 if is_instance_valid(district_venue):
@@ -1034,7 +1042,8 @@ func _save_game() -> bool:
         "market_stock_v062": market_stock_v062,
         "civic_v064": civic_v064,
         "shop_stock_v066": shop_stock_v066,
-        "guild_director_v069": guild_director_v069
+        "guild_director_v069": guild_director_v069,
+        "local_trade_v073": FreightV073.clean(local_trade_v073)
     }
     if not SaveIntegrityV063.write_verified(data):
         _announce("Save failed verification. Your previous game was protected; check browser storage.")
@@ -1088,6 +1097,7 @@ func _load_game(show_feedback: bool) -> void:
         market_stock_v062 = {}
     shop_stock_v066 = ShopRulesV066.sanitize_stock(data.get("shop_stock_v066", {}))
     guild_director_v069 = GuildDirectorV069.sanitize(data.get("guild_director_v069", {}))
+    local_trade_v073 = FreightV073.clean(data.get("local_trade_v073",{}))
     var civic_raw: Variant = data.get("civic_v064", {})
     civic_v064 = CivicRulesV064.sanitize(civic_raw)
     var existing_field_receipts: Variant = data.get("field_reward_receipts", {})
