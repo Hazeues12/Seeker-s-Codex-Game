@@ -10,6 +10,11 @@
 - **Magnara** is a major Janoan seven-ring city. It cannot stand in for the entire world.
 - **Ring Two** is the Seeker Quarters, with a **public/civic band**, **working Seeker professional band**, and **secured monumental band** containing the Seeker Citadel.
 
+
+## Author-confirmed outermost Ring VII port correction (November 7, 2026)
+
+**Magnara's main sea-facing docks, large oceangoing harbor and Iron Cothon maritime freight basins belong to the OUTERMOST Ring VII.** Ring II is the Seeker Quarters: its public canals may have **small shallow-draft local landing piers only**. The existing Ring II goods yard and courier route at approximately (14, 1382) is an **inland land-wagon receiving depot**, never a coast, a port or a large-ship berth. The Ring II harbor-survey counter opens a **separately loaded remote Ring VII scenic preview**, not a physical inter-ring crossing. The exact shoreline and the route from Ring II canal to Ring VII seaport are not mapped or author-approved, so the game must not claim that ships or barges already traverse it.
+
 ## Ring Two: confirmed anchors from Chapter 90
 - Public living quarter: broad pale-stone avenues at four-carriage scale, blue-resonance canals and iron bridges, bronze lamps sealed by glass/sigils, inns, residences, balconies, shops, laundry and noodle service.
 - Professional facilities: registration/certification offices, Seeker barracks, medical instruction, formal training courts, Soulwright personnel, Silver teams training and managed Aura exhaustion.
