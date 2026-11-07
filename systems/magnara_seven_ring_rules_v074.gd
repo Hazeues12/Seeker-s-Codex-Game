@@ -85,7 +85,10 @@ static func ring_road_distance(at: Vector3) -> float:
     var r: float = Geo.radial_m(at)
     var closest: float = 999999.0
     for boundary in Geo.OUTER_BOUNDS_M:
-        closest = minf(closest,absf(r-boundary))
+        # Annular avenue center is 36m inside each ring boundary, so
+        # the reserved building setback MUST match the actual rendered
+        # street position rather than the administrative border.
+        closest = minf(closest,absf(r-(boundary-36.0)))
     return closest
 
 static func protected_existing_ward(at: Vector3) -> bool:
