@@ -156,8 +156,9 @@ static func junction_near(point: Vector3) -> Array[Dictionary]:
             if (spec["world_pos"] as Vector3).distance_to(point) <= JUNCTION_REACH_M:
                 found.append(spec)
     found.sort_custom(func(a: Dictionary,b: Dictionary) -> bool:
-        return (a["world_pos"] as Vector3).distance_squared_to(point) <
-            (b["world_pos"] as Vector3).distance_squared_to(point))
+        var da: float = (a["world_pos"] as Vector3).distance_squared_to(point)
+        var db: float = (b["world_pos"] as Vector3).distance_squared_to(point)
+        return da < db)
     return found.slice(0,MAX_JUNCTION_MARKERS)
 
 static func manifest() -> Dictionary:
