@@ -1,4 +1,4 @@
-[gd_scene load_steps=42 format=3]
+[gd_scene load_steps=43 format=3]
 
 [ext_resource type="PackedScene" path="res://characters/player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://ui/mobile_controls.tscn" id="2"]
@@ -38,6 +38,7 @@
 [ext_resource type="Script" path="res://world/magnara_expanded_wards_v071.gd" id="36"]
 [ext_resource type="Script" path="res://world/margerina_land_commerce_v071.gd" id="37"]
 [ext_resource type="Script" path="res://world/margerina_ocean_commerce_v071.gd" id="38"]
+[ext_resource type="Script" path="res://world/magnara_ward_interiors_v072.gd" id="39"]
 
 [sub_resource type="BoxMesh" id="GroundMesh"]
 size = Vector3(60, 1, 60)
@@ -178,3 +179,6 @@ script = ExtResource("37")
 
 [node name="MargerinaOceanCommerceV071" type="Node3D" parent="."]
 script = ExtResource("38")
+
+[node name="MagnaraWardInteriorsV072" type="Node3D" parent="."]
+script = ExtResource("39")
