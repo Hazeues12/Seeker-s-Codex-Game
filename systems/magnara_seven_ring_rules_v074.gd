@@ -30,18 +30,18 @@ const HOUSE_DIMENSION_MAX_M: float = 20.5
 const MAX_CLOSE_COLLIDERS: int = 34
 const RING_COLORS: Array[Color] = [
     Color(0.70,0.67,0.60),Color(0.65,0.65,0.64),
-    Color(0.64,0.59,0.53),Color(0.61,0.52,0.44),
-    Color(0.53,0.52,0.50),Color(0.54,0.55,0.55),
-    Color(0.52,0.51,0.47)
+    Color(0.63,0.69,0.58),Color(0.68,0.75,0.76),
+    Color(0.70,0.54,0.39),Color(0.58,0.60,0.60),
+    Color(0.45,0.51,0.54)
 ]
 const PROPOSED_STYLE: Array[String] = [
-    "UNASSIGNED CORE / GOVERNMENT SURVEY",
-    "SEEKER QUARTERS / EXISTING PUBLIC WARDS",
-    "RING III / UNASSIGNED CITY BLOCKS",
-    "MERCHANT & BANKING DISTRICTS / BROAD ZONE ONLY",
-    "FORGES & WORKSHOPS / BROAD ZONE ONLY",
-    "RING VI / INFRASTRUCTURE RESERVE / UNASSIGNED",
-    "OUTERMOST RING VII / IRON COTHON SEA PORT RESERVE"
+    "CENTRAL CORE / SITE POSITIONS UNVERIFIED",
+    "SEEKER QUARTERS / AUTHORED STREETS PRESERVED",
+    "THE COMMONS / PARKS AND BRIDGES",
+    "THE ACADEMIES / GLASS DOMES",
+    "THE MARKETS / MERCHANTS AND WORKSHOPS",
+    "RING VI / ROLE NOT VERIFIED",
+    "IRON COTHON / RING VII / DOCK COORDINATES UNPLACED"
 ]
 const PHASE: String = "seven_ring_foundation_only_no_new_canon_places"
 
@@ -131,6 +131,11 @@ static func tile_slots(tile: Vector2i) -> Array[Dictionary]:
             if not buildable(at):
                 continue
             var ring: int = ring_at(at)
+            # Published Ring III Commons contains substantial green
+            # public space; leave some ordinary sites unbuilt. This is
+            # game-only lot distribution, not a claimed named park map.
+            if ring == 3 and stable(tile,slot+503,7) == 0:
+                continue
             var lot_seed: int = stable(tile,slot+171,23)
             var width: float = HOUSE_DIMENSION_MIN_M + float(lot_seed%7)*1.07
             var depth: float = HOUSE_DIMENSION_MIN_M + float((lot_seed/7)%6)*1.18
@@ -138,9 +143,9 @@ static func tile_slots(tile: Vector2i) -> Array[Dictionary]:
             match ring:
                 1: height += 21.0
                 2: height += 7.0
-                3: height += 11.0
-                4: height += 20.0
-                5: height += 4.0
+                3: height = 8.0+float(lot_seed%5)*2.3
+                4: height = 14.0+float(lot_seed%7)*2.8
+                5: height += 6.0
                 6: height += 2.0
                 7: height += 1.0
             sites.append({"id":parcel_key(tile,slot),
@@ -174,9 +179,17 @@ static func far_specs(cell: Vector2i) -> Array[Dictionary]:
                 continue
             var ring: int = ring_at(at)
             var code: int = stable(cell,300+ix*8+iz,19)
+            if ring == 3 and stable(cell,ix*8+iz+503,7) == 0:
+                continue
             var h: float = 18.0+float(code%6)*6.5
-            if ring == 4:
-                h += 28.0
+            if ring == 3:
+                h = 10.0+float(code%4)*3.5
+            elif ring == 4:
+                h = 21.0+float(code%5)*5.0
+            elif ring == 5:
+                h = 15.0+float(code%6)*5.0
+            elif ring == 7:
+                h = 16.0+float(code%5)*4.0
             elif ring == 1:
                 h += 18.0
             found.append({"world_pos":at+Vector3(0,0.55+h*0.5,0),
