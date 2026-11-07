@@ -129,6 +129,9 @@ func _physics_process(delta: float) -> void:
     var market_quarter: Node = get_tree().get_first_node_in_group("magnara_markets_v062")
     if is_instance_valid(market_quarter) and market_quarter.has_method("is_open"):
         editing = editing or bool(market_quarter.call("is_open"))
+    var civic: Node = get_tree().get_first_node_in_group("magnara_civic_v064")
+    if is_instance_valid(civic) and civic.has_method("is_open"):
+        editing = editing or bool(civic.call("is_open"))
     var bulletin: Node = get_tree().get_first_node_in_group("daily_events_v051")
     if is_instance_valid(bulletin) and bulletin.has_method("is_open"):
         editing = editing or bool(bulletin.call("is_open"))
