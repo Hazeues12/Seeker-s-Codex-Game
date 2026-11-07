@@ -43,7 +43,9 @@ func _run() -> void:
         return
     var player_tola: int = GameState.tola
     hub.set("world_minutes",620.0)
-    player.global_position = Rules.DOCK_AT+Vector3(-3.2,0,0)
+    # The ledger counter is 7m south of the actual unloading berth.
+    # Stay at the physical counter, not the wagon center.
+    player.global_position = desk.global_position+Vector3(-3.2,0.84,0)
     var notice: Dictionary = hub.call("_nearest_location")
     if str(notice.get("id","")) != "logistics_v073_depot" \
             or not notice.has("title"):
