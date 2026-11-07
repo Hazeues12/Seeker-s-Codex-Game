@@ -302,6 +302,7 @@ jobs:
         run: |
           set -euo pipefail
           for item in \
+            'v086_realtime_impact:V0.86 REAL-TIME STRIKE HIT-STOP KNOCKBACK AND DODGE PASS' \
             'v073_local_freight_world:V0.73 LIVE WAGON TO ROAD COURIER REAL SIX CRATES SAVED ONCE DELIVERY EVENING FAMILY AND ORIGINAL OCEAN PASS' \
             'v072_interiors_helm_world:V0.72 REAL ENTERABLE THIRTY WARD WORKROOMS HOUSEHOLD SHIFT OPEN DOOR HELM AND PLAYER-CARRIED OCEAN WAKE SAVE PASS' \
             'v071_city_ocean_world:V0.71 LIVE 180 BUILDING EXTENSION 360 HOUSEHOLDS SWIMMABLE WEATHER OCEAN SIX BUOYANT SHIPS ROAD FREIGHT AND PROVISIONAL RIVER PASS' \
@@ -356,7 +357,7 @@ jobs:
           timeout 180s godot --headless --path . --export-release Web build/web/index.html 2>&1 | tee v074-export.log
           if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v074-export.log; then exit 1; fi
           for ext in html js wasm pck; do test -s "build/web/index.${ext}"; done
-      - name: Check exported startup, Commons trade and anime shaders in Chrome
+      - name: Check exported startup, Commons trade, combat and anime shaders in Chrome
         shell: bash
         run: |
           set -euo pipefail
@@ -389,7 +390,8 @@ jobs:
               try {
                   const [result] = await Promise.all([
                       test.waitForEvent("console", {
-                          predicate: message => message.text().includes(marker) || message.text().includes("V0.82 ANIME WORLD:"),
+                          predicate: message => message.text().includes(marker)
+                              || /V0\.82 ANIME WORLD:|V0\.86 REAL-TIME IMPACT:/.test(message.text()),
                           timeout: 65000,
                       }),
                       test.goto("http://127.0.0.1:8765/qa.html"),
@@ -426,6 +428,8 @@ jobs:
 
                   await checkScene(browser, "res://tests/v081_commons_trade_world_scene.tscn", tradePass);
                   console.log("MARGERINA EXPORTED COMMONS TRADE PASSED IN CHROME");
+                  await checkScene(browser, "res://tests/v086_realtime_impact_scene.tscn",
+                      "V0.86 REAL-TIME STRIKE HIT-STOP KNOCKBACK AND DODGE PASS");
                   await checkScene(browser, "res://tests/v082_anime_world_scene.tscn",
                       "V0.82 ANIME PLAYER FACE HULL POSE VFX AND PAINTED CANOPY PASS", "v085-render.png");
                   console.log("MARGERINA EXPORTED ANIME SHADERS PASSED IN CHROME");
@@ -443,7 +447,7 @@ jobs:
       - name: Upload playable candidate
         uses: actions/upload-artifact@v4
         with:
-          name: seeker-codex-v085-seeker-attire-web
+          name: seeker-codex-v086-realtime-combat-web
           path: build/web/
           if-no-files-found: error
       - name: Keep the Chrome visual check
@@ -477,6 +481,7 @@ jobs:
             v077-canal-world.log
             v080-commons-world.log
             v081-commons-trade.log
+            v086_realtime_impact.log
             v082-anime-world.log
             v081-browser.log
             v081-browser-server.log

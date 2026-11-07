@@ -28,6 +28,7 @@ var player_health_text: Label
 var combat_notice: Label
 var combat_notice_timer: float = 0.0
 var damage_flash: ColorRect
+var strike_burst_mesh: ArrayMesh
 
 func _ready() -> void:
     add_to_group("combat_arena")
@@ -123,8 +124,15 @@ func player_strike(facing: Vector3) -> void:
         _announce("Strike missed. Face the purple construct and move closer.", 1.5)
         return
     var damage: int = 18 + mini(combo, 2) * 6
+    var defender := chosen as ConstructScript
+    var guarded: bool = defender != null and defender.state == "guard"
     if bool(chosen.call("take_strike", damage, player.global_position)):
-        _spawn_hit_sparks(chosen.global_position + Vector3(0.0, 1.35, 0.0))
+        var impact_ticks: int = 3 if guarded else (6 if combo >= 2 else 4)
+        if defender != null:
+            defender.hold_strike_impact(impact_ticks)
+        player.call("show_strike_impact", impact_ticks, forward)
+        var point: Vector3 = chosen.global_position - forward * 0.45 + Vector3.UP * 1.36
+        _spawn_strike_burst(point, impact_ticks)
         combo = mini(combo + 1, 3)
         _announce("HIT  -%d enemy HP  |  Martial combo %d/3" % [damage, combo], 1.35)
 
@@ -425,27 +433,48 @@ func _flash_damage() -> void:
     var fade := create_tween()
     fade.tween_property(damage_flash, "color", Color(0.85, 0.06, 0.12, 0.0), 0.32)
 
-func _spawn_hit_sparks(at_position: Vector3) -> void:
-    # Short-lived, unlit primitive effects: cheap enough for mobile WebGL.
-    for i in range(5):
-        var spark := MeshInstance3D.new()
-        spark.name = "MartialImpact"
-        var mesh := SphereMesh.new()
-        mesh.radius = 0.085
-        mesh.height = 0.17
-        spark.mesh = mesh
-        var mat := StandardMaterial3D.new()
-        mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-        mat.albedo_color = Color(0.28, 0.88, 1.0) if i % 2 == 0 else Color(1.0, 0.85, 0.31)
-        spark.material_override = mat
-        spark.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-        add_child(spark)
-        spark.global_position = at_position
-        var theta: float = TAU * float(i) / 5.0
-        var displacement := Vector3(cos(theta) * 0.85, 0.3 + sin(theta) * 0.40, sin(theta) * 0.50)
-        var t := create_tween()
-        t.tween_property(spark, "global_position", at_position + displacement, 0.21)
-        t.tween_callback(spark.queue_free)
+func _spawn_strike_burst(at_position: Vector3, impact_ticks: int) -> void:
+    if strike_burst_mesh == null:
+        strike_burst_mesh = _build_strike_burst_mesh()
+    var burst := MeshInstance3D.new()
+    burst.name = "MartialImpact"
+    burst.mesh = strike_burst_mesh
+    burst.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+    add_child(burst)
+    burst.global_position = at_position
+    burst.scale = Vector3.ONE * (0.70 + 0.07 * impact_ticks)
+    var effect := burst.create_tween()
+    effect.tween_interval(float(impact_ticks) / Engine.physics_ticks_per_second)
+    effect.tween_property(burst, "scale", burst.scale * 1.4, 0.075).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+    effect.tween_property(burst, "scale", Vector3.ZERO, 0.075)
+    effect.tween_callback(burst.queue_free)
+
+
+func _build_strike_burst_mesh() -> ArrayMesh:
+    # One unlit, camera-facing drawing for every connected strike.
+    var lines := SurfaceTool.new()
+    lines.begin(Mesh.PRIMITIVE_TRIANGLES)
+    for index in range(9):
+        var angle: float = index * TAU / 9.0 + 0.24
+        var ray := Vector3(cos(angle), sin(angle), 0.0)
+        var edge := Vector3(-ray.y, ray.x, 0.0) * (0.11 if index % 2 == 0 else 0.075)
+        var tip: Vector3 = ray * (0.94 if index % 2 == 0 else 0.62)
+        var root: Vector3 = ray * 0.075
+        var joint: Vector3 = ray * 0.27
+        for point in [root, joint + edge, tip, root, tip, joint - edge]:
+            lines.set_color(Color("#3F294A"))
+            lines.add_vertex(point)
+        for point in [root, joint + edge * 0.66, tip * 0.91, root, tip * 0.91, joint - edge * 0.66]:
+            lines.set_color(Color("#FFF0C8") if index % 2 == 0 else Color("#FFE0A0"))
+            lines.add_vertex(point + Vector3.BACK * 0.004)
+    var material := StandardMaterial3D.new()
+    material.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+    material.billboard_keep_scale = true
+    material.vertex_color_use_as_albedo = true
+    material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    material.cull_mode = BaseMaterial3D.CULL_DISABLED
+    lines.set_material(material)
+    return lines.commit()
 
 func _refresh_hud() -> void:
     if is_instance_valid(player_health_bar):

@@ -124,12 +124,16 @@ func configure_anime_civilian(jacket: Color, skin: Color, hair: int) -> void:
     for lapel in body_root.find_children("CoatLapel*", "MeshInstance3D", true, false):
         _tint(lapel, jacket.lightened(0.14))
 
-func _configure_anime(look: String, hair: int) -> void:
+func configure_anime_body(look: String) -> void:
     anime_style = true
     ink = ShaderMaterial.new()
     ink.shader = INK_SHADER
     configure(look)
     anime_gem_scale = aura_gem.scale
+
+
+func _configure_anime(look: String, hair: int) -> void:
+    configure_anime_body(look)
     shoulder_drapes.append(_sphere(left_arm, "ShoulderDrape", Vector3(0.09, -0.08, 0),
         Vector3(0.18, 0.15, 0.164), Color(0.19, 0.32, 0.47)))
     shoulder_drapes.append(_sphere(right_arm, "ShoulderDrape", Vector3(-0.09, -0.08, 0),

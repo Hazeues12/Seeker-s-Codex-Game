@@ -24,6 +24,8 @@ var dodge_cooldown: float = 0.0
 var dodge_time: float = 0.0
 var dodge_direction: Vector3 = Vector3.ZERO
 var seeker_rig: Node3D
+var hit_stop_ticks: int = 0
+var impact_camera: Tween
 var guard_active: bool = false
 var guard_window: float = 0.0
 # Timed physical parries are ordinary guard practice. Not unlocked Kyōmei-shi.
@@ -80,6 +82,8 @@ func _process(delta: float) -> void:
     camera_pivot.rotation.x = lerp_angle(camera_pivot.rotation.x, wanted_pitch, smoothing)
 
 func _physics_process(delta: float) -> void:
+    if _hold_impact_frame():
+        return
     if not is_instance_valid(mobile_controls):
         mobile_controls = get_tree().get_first_node_in_group("mobile_controls")
 
@@ -364,12 +368,36 @@ func _physics_process(delta: float) -> void:
             velocity.y = 4.25
         velocity.x = velocity.x*0.82 + water_current_v071.x * 0.18
         velocity.z = velocity.z*0.82 + water_current_v071.z * 0.18
+    if _hold_impact_frame():
+        return
     move_and_slide()
     if is_instance_valid(seeker_rig):
         if direction.length_squared() > 0.04:
             var turn_to: float = atan2(-direction.x, -direction.z)
             seeker_rig.rotation.y = lerp_angle(seeker_rig.rotation.y, turn_to, minf(1.0, delta * 12.0))
         seeker_rig.call("animate_state", delta, Vector2(velocity.x, velocity.z).length(), dodge_time > 0.0, "guard" if guard_active else "")
+
+
+func _hold_impact_frame() -> bool:
+    if hit_stop_ticks == 0:
+        return false
+    hit_stop_ticks -= 1
+    return true
+
+
+func show_strike_impact(ticks: int, facing: Vector3) -> void:
+    hit_stop_ticks = maxi(hit_stop_ticks, ticks)
+    seeker_rig.rotation.y = atan2(-facing.x, -facing.z)
+    seeker_rig.call("trigger_attack")
+    seeker_rig.call("animate_state", 0.0, 0.0)
+    if impact_camera != null:
+        impact_camera.kill()
+    var kick: float = 0.014 * ticks
+    camera_node.h_offset = kick
+    camera_node.v_offset = kick * 0.55
+    impact_camera = create_tween().set_parallel().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+    impact_camera.tween_property(camera_node, "h_offset", 0.0, 0.14)
+    impact_camera.tween_property(camera_node, "v_offset", 0.0, 0.14)
 
 
 func _show_martial_pulse(facing: Vector3) -> void:

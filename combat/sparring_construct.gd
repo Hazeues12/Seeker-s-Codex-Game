@@ -33,10 +33,10 @@ var life_time: float = 0.0
 var patrol_phase: float = 0.0
 var guard_cooldown: float = 0.0
 var flank_cooldown: float = 1.4
-var model: MeshInstance3D
-var model_mat: StandardMaterial3D
+var hit_stop_ticks: int = 0
 var status_tag: Label3D
 var aura_core: MeshInstance3D
+var aura_material: StandardMaterial3D
 var visual_rig: Node3D
 
 func _ready() -> void:
@@ -49,44 +49,21 @@ func _ready() -> void:
     collision.position = Vector3(0.0, 0.90, 0.0)
     add_child(collision)
 
-    model = MeshInstance3D.new()
-    model.name = "ConstructModel"
-    var body_mesh := CapsuleMesh.new()
-    body_mesh.radius = 0.39
-    body_mesh.height = 1.75
-    model.mesh = body_mesh
-    model.position.y = 0.90
-    model_mat = StandardMaterial3D.new()
-    model_mat.albedo_color = Color(0.59, 0.37, 0.76)
-    model_mat.roughness = 0.72
-    model.material_override = model_mat
-    add_child(model)
-
     aura_core = MeshInstance3D.new()
     aura_core.name = "AuraCore"
     var core := SphereMesh.new()
     core.radius = 0.16
     core.height = 0.32
+    core.radial_segments = 12
+    core.rings = 6
     aura_core.mesh = core
     aura_core.position = Vector3(0.0, 1.28, -0.37)
-    var core_mat := StandardMaterial3D.new()
-    core_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-    core_mat.albedo_color = Color(0.55, 0.94, 1.0)
-    aura_core.material_override = core_mat
+    aura_material = StandardMaterial3D.new()
+    aura_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    aura_material.albedo_color = Color("#8CE7FF")
+    aura_core.material_override = aura_material
+    aura_core.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
     add_child(aura_core)
-
-    # Three-dimensional identifying silhouettes without a skeleton or asset downloads.
-    var head := MeshInstance3D.new()
-    head.name = "Mask"
-    var head_mesh := SphereMesh.new()
-    head_mesh.radius = 0.25
-    head_mesh.height = 0.50
-    head.mesh = head_mesh
-    head.position = Vector3(0.0, 1.92, 0.0)
-    var mask_mat := StandardMaterial3D.new()
-    mask_mat.albedo_color = Color(0.23, 0.29, 0.43)
-    head.material_override = mask_mat
-    add_child(head)
 
     status_tag = Label3D.new()
     status_tag.name = "EnemyHealthTag"
@@ -100,9 +77,7 @@ func _ready() -> void:
     visual_rig = SeekerRigScript.new()
     visual_rig.name = "HumanoidFighter"
     add_child(visual_rig)
-    visual_rig.call("configure", "guardian")
-    model.visible = false
-    head.visible = false
+    visual_rig.call("configure_anime_body", "guardian")
     _update_label()
 
 func configure(player: CharacterBody3D, label_text: String, where: Vector3, phase: float) -> void:
@@ -114,8 +89,6 @@ func configure(player: CharacterBody3D, label_text: String, where: Vector3, phas
     style = "skirmisher" if phase > 1.0 else "guardian"
     if is_instance_valid(visual_rig):
         visual_rig.call("configure", style)
-    if is_instance_valid(model_mat):
-        model_mat.albedo_color = _base_color()
     _update_label()
 
 # Different supervised field zone; original sparring bounds remain the default.
@@ -131,6 +104,9 @@ func is_active() -> bool:
 
 func _physics_process(delta: float) -> void:
     if not active or not is_instance_valid(target_player):
+        return
+    if hit_stop_ticks > 0:
+        hit_stop_ticks -= 1
         return
     life_time += delta
     state_timer = maxf(0.0, state_timer - delta)
@@ -185,6 +161,7 @@ func _physics_process(delta: float) -> void:
             velocity.x = 0.0
             velocity.z = 0.0
             if state_timer <= 0.0:
+                visual_rig.call("trigger_attack")
                 # Distance is checked at impact time, making retreat and dodges meaningful.
                 if distance <= STRIKE_RANGE + 0.25:
                     attack_connected.emit(14 if style == "guardian" else 9)
@@ -212,32 +189,31 @@ func _physics_process(delta: float) -> void:
         var look_point := Vector3(target_player.global_position.x, global_position.y, target_player.global_position.z)
         if global_position.distance_to(look_point) > 0.1:
             look_at(look_point, Vector3.UP)
-    _animate_pose()
-    if is_instance_valid(visual_rig):
-        visual_rig.call("animate_state", delta, Vector2(velocity.x, velocity.z).length(), false, state)
+    _update_aura_cue()
+    var pose: String = "" if state == "recovery" else state
+    visual_rig.call("animate_state", delta, Vector2(velocity.x, velocity.z).length(), false, pose)
 
-func _animate_pose() -> void:
-    if not is_instance_valid(model):
-        return
-    var bob: float = sin(life_time * 8.0) * 0.025
-    model.position.y = 0.90 + bob
-    model.rotation.z = sin(life_time * 2.5) * 0.035
-    if state == "windup":
-        model.rotation.x = -0.25
-        model_mat.albedo_color = Color(1.0, 0.64, 0.15)
-    elif state == "guard":
-        model.rotation.x = 0.10
-        model_mat.albedo_color = Color(0.25, 0.87, 1.0)
-    elif state == "stagger":
-        model.rotation.x = 0.27
-        model_mat.albedo_color = Color(1.0, 0.96, 0.73)
-    else:
-        model.rotation.x = 0.0
-        model_mat.albedo_color = _base_color()
-    aura_core.scale = Vector3.ONE * (1.0 + sin(life_time * 5.5) * 0.13)
+func _update_aura_cue() -> void:
+    var cue := Color("#8CE7FF")
+    var size: float = 1.0 + sin(life_time * 5.5) * 0.13
+    match state:
+        "windup":
+            cue = Color("#FFC23A")
+            size = 1.9
+        "guard":
+            cue = Color("#3FA6E0")
+            size = 1.35
+        "stagger":
+            cue = Color("#FFF6C0")
+    aura_material.albedo_color = cue
+    status_tag.modulate = cue if state in ["windup", "guard"] else Color.WHITE
+    aura_core.scale = Vector3.ONE * size
 
-func _base_color() -> Color:
-    return Color(0.67, 0.36, 0.47) if style == "guardian" else Color(0.46, 0.36, 0.80)
+func hold_strike_impact(ticks: int) -> void:
+    hit_stop_ticks = ticks
+    if active:
+        _update_aura_cue()
+        visual_rig.call("animate_state", 0.0, 0.0, false, "stagger")
 
 func _walk_toward(destination: Vector3, speed: float) -> void:
     var vector: Vector3 = destination - global_position
@@ -335,6 +311,7 @@ func _damage_number(amount: int, guarded: bool) -> void:
 func reset_construct() -> void:
     rapid_hits = 0
     last_hit_ms = -10000
+    hit_stop_ticks = 0
     health = MAX_HEALTH
     posture = 65.0
     posture_break_time = 0.0
@@ -347,6 +324,7 @@ func reset_construct() -> void:
     global_position = spawn_point
     visible = true
     _update_label()
+    _update_aura_cue()
 
 func _update_label() -> void:
     if is_instance_valid(status_tag):
