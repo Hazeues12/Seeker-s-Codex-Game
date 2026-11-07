@@ -2,6 +2,7 @@ extends Node3D
 const Main = preload("res://scenes/main.tscn")
 const Wards = preload("res://systems/magnara_expansion_rules_v071.gd")
 const Ocean = preload("res://systems/ocean_hydrodynamics_v071.gd")
+const OceanWorld = preload("res://world/margerina_ocean_commerce_v071.gd")
 const Trade = preload("res://systems/margerina_commerce_rules_v071.gd")
 const Integrity = preload("res://systems/game_save_integrity_v063.gd")
 
@@ -135,7 +136,7 @@ func _run() -> void:
         return
 
     # Public harbor visit via actual Magnara counter and mobile panel.
-    var sign: Vector3 = harbor.PUBLIC_ENTRY-Vector3(2.4,0,0)
+    var sign: Vector3 = OceanWorld.PUBLIC_ENTRY-Vector3(2.4,0,0)
     player.global_position = sign
     var harbor_sign: Dictionary = hub.call("_nearest_location")
     if str(harbor_sign.get("id","")) != "ocean_v071_board":
@@ -163,12 +164,12 @@ func _run() -> void:
             or absf(water_mesh.size.x-1000.0) > 0.5:
         _fail("1 km offshore surface lacks enough vertices for animated waves")
         return
-    var water_sample: Dictionary = harbor.call("surface_at",harbor.ANCHOR+Vector3(0,0,0))
+    var water_sample: Dictionary = harbor.call("surface_at",OceanWorld.ANCHOR+Vector3(0,0,0))
     if water_sample.is_empty() or not water_sample.get("moving_surface",false):
         _fail("CPU ocean physics doesn't match visual sea coordinate")
         return
-    var stern: Dictionary = harbor.call("surface_at",harbor.ANCHOR+Vector3(-320,0,0))
-    var deep: Dictionary = harbor.call("surface_at",harbor.ANCHOR+Vector3(460,0,0))
+    var stern: Dictionary = harbor.call("surface_at",OceanWorld.ANCHOR+Vector3(-320,0,0))
+    var deep: Dictionary = harbor.call("surface_at",OceanWorld.ANCHOR+Vector3(460,0,0))
     if float(stern.get("offshore",1)) >= float(deep.get("offshore",0)):
         _fail("near-shore and open-ocean wave effects don't vary with distance")
         return
@@ -191,7 +192,7 @@ func _run() -> void:
         _fail("merchant vessel cannot physically carry a walking player")
         return
     # Test real water interaction away from docks and ship routes.
-    player.global_position = harbor.ANCHOR+Vector3(100,-0.22,30)
+    player.global_position = OceanWorld.ANCHOR+Vector3(100,-0.22,30)
     player.velocity = Vector3(0,-1,0)
     player.call("_physics_process",0.016)
     if not bool(player.get("water_contact_v071")) or player.velocity.y < -1.6:
