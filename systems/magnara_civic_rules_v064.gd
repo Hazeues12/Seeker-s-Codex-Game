@@ -51,7 +51,9 @@ static func sanitize(value: Variant) -> Dictionary:
             var suffix: String = stamp.trim_prefix("day:")
             if not suffix.is_valid_int() or int(suffix) < 1 or int(suffix) > 1000000:
                 continue
-            if entries[key] != true:
+            if typeof(entries[key]) != TYPE_BOOL:
+                continue
+            if not bool(entries[key]):
                 continue
             clean[stamp] = true
             if clean.size() >= MAX_DAYS:
