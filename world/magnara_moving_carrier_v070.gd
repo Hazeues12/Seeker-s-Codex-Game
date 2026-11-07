@@ -81,7 +81,7 @@ func _make_track() -> void:
     follower = PathFollow3D.new()
     follower.name = "V070RailPathFollow"
     follower.loop = false
-    follower.rotates = false
+    follower.rotation_mode = PathFollow3D.ROTATION_NONE
     path.add_child(follower)
     for rail_x in [-1.30,1.30]:
         _piece(self,"V070SteelTrack",Vector3(rail_x,0.73,649.0),
