@@ -3,6 +3,7 @@ extends Node3D
 # 30 new 128m cells; only nine adjacent cells loaded at once on iPhone.
 # NPC identities/households are game-only, not main-series canon characters.
 const Rules = preload("res://systems/magnara_expansion_rules_v071.gd")
+const InteriorRulesV072 = preload("res://systems/magnara_interiors_rules_v072.gd")
 var player: CharacterBody3D
 var hub: Node
 var codex: Node
@@ -59,6 +60,8 @@ func get_manifest() -> Dictionary:
         "walls_and_roofs_physically_collidable":true,
         "roof_access":true,
         "full_interior_production_complete":false,
+        "v072_enterable_ground_floors":InteriorRulesV072.VENUES_TOTAL,
+        "v072_hollow_slot":InteriorRulesV072.VENUE_SLOT,
         "original_v067_cells_untouched":true,
         "spawns_hidden_canon":false}
 
@@ -132,8 +135,17 @@ func _kit(chunk: Node3D, parcels: Array) -> void:
         var height: float = float(parcel["height"])
         var floors: int = int(parcel["floors"])
         var palette: Color = Rules.COLORS[int(parcel["palette"])]
-        _add_piece(parts,"ground",center+Vector3(0,0.56+height*0.5,0),
-            Vector3(width,height,depth),palette)
+        # The new V0.72 licensed PUBLIC workroom in slot 2 has a truly
+        # open ground floor. Upper masonry stays solid and collidable.
+        # Side walls and the walk-through doorway are built by V0.72.
+        if int(parcel["slot"]) == InteriorRulesV072.VENUE_SLOT:
+            var upper_height: float = height-InteriorRulesV072.FIRST_FLOOR_HEIGHT
+            _add_piece(parts,"ground",
+                center+Vector3(0,0.56+InteriorRulesV072.FIRST_FLOOR_HEIGHT+upper_height*0.5,0),
+                Vector3(width,upper_height,depth),palette)
+        else:
+            _add_piece(parts,"ground",center+Vector3(0,0.56+height*0.5,0),
+                Vector3(width,height,depth),palette)
         _add_piece(parts,"roof",center+Vector3(0,0.56+height+0.15,0),
             Vector3(width+0.9,0.30,depth+0.9),Color(0.27,0.31,0.34))
         var inward: float = 1.0 if center.x < 0.0 else -1.0
@@ -142,9 +154,10 @@ func _kit(chunk: Node3D, parcels: Array) -> void:
                 Vector3(width+0.11,0.15,depth+0.11),palette.darkened(0.24))
             for bay in range(3):
                 var z: float = center.z-depth*0.29+float(bay)*depth*0.29
-                _add_piece(parts,"window",Vector3(center.x+inward*(width*0.5+0.08),
-                    0.56+2.3+float(level)*2.75,z),
-                    Vector3(0.22,1.05,1.28),Color(0.32,0.59,0.66))
+                if int(parcel["slot"]) != InteriorRulesV072.VENUE_SLOT or level > 0:
+                    _add_piece(parts,"window",Vector3(center.x+inward*(width*0.5+0.08),
+                        0.56+2.3+float(level)*2.75,z),
+                        Vector3(0.22,1.05,1.28),Color(0.32,0.59,0.66))
         if int(parcel["slot"]) % 2 == 0:
             _add_piece(parts,"awning",Vector3(center.x+inward*(width*0.5+1.6),
                 3.55,center.z),Vector3(3.1,0.20,depth*0.72),
@@ -241,12 +254,20 @@ func _build(cell: Vector2i) -> void:
         parcels.append(p)
         var body := StaticBody3D.new()
         body.name = "V071BuildingWall_"+str(slot)
-        body.position = p["center"]+Vector3(0,0.56+float(p["height"])*0.5,0)
+        if slot == InteriorRulesV072.VENUE_SLOT:
+            var upper_height: float = float(p["height"])-InteriorRulesV072.FIRST_FLOOR_HEIGHT
+            body.position = p["center"]+Vector3(0,
+                0.56+InteriorRulesV072.FIRST_FLOOR_HEIGHT+upper_height*0.5,0)
+        else:
+            body.position = p["center"]+Vector3(0,0.56+float(p["height"])*0.5,0)
         chunk.add_child(body)
         var shape := CollisionShape3D.new()
         shape.name = "V071BuildingCollision"
         var box := BoxShape3D.new()
-        box.size = Vector3(float(p["width"]),float(p["height"]),float(p["depth"]))
+        box.size = Vector3(float(p["width"]),
+            float(p["height"])-InteriorRulesV072.FIRST_FLOOR_HEIGHT
+            if slot == InteriorRulesV072.VENUE_SLOT else float(p["height"]),
+            float(p["depth"]))
         shape.shape = box
         shape.disabled = true
         body.add_child(shape)
