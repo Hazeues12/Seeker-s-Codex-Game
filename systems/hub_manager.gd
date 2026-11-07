@@ -2,6 +2,7 @@ extends Node
 const WorldGeoV054 = preload("res://systems/known_world_geometry_v054.gd")
 const JanoahRegionV055 = preload("res://world/janoah_approach_v055.gd")
 const SaveIntegrityV063 = preload("res://systems/game_save_integrity_v063.gd")
+const CivicRulesV064 = preload("res://systems/magnara_civic_rules_v064.gd")
 
 # Seeker's Codex — Margerina V0.33
 # A self-contained starter hub. The three contracts are prototype gameplay,
@@ -27,6 +28,7 @@ var progress: int = 0
 var inventory: Dictionary = {"Vitality Draught": 2, "Essence Tonic": 1}
 var field_reward_receipts: Dictionary = {}
 var market_stock_v062: Dictionary = {}
+var civic_v064: Dictionary = {}
 var aura: float = 100.0
 var stamina: float = 100.0
 var guild_rep: int = 0
@@ -512,7 +514,9 @@ func _any_panel_open() -> bool:
     var workshops_open: bool = is_instance_valid(workshops) and bool(workshops.call("is_open"))
     var market: Node = get_tree().get_first_node_in_group("magnara_markets_v062")
     var market_open: bool = is_instance_valid(market) and bool(market.call("is_open"))
-    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
+    var civic_services: Node = get_tree().get_first_node_in_group("magnara_civic_v064")
+    var civic_open: bool = is_instance_valid(civic_services) and bool(civic_services.call("is_open"))
+    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or civic_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
@@ -569,6 +573,10 @@ func _interact() -> void:
                 var expedition: Node = get_tree().get_first_node_in_group("multi_day_expedition_v050")
                 if is_instance_valid(expedition) and expedition.has_method("interact"):
                     expedition.call("interact", kind)
+            elif kind.begins_with("civic_v064_"):
+                var civic_service: Node = get_tree().get_first_node_in_group("magnara_civic_v064")
+                if is_instance_valid(civic_service) and civic_service.has_method("interact"):
+                    civic_service.call("interact", kind)
             elif kind.begins_with("market_v062_"):
                 var market: Node = get_tree().get_first_node_in_group("magnara_markets_v062")
                 if is_instance_valid(market) and market.has_method("interact"):
@@ -879,7 +887,8 @@ func _save_game() -> bool:
         "camera_yaw": player.get("wanted_yaw"),
         "camera_pitch": player.get("wanted_pitch"),
         "field_reward_receipts": field_reward_receipts,
-        "market_stock_v062": market_stock_v062
+        "market_stock_v062": market_stock_v062,
+        "civic_v064": civic_v064
     }
     if not SaveIntegrityV063.write_verified(data):
         _announce("Save failed verification. Your previous game was protected; check browser storage.")
@@ -927,6 +936,8 @@ func _load_game(show_feedback: bool) -> void:
         market_stock_v062 = market_raw
     else:
         market_stock_v062 = {}
+    var civic_raw: Variant = data.get("civic_v064", {})
+    civic_v064 = CivicRulesV064.sanitize(civic_raw)
     var existing_field_receipts: Variant = data.get("field_reward_receipts", {})
     if typeof(existing_field_receipts) == TYPE_DICTIONARY:
         field_reward_receipts = existing_field_receipts
