@@ -228,6 +228,25 @@
       "effect_type": "perception_story_only",
       "history_tag": "locked",
       "usable": false
+    },
+    {
+      "id": "aura_momentum_v070",
+      "label": "Basic Aura Momentum Burst",
+      "owner": "game_only_player",
+      "canonical_status": "game_only_training",
+      "cast_policy": "public_basic",
+      "aura_cost": 16,
+      "output_required": 14,
+      "spokes": [
+        "Martial"
+      ],
+      "lineage": "Seeker Quarters supervised momentum practice (game-only)",
+      "signature_type": "Martial",
+      "startup_seconds": 0.08,
+      "trajectory": "short_physical_forward_dash",
+      "effect_type": "traversal_impulse_no_invulnerability",
+      "history_tag": "public_training",
+      "usable": true
     }
   ],
   "items": [
