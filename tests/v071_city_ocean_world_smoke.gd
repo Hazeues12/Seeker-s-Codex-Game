@@ -198,11 +198,17 @@ func _run() -> void:
             + " hit-at=" + str(ship_hit.get("position",Vector3.ZERO)))
         return
     # Test real water interaction away from docks and ship routes.
-    player.global_position = OceanWorld.ANCHOR+Vector3(100,-0.22,30)
+    var swim_surface: Dictionary = harbor.call("surface_at",
+        OceanWorld.ANCHOR+Vector3(100,0,30))
+    var swim_height: float = float(swim_surface.get("height",0.0))
+    player.global_position = OceanWorld.ANCHOR+Vector3(100,swim_height-0.35,30)
     player.velocity = Vector3(0,-1,0)
     player.call("_physics_process",0.016)
     if not bool(player.get("water_contact_v071")) or player.velocity.y < -1.6:
-        _fail("the ocean is a visual texture only; swimming buoyancy missing")
+        _fail("wave-height-sampled swimming buoyancy missing / wave=" \
+            + str(swim_height) + " player=" + str(player.global_position) \
+            + " grounded=" + str(player.is_on_floor()) \
+            + " water_contact=" + str(player.get("water_contact_v071")))
         return
     if not bool(hub.call("_save_game")):
         _fail("cannot save from active public shipping survey")
