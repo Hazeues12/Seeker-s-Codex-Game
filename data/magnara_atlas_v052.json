@@ -38,26 +38,31 @@
     },
     {
       "ring": 3,
-      "name": null,
-      "planning_status": "unassigned",
-      "canonical_features": []
+      "name": "The Commons",
+      "planning_status": "published_zone_not_exact_geometry",
+      "canonical_features": [
+        "open green parks",
+        "polished bridges",
+        "civic families and public squares"
+      ]
     },
     {
       "ring": 4,
-      "name": null,
-      "planning_status": "partial_canon",
+      "name": "The Academies",
+      "planning_status": "published_zone_not_exact_geometry",
       "canonical_features": [
-        "banking",
-        "trade"
+        "sigil-glass academy domes",
+        "Martial, Alchemy, Spirit, Engineering and Soulwright studies"
       ]
     },
     {
       "ring": 5,
-      "name": null,
-      "planning_status": "partial_canon",
+      "name": "The Markets",
+      "planning_status": "published_zone_not_exact_geometry",
       "canonical_features": [
-        "forges",
-        "manufacturing"
+        "street markets and food commerce",
+        "streetwear and sigil textiles",
+        "workshop and forge streets"
       ]
     },
     {
@@ -68,11 +73,12 @@
     },
     {
       "ring": 7,
-      "name": null,
+      "name": "Iron Cothon outer-port ring",
       "planning_status": "author_confirmed_port_ring_coordinates_unplaced",
       "canonical_features": [
-        "primary ocean-going seaport and principal docks",
-        "Iron Cothon maritime harbor basins / exact shoreline location not locked"
+        "outer trade harbor and inner war basin",
+        "primary ocean-going docks in Ring VII",
+        "harbor site coordinates unresolved"
       ]
     }
   ],
@@ -201,5 +207,17 @@
     "full_interior_production_complete": false,
     "national_coastlines_mapped": false,
     "iron_cothon_ship_basin_built_in_real_ring_seven": false
+  },
+  "published_audit_v076": {
+    "path": "res://data/magnara_published_city_audit_v076.json",
+    "date": "2026-11-07",
+    "precedence": "creator_latest_correction_and_published_chapter_over_older_prototype_labels",
+    "region_role_updates": [
+      "Ring III Commons",
+      "Ring IV Academies",
+      "Ring V Markets plus workshops",
+      "Ring VII Iron Cothon"
+    ],
+    "unchanged": "Ring II physical Seeker Quarter; 26km only provisional scale"
   }
 }
