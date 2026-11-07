@@ -7,6 +7,8 @@ extends Node3D
 const Geo = preload("res://systems/known_world_geometry_v054.gd")
 const Hydro = preload("res://world/janoah_waterways_v056.gd")
 const RegionKit = preload("res://world/janoah_environment_kit_v056.gd")
+const WaterV071 = preload("res://systems/ocean_hydrodynamics_v071.gd")
+const RiverShaderV071 = preload("res://shaders/margerina_river_currents_v071.gdshader")
 const FIRST_TILE_X: int = 45
 const LAST_TILE_X: int = 68
 const MAX_SIDE_TILE: int = 1
@@ -24,6 +26,8 @@ var materials: Dictionary = {}
 var box_meshes: Dictionary = {}
 var cylinder_mesh: CylinderMesh
 var foliage_mesh: SphereMesh
+var river_material_v071: ShaderMaterial
+var river_seconds_v071: float = 0.0
 
 func _ready() -> void:
     add_to_group("janoah_approach_v055")
@@ -35,6 +39,8 @@ func _initialize() -> void:
     if not is_instance_valid(player):
         push_warning("V0.55 regional terrain requires the existing main-scene Player")
         return
+    river_material_v071 = ShaderMaterial.new()
+    river_material_v071.shader = RiverShaderV071
     _refresh_cells()
     set_process(true)
 
@@ -59,6 +65,9 @@ func get_manifest() -> Dictionary:
         "bridge_types": ["road", "freight"],
         "waterbody_is_canonical": false,
         "water_navigation_implemented": false,
+        "v071_river_current_shader": true,
+        "v071_cpu_water_interaction": true,
+        "v071_watercourse_provisional": true,
     }
 
 static func eligible_tile(tile: Vector2i) -> bool:
@@ -87,7 +96,23 @@ static func phase_for_tile(tile: Vector2i) -> String:
         return "farmed_countryside"
     return "rolling_interior_route"
 
+func get_water_surface_at(world_point: Vector3) -> Dictionary:
+    # The watercourse is a GAME-ONLY Janoah floodplain. Other nations
+    # have no invented rivers; this query is limited to the V0.56 tile.
+    var cell: Vector2i = Geo.tile_index(world_point)
+    if not eligible_tile(cell) or not Hydro.has_water_tile(cell.x) \
+            or Hydro.distance_to_river(world_point.x,world_point.z) > Hydro.INNER_HALF_WIDTH_M - 1.3:
+        return {}
+    var center: Vector3 = Geo.tile_center(cell)
+    return {"height":WaterV071.river_surface_y(world_point.x-center.x,
+        world_point.z-center.z,river_seconds_v071),
+        "flow_velocity":Vector3(0,0,WaterV071.RIVER_FLOW_MPS),
+        "canon_status":"game_only_provisional"}
+
 func _process(delta: float) -> void:
+    river_seconds_v071 += delta
+    if is_instance_valid(river_material_v071):
+        river_material_v071.set_shader_parameter("flow_seconds",river_seconds_v071)
     tick_clock += delta
     if tick_clock > 0.6:
         tick_clock = 0.0
@@ -273,11 +298,7 @@ func _build_waterway(parent: Node3D, tile: Vector2i) -> void:
     var water := MeshInstance3D.new()
     water.name = "JanoahRiverWaterSurface"
     water.mesh = ribbon.commit()
-    var material := StandardMaterial3D.new()
-    material.albedo_color = Color(0.18, 0.45, 0.52)
-    material.roughness = 0.24
-    material.metallic = 0.13
-    water.material_override = material
+    water.material_override = river_material_v071
     water.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
     parent.add_child(water)
     # Stones and scrub are anchored to firm banks beyond the recessed riverbed.
