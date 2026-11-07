@@ -4,11 +4,13 @@ extends Node3D
 # authored map, physical harbor, NPC faction war or canon shop locations.
 const Geo = preload("res://systems/known_world_geometry_v054.gd")
 const Rules = preload("res://systems/magnara_published_city_visual_rules_v076.gd")
+const CommonsLife = preload("res://world/magnara_commons_life_v080.gd")
 const MAX_COMMONS_LIGHTS: int = 4
 const COMMONS_LIGHT_DISTANCE: float = 24.0
 const LANTERN_COLOR := Color(1.0, 0.78, 0.43)
 var city: Node3D
 var hub: Node
+var commons_life: CommonsLife
 var commons_lights: Array[OmniLight3D] = []
 var material_lantern: StandardMaterial3D
 var player: CharacterBody3D
@@ -56,6 +58,10 @@ func _setup() -> void:
     material_glass = _material(0.31,0.15)
     material_ground = _material(0.97,0.0)
     hub = get_tree().get_first_node_in_group("hub_manager")
+    commons_life = CommonsLife.new()
+    commons_life.name = "CommonsLifeV080"
+    add_child(commons_life)
+    commons_life.configure(player, hub)
     material_lantern = _material(0.55, 0.0)
     material_lantern.emission_enabled = true
     material_lantern.emission = LANTERN_COLOR
@@ -125,7 +131,7 @@ func _attach_to_tile(key: String,chunk: Dictionary) -> void:
         art["parks"],wall_mesh,material_ground)
     _gpu(layer, "CommonsLanternGlassGPU", art["lanterns"], wall_mesh, material_lantern)
     decorated[key] = {"root":layer,"tile":tile,"lanterns":art["lanterns"],
-        "count":count,"stats":art["stats"]}
+        "court_centers":art["court_centers"],"count":count,"stats":art["stats"]}
 
 func _refresh_tiles() -> void:
     if not initialized:
@@ -156,6 +162,7 @@ func _refresh_tiles() -> void:
         batch_instances += int(decorated[key]["count"])
 
     _refresh_commons_lights()
+    commons_life.refresh(decorated)
 
 func _refresh_commons_lights() -> void:
     for light in commons_lights:

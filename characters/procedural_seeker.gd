@@ -28,6 +28,16 @@ func configure(look: String = "seeker") -> void:
         _build_rig()
     _apply_colors()
 
+func configure_civilian(jacket: Color, skin: Color) -> void:
+    configure("civilian")
+    _color_clothes(jacket, jacket.darkened(0.33))
+    for part in [body_root.get_node("Head"), body_root.get_node("Neck"),
+            left_arm.get_node("LeftGlove"), right_arm.get_node("RightGlove")]:
+        (part.material_override as StandardMaterial3D).albedo_color = skin
+    for part in [aura_gem, cape_trim, body_root.get_node("FaceBand"),
+            left_arm.get_node("LeftTrim"), right_arm.get_node("RightTrim")]:
+        part.hide()
+
 func _build_rig() -> void:
     body_root = Node3D.new()
     body_root.name = "AnimatedBody"
@@ -114,11 +124,14 @@ func _apply_colors() -> void:
         jacket = Color(0.27, 0.22, 0.45)
         pants = Color(0.20, 0.16, 0.34)
         accent = Color(0.65, 0.48, 1.0)
+    _color_clothes(jacket, pants)
+    (aura_gem.material_override as StandardMaterial3D).albedo_color = accent
+
+func _color_clothes(jacket: Color, pants: Color) -> void:
     for item in [torso_mesh, left_sleeve, right_sleeve, cape_trim]:
         (item.material_override as StandardMaterial3D).albedo_color = jacket
     for item in [left_pant, right_pant]:
         (item.material_override as StandardMaterial3D).albedo_color = pants
-    (aura_gem.material_override as StandardMaterial3D).albedo_color = accent
 
 func apply_national_outfit(nation: String) -> void:
     # 3D game costume silhouettes inspired by the author's Young Blood guide.
@@ -218,12 +231,20 @@ func animate_state(delta: float, planar_speed: float, dodging: bool = false, pos
     var stride: float = clampf(planar_speed / 5.5, 0.0, 1.35)
     var wave: float = sin(animation_time)
     var swing: float = wave * stride * 0.62
-    left_leg.rotation.x = lerpf(left_leg.rotation.x, swing, minf(1.0, delta * 15.0))
-    right_leg.rotation.x = lerpf(right_leg.rotation.x, -swing, minf(1.0, delta * 15.0))
+    var seated: bool = posture == "picnic"
+    left_leg.rotation.x = lerpf(left_leg.rotation.x, 1.45 if seated else swing, minf(1.0, delta * 15.0))
+    right_leg.rotation.x = lerpf(right_leg.rotation.x, 1.45 if seated else -swing, minf(1.0, delta * 15.0))
     var l_arm: float = -swing * 0.75
     var r_arm: float = swing * 0.75
     var lean: float = 0.04 + stride * 0.07
-    if posture == "windup":
+    if seated:
+        l_arm = 0.75
+        r_arm = 0.84 + 0.20 * sin(animation_time * 0.5)
+        lean = 0.09
+    elif posture == "recite":
+        l_arm = 0.32
+        r_arm = 0.66 + 0.38 * sin(animation_time * 0.62)
+    elif posture == "windup":
         r_arm = -0.48
         l_arm = 0.32
         lean = -0.20
@@ -246,7 +267,7 @@ func animate_state(delta: float, planar_speed: float, dodging: bool = false, pos
     left_arm.rotation.x = lerpf(left_arm.rotation.x, l_arm, minf(1.0, delta * 20.0))
     right_arm.rotation.x = lerpf(right_arm.rotation.x, r_arm, minf(1.0, delta * 20.0))
     body_root.rotation.x = lerpf(body_root.rotation.x, lean, minf(1.0, delta * 14.0))
-    body_root.position.y = absf(wave) * stride * 0.06
+    body_root.position.y = -0.70 if seated else absf(wave) * stride * 0.06
     aura_gem.scale = Vector3.ONE * (1.0 + 0.12 * sin(animation_time * 0.55))
 
 
@@ -262,10 +283,7 @@ func apply_player_appearance(skin_id: int, hair_id: int, coat_id: int, aura_id: 
     for part_name in ["Head", "Neck"]:
         var part: MeshInstance3D = body_root.get_node(part_name) as MeshInstance3D
         (part.material_override as StandardMaterial3D).albedo_color = skin_color
-    for part in [torso_mesh, left_sleeve, right_sleeve, cape_trim]:
-        (part.material_override as StandardMaterial3D).albedo_color = jacket_color
-    for part in [left_pant, right_pant]:
-        (part.material_override as StandardMaterial3D).albedo_color = jacket_color.darkened(0.33)
+    _color_clothes(jacket_color, jacket_color.darkened(0.33))
     (aura_gem.material_override as StandardMaterial3D).albedo_color = aura_color
     for sleeve in ["LeftTrim", "RightTrim"]:
         var parent: Node3D = left_arm if sleeve == "LeftTrim" else right_arm

@@ -150,7 +150,8 @@ func record_contract(index: int, title: String, reward_tola: int, reward_xp: int
     record_event("contract:%d" % index, "contract_completed", "Completed " + title,
         "Earned %d Tola and %d XP from a prototype contract." % [reward_tola, reward_xp])
 
-func record_event(event_id: String, kind: String, heading: String, details: String) -> void:
+func record_event(event_id: String, kind: String, heading: String, details: String,
+        place_override: String = "") -> void:
     if save_blocked or event_id.is_empty() or seen_events.has(event_id):
         return
     if profile.is_empty():
@@ -168,6 +169,8 @@ func record_event(event_id: String, kind: String, heading: String, details: Stri
             place = "Magnara / Ring Two / Professional quarter"
         elif z >= 30.0:
             place = "Magnara / Ring Two / Public quarter"
+    if not place_override.is_empty():
+        place = place_override
     var entry: Dictionary = {
         "id": event_id.substr(0, 96), "kind": kind.substr(0, 50),
         "title": heading.substr(0, 110), "detail": details.substr(0, 240),

@@ -270,6 +270,15 @@ jobs:
           timeout 145s godot --headless --path . res://tests/v077_ring_two_canal_world_scene.tscn --fixed-fps 60 --quit-after 850 2>&1 | tee v077-canal-world.log
           if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v077-canal-world.log; then exit 1; fi
           grep -Fq 'V0.77 RING TWO CURRENT TWO WALKABLE BRIDGES SAFE CANAL EXITS AND OLD SAVES PASS' v077-canal-world.log
+      - name: Test scheduled Commons gatherings and persistent poetry
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_DATA_HOME="$RUNNER_TEMP/commons-life"
+          mkdir -p "$XDG_DATA_HOME"
+          timeout 145s godot --headless --path . res://tests/v080_commons_life_world_scene.tscn --fixed-fps 60 --quit-after 850 2>&1 | tee v080-commons-world.log
+          if grep -E 'ERROR:|SCRIPT ERROR:|Parse Error' v080-commons-world.log; then exit 1; fi
+          grep -Fq 'V0.80 COMMONS PICNIC CLOCK POETRY MOBILE INTERACTION AND PERSISTENT CODEX PASS' v080-commons-world.log
       - name: Run previous Ring VII and V0.73-V0.53 live city, sea, freight and combat regressions
         shell: bash
         run: |
@@ -358,6 +367,7 @@ jobs:
             v053_city.log
             v046_muti.log
             v077-canal-world.log
+            v080-commons-world.log
             v076-world.log
             v076-rules.log
             v075-world.log

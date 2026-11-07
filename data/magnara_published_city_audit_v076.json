@@ -52,10 +52,11 @@
       "status": "published",
       "visual_direction": [
         "open park courtyards",
-        "families and civic gathering landscapes",
+        "family picnics beneath aura lamps and poets performing in public squares",
         "bridges as future authored crossings"
       ],
-      "place_geometry": "the exact Commons layout unplaced"
+      "place_geometry": "the exact Commons layout unplaced",
+      "game_only_activity": "generic gathering locations, civilian appearances, schedules and verses"
     },
     {
       "ring": 4,

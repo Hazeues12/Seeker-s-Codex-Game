@@ -77,6 +77,7 @@ static func tile_art(tile: Vector2i) -> Dictionary:
     var domes: Array[Dictionary] = []
     var parks: Array[Dictionary] = []
     var lanterns: Array[Dictionary] = []
+    var court_centers: Array[Vector3] = []
     var stats: Dictionary = {"commons_lawns":0,"commons_canopies":0,"commons_courts":0,
         "academy_glass":0,"market_awnings":0,
         "outer_ring_gantries":0,"neutral_core_lots":0,
@@ -99,6 +100,7 @@ static func tile_art(tile: Vector2i) -> Dictionary:
             stats["commons_lawns"] = int(stats["commons_lawns"])+1
             if City.stable(tile,slot+821,3) == 0:
                 _commons_court(local, parks, boxes, lanterns)
+                court_centers.append(local)
                 stats["commons_courts"] += 1
             if City.stable(tile,slot+730,2) == 0:
                 domes.append(_box(local+Vector3(-6.3,4.9,2.0),
@@ -149,6 +151,7 @@ static func tile_art(tile: Vector2i) -> Dictionary:
         elif ring == 1 or ring == 6:
             stats["neutral_core_lots"] = int(stats["neutral_core_lots"])+1
     return {"tile":tile,"boxes":boxes,"domes":domes,"parks":parks,"lanterns":lanterns,
+        "court_centers":court_centers,
         "stats":stats,"canon_status":"published_zone_game_only_parcel_positions",
         "named_landmarks_placed":0,"actual_harbor_docks":0,
         "source":AUDIT_PATH}

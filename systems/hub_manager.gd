@@ -627,6 +627,14 @@ func _nearest_location() -> Dictionary:
             player.global_position.distance_to(closest["position"]) if not closest.is_empty() else best_distance)
         if not boat.is_empty():
             closest = boat
+    var commons: Node = get_tree().get_first_node_in_group("magnara_commons_life_v080")
+    if is_instance_valid(commons):
+        var reach: float = best_distance
+        if not closest.is_empty():
+            reach = player.global_position.distance_to(closest["position"])
+        var reading: Dictionary = commons.get_nearest_interaction(player.global_position, reach)
+        if not reading.is_empty():
+            closest = reading
     return closest
 
 
@@ -647,6 +655,10 @@ func _interact() -> void:
             _train_at_post()
         "npc_canal", "npc_vendor", "npc_scout":
             _npc_dialogue(kind)
+        "commons_v080_reading":
+            var commons: Node = get_tree().get_first_node_in_group("magnara_commons_life_v080")
+            if is_instance_valid(commons):
+                commons.listen()
         _:
             if kind.begins_with("npc_ring2_"):
                 var life: Node = get_tree().get_first_node_in_group("ring_two_life")
