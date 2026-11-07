@@ -3,12 +3,14 @@ extends Node3D
 # manifests represent proposed gameplay cargo networks ONLY; routes don't
 # physically jump national borders or claim canonical foreign cargo volume.
 const Trade = preload("res://systems/margerina_commerce_rules_v071.gd")
+const LocalFreightV073 = preload("res://systems/magnara_local_logistics_rules_v073.gd")
 var hub: Node
 var player: CharacterBody3D
 var data: Dictionary = {}
 var wagons: Array[AnimatableBody3D] = []
 var initialized: bool = false
 var seconds: float = 0.0
+var previous_wagon_z: Array[float] = []
 
 func _ready() -> void:
     add_to_group("v071_land_commerce")
@@ -96,6 +98,7 @@ func _build_wagons() -> void:
                 _block(wagon,"V071CartWheel",Vector3(x,0.29,z),
                     Vector3(0.25,0.93,0.91),Color(0.24,0.23,0.21))
         wagons.append(wagon)
+        previous_wagon_z.append(-9999.0)
 
 func get_manifest() -> Dictionary:
     return {"version":71,"road_vehicles":wagons.size(),
@@ -115,6 +118,19 @@ func _physics_process(delta: float) -> void:
         var state: Dictionary = Trade.wagon_state(i,seconds,day,data)
         body.global_position = state["pos"]
         body.rotation.y = PI if str(state["activity"]) == "city_bound" else 0.0
+        # The existing physical wagon route triggers a consignment only
+        # after actually crossing the end-of-road northern freight depot.
+        # No shipment is invented by loading the game, by opening a menu,
+        # or by visually hiding the wagon with mobile LOD.
+        var now_z: float = float((state["pos"] as Vector3).z)
+        var prior_z: float = previous_wagon_z[i]
+        if prior_z >= Trade.LAND_Z0 and prior_z < LocalFreightV073.DOCK_TRIGGER_Z \
+                and now_z >= LocalFreightV073.DOCK_TRIGGER_Z \
+                and str(state["activity"]) == "city_bound":
+            var work: Node = get_tree().get_first_node_in_group("v073_public_logistics")
+            if is_instance_valid(work) and work.has_method("_register_wagon_dock"):
+                work.call("_register_wagon_dock",i,day)
+        previous_wagon_z[i] = now_z
         # Distant wagons remain represented by their deterministic route
         # state but do not consume mobile rendering/physics budget.
         var near: bool = body.global_position.distance_to(player.global_position) < 185.0
