@@ -1,0 +1,146 @@
+{
+  "version": "0.76",
+  "checked_date": "2026-11-07",
+  "verification_policy": "public_series_chapters_plus_user_confirmed_lore_then_game_only_coordinates",
+  "sources": [
+    {
+      "kind": "published_chapter",
+      "url": "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2689891/the-united-states-of-janoahthe-steel-flame-republic",
+      "scope": "Magnara seven rings, III Commons, IV Academies, V Markets, VII Iron Cothon, blue-resonance waters, bridges, upper skyport, dual harbor",
+      "reliability": "published_story"
+    },
+    {
+      "kind": "published_chapter",
+      "url": "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/3787095/trial-by-mercy-darker-than-black",
+      "scope": "Rin crosses Ring V checkpoint, workshops and shops on Founder Road, rooftop/canal-street traversal",
+      "reliability": "published_story"
+    },
+    {
+      "kind": "published_chapter",
+      "url": "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2718339/trial-by-mercy",
+      "scope": "tram loops, aura-lit rings, sky bridges and hub-to-Amphistad carriage, not exact coordinates",
+      "reliability": "published_story"
+    },
+    {
+      "kind": "creator_chats_and_project_bible",
+      "scope": "Ring II Seeker Quarters and existing playable neighborhoods; explicit 2026-11-07 Ring VII main docks outermost correction; chapter-locked power abilities",
+      "reliability": "creator_corrected_lore"
+    }
+  ],
+  "ring_identity": [
+    {
+      "ring": 1,
+      "identity": "CENTRAL CORE",
+      "status": "confirmed_core_only",
+      "place_geometry": "unverified; no new landmark"
+    },
+    {
+      "ring": 2,
+      "identity": "SEEKER QUARTERS",
+      "status": "creator_and_project_confirmed",
+      "place_geometry": "previous authored built area preserved"
+    },
+    {
+      "ring": 3,
+      "identity": "THE COMMONS",
+      "status": "published",
+      "visual_direction": [
+        "open park courtyards",
+        "families and civic gathering landscapes",
+        "bridges as future authored crossings"
+      ],
+      "place_geometry": "the exact Commons layout unplaced"
+    },
+    {
+      "ring": 4,
+      "identity": "THE ACADEMIES",
+      "status": "published",
+      "visual_direction": [
+        "sigil-glass domes",
+        "study and teaching exteriors",
+        "courtyard architecture"
+      ],
+      "place_geometry": "exact schools/statue sites unplaced"
+    },
+    {
+      "ring": 5,
+      "identity": "THE MARKETS",
+      "status": "published",
+      "visual_direction": [
+        "dense street commerce",
+        "awnings and food stalls",
+        "forge or workshop streets from later scenes"
+      ],
+      "place_geometry": "individual stalls and Forgehouse address unplaced"
+    },
+    {
+      "ring": 6,
+      "identity": "UNASSIGNED OUTER ZONE",
+      "status": "not_verified_enough_to_commit_role",
+      "visual_direction": [
+        "neutral civic or transport massing"
+      ],
+      "place_geometry": "no named places"
+    },
+    {
+      "ring": 7,
+      "identity": "IRON COTHON / OUTER PORT RING",
+      "status": "published_and_user_reconfirmed",
+      "visual_direction": [
+        "industrial harbor-facing skyline",
+        "trade and inner naval basin later"
+      ],
+      "place_geometry": "separate scenic ocean preview remains; coastline and actual docks not mapped"
+    }
+  ],
+  "known_physical_features": [
+    "seven concentric rings",
+    "Steel Flame Tower central beacon",
+    "Seeker Citadel nearby",
+    "blue resonance waterways",
+    "black bridges",
+    "tram lines",
+    "upper skyport",
+    "outer trade and inner naval harbor basins",
+    "forge smoke and city industry"
+  ],
+  "unverified_in_game": [
+    "26 km diameter and 531km2 are game planning values; not published city size",
+    "12 radial roads / 84 junctions are game-only layout; not exact story count",
+    "specific cliff, coast, named park, campus, skyport or naval basin coordinates are unplaced",
+    "Ring VI exact culture and function unassigned",
+    "faction control (Red Order, Family, Association investigations) cannot be generated from hypothetical state"
+  ],
+  "future_ideas_review": [
+    {
+      "feature": "Sigil/Tola batch ledger",
+      "decision": "defer",
+      "reason": "Tola and counterfeits exist; exact batch schemas, exchange audit and provenance must be validated before economy migration"
+    },
+    {
+      "feature": "NPC utility AI and blackboards",
+      "decision": "generic_schedules_only_later",
+      "reason": "use public needs and authored events, not invented Red Order ring takeover or forced NPC wars"
+    },
+    {
+      "feature": "combat memory counters",
+      "decision": "defer",
+      "reason": "survivors can log observed combat moves only when real battles and bounded identity-based memory exist"
+    },
+    {
+      "feature": "Rin stances",
+      "decision": "defer",
+      "reason": "Tetsuba, Yoru Oni, Chi no Ryoken need epoch-accurate equipment; simultaneous arsenal not presumed"
+    },
+    {
+      "feature": "Muti conversion and substrate summons",
+      "decision": "defer",
+      "reason": "rare or character-specific and secret mechanics require authored permissions"
+    },
+    {
+      "feature": "God Tree Stutter",
+      "decision": "defer",
+      "reason": "do not globally debuff Aura or disclose soul infrastructure without verified story-gated event"
+    }
+  ]
+}
