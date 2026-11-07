@@ -105,6 +105,9 @@ func _run() -> void:
         if int(ring_report.get("far_skyline_gpu_buildings",0)) < 100:
             _fail("new style removed the long-range 2km metropolitan skyline")
             return
+        if ring == 3 and int(manifest.get("commons_courts", 0)) < 1:
+            _fail("Ring III has no streamed public courtyards")
+            return
         roles[ring]=int(manifest[index])
 
     # The original developed public Ring II remains precisely where it

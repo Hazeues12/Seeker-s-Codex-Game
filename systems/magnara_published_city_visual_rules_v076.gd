@@ -57,11 +57,26 @@ static func style_for_ring(ring: int) -> Dictionary:
 static func _box(at: Vector3,size: Vector3,color: Color) -> Dictionary:
     return {"at":at,"size":size,"color":color}
 
+# Ground beneath these pavers is the existing streamed walkable terrain.
+static func _commons_court(at: Vector3, ground: Array[Dictionary],
+        fixtures: Array[Dictionary]) -> void:
+    var paving := Color(0.77, 0.70, 0.58)
+    ground.append(_box(at + Vector3(0, 0.705, 0),
+        Vector3(2.8, 0.02, City.BLOCK_GRID_M), paving))
+    ground.append(_box(at + Vector3(0, 0.73, 0), Vector3(9.0, 0.02, 8.0), paving))
+    for side in [-1.0, 1.0]:
+        fixtures.append(_box(at + Vector3(side * 3.7, 0.88, 2.8),
+            Vector3(0.5, 0.28, 1.7), Color(0.46, 0.30, 0.19)))
+        fixtures.append(_box(at + Vector3(side * 3.7, 1.7, -2.8),
+            Vector3(0.13, 2.35, 0.13), Color(0.43, 0.32, 0.22)))
+        fixtures.append(_box(at + Vector3(side * 3.7, 3.0, -2.8),
+            Vector3(0.42, 0.35, 0.42), Color(1.0, 0.84, 0.43)))
+
 static func tile_art(tile: Vector2i) -> Dictionary:
     var boxes: Array[Dictionary] = []
     var domes: Array[Dictionary] = []
     var parks: Array[Dictionary] = []
-    var stats: Dictionary = {"commons_lawns":0,"commons_canopies":0,
+    var stats: Dictionary = {"commons_lawns":0,"commons_canopies":0,"commons_courts":0,
         "academy_glass":0,"market_awnings":0,
         "outer_ring_gantries":0,"neutral_core_lots":0,
         "skipped_authored_ring_two":0}
@@ -81,11 +96,14 @@ static func tile_art(tile: Vector2i) -> Dictionary:
             parks.append(_box(local+Vector3(0,0.615,0),
                 Vector3(17.0,0.14,16.4),COMMONS_GRASS))
             stats["commons_lawns"] = int(stats["commons_lawns"])+1
+            if City.stable(tile,slot+821,3) == 0:
+                _commons_court(local, parks, boxes)
+                stats["commons_courts"] += 1
             if City.stable(tile,slot+730,2) == 0:
-                domes.append(_box(local+Vector3(0,4.9,0),
+                domes.append(_box(local+Vector3(-6.3,4.9,2.0),
                     Vector3(CANOPY_RADIUS_M*2.0,6.1,
                         CANOPY_RADIUS_M*2.0),COMMONS_CANOPY))
-                boxes.append(_box(local+Vector3(0,1.8,0),
+                boxes.append(_box(local+Vector3(-6.3,1.8,2.0),
                     Vector3(0.65,3.2,0.65),Color(0.44,0.38,0.27)))
                 stats["commons_canopies"] = int(stats["commons_canopies"])+1
     # Keep actual archived public streets/shops completely untouched.

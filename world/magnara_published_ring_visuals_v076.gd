@@ -10,6 +10,7 @@ var initialized: bool = false
 var decorated: Dictionary = {}
 var refresh_seconds: float = 0.0
 var total_park_patches: int = 0
+var total_commons_courts: int = 0
 var total_canopies: int = 0
 var total_academy_domes: int = 0
 var total_market_awnings: int = 0
@@ -117,6 +118,7 @@ func _refresh_tiles() -> void:
         if not decorated.has(key):
             _attach_to_tile(str(key),near[key])
     total_park_patches = 0
+    total_commons_courts = 0
     total_canopies = 0
     total_academy_domes = 0
     total_market_awnings = 0
@@ -125,6 +127,7 @@ func _refresh_tiles() -> void:
     for key in decorated.keys():
         var stat: Dictionary = decorated[key]["stats"]
         total_park_patches += int(stat["commons_lawns"])
+        total_commons_courts += int(stat["commons_courts"])
         total_canopies += int(stat["commons_canopies"])
         total_academy_domes += int(stat["academy_glass"])
         total_market_awnings += int(stat["market_awnings"])
@@ -138,6 +141,7 @@ func get_manifest() -> Dictionary:
         "render_tiles":decorated.size(),
         "max_render_tiles":Rules.MAX_ACTIVE_ART_TILES,
         "commons_park_patches":total_park_patches,
+        "commons_courts":total_commons_courts,
         "commons_canopy_trees":total_canopies,
         "academy_glass_domes":total_academy_domes,
         "market_public_awnings":total_market_awnings,
