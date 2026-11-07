@@ -381,6 +381,11 @@ func _refresh_view() -> void:
                 str(acquaintance).replace("citizen_v065_", "resident #").replace("_", " ").capitalize(),
                 int(interactions.get("rapport", 0)),
                 (interactions.get("days", {}) as Dictionary).size()]
+    if is_instance_valid(hub):
+        var boutique_stock: Dictionary = hub.get("shop_stock_v066")
+        if not boutique_stock.is_empty():
+            output += "MAGNARA CANON BUSINESS VISITS / GAME-ONLY MERCHANDISE\n"
+            output += "Independent daily retail transactions recorded: %d\n" % boutique_stock.size()
     output += "YOUR ROAD\n%s\n" % ("Not chosen" if life_road.is_empty() else life_road)
     if life_road == "trade":
         var life_work: Dictionary = life_record.get("work", {})
