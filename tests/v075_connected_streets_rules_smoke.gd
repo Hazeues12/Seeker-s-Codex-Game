@@ -60,8 +60,14 @@ func _run() -> void:
     for ring in range(1,8):
         var radius: float = (float(City.bounds(ring)["inner_m"]) + \
             float(City.bounds(ring)["outer_m"]))*0.5
+        # The original Seeker Quarter follows x≈0, z≈0..2000.
+        # Ring II density must be sampled in an *unbuilt* area, not
+        # inside the protected published district where shell generation
+        # is intentionally suppressed.
+        var angle: float = 1.30 if ring == 2 else 0.0
         var center: Vector3 = Vector3(
-            Geo.CITY_CENTER.x+radius,0.0,Geo.CITY_CENTER.y)
+            Geo.CITY_CENTER.x+radius*cos(angle),0.0,
+            Geo.CITY_CENTER.y+radius*sin(angle))
         var cell: Vector2i = Geo.tile_index(center)
         var candidates: Array[Vector2i] = [
             cell,cell+Vector2i(0,1),cell+Vector2i(-1,0)
