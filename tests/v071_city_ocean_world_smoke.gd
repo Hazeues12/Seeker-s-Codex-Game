@@ -226,7 +226,11 @@ func _run() -> void:
         _fail("far ocean ships and water stay loaded after return to Magnara")
         return
     if player.global_position.distance_to(sign) > 0.01:
-        _fail("public harbor preview doesn't return to accurate safe street")
+        _fail("public harbor preview doesn't return to accurate safe street" \
+            + " actual="+str(player.global_position) \
+            + " expected="+str(sign) \
+            + " cached="+str(harbor.get("return_position")) \
+            + " velocity="+str(player.velocity))
         return
 
     # At the old V0.56 Janoah river, the exact physical river
