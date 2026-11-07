@@ -176,7 +176,11 @@ func _verify_memory(expected: Dictionary) -> bool:
     if typeof(content) != TYPE_DICTIONARY:
         return false
     var record: Dictionary = content
-    return record.get("seals_v069",{}) == expected
+    if typeof(record.get("seals_v069", null)) != TYPE_DICTIONARY:
+        return false
+    var saved: Dictionary = record["seals_v069"]
+    return Seals.sanitize(saved.get("recipe", {})) == Seals.sanitize(expected.get("recipe", {})) \
+        and Seals.ledger(saved.get("receipts", {})) == Seals.ledger(expected.get("receipts", {}))
 
 func _write_memory(next: Dictionary) -> bool:
     if bool(codex.get("save_blocked")):
