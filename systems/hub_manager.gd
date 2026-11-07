@@ -529,6 +529,8 @@ func _clear_list(list_node: VBoxContainer) -> void:
 
 
 func _any_panel_open() -> bool:
+    var seven_ring_map: Node = get_tree().get_first_node_in_group("magnara_seven_ring_foundation_v074")
+    var atlas_open: bool = is_instance_valid(seven_ring_map) and bool(seven_ring_map.call("is_map_open"))
     var editor: Node = get_tree().get_first_node_in_group("seeker_creator")
     var ring_journal: Node = get_tree().get_first_node_in_group("ring_two_life")
     var journal_open: bool = is_instance_valid(ring_journal) and bool(ring_journal.call("is_open"))
@@ -578,7 +580,7 @@ func _any_panel_open() -> bool:
     var indoor_open: bool = is_instance_valid(indoor) and bool(indoor.call("is_open"))
     var freight: Node = get_tree().get_first_node_in_group("v073_public_logistics")
     var freight_open: bool = is_instance_valid(freight) and bool(freight.call("is_open"))
-    return board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or civic_open or population_open or shop_open or stream_open or pulse_open or seal_open or civic_director_open or carrier_open or trial_open or outer_open or maritime_open or indoor_open or freight_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
+    return atlas_open or board_panel.visible or bag_panel.visible or journal_open or codex_open or relations_open or canal_open or field_open or expedition_busy or bulletin_open or life_open or homes_open or workshops_open or market_open or civic_open or population_open or shop_open or stream_open or pulse_open or seal_open or civic_director_open or carrier_open or trial_open or outer_open or maritime_open or indoor_open or freight_open or (is_instance_valid(editor) and bool(editor.call("is_open")))
 
 
 func _nearest_location() -> Dictionary:
