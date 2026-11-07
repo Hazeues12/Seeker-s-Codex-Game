@@ -259,6 +259,7 @@ func _leave() -> void:
     if not active:
         _close()
         return
+    var destination: Vector3 = get_safe_save_position()
     active = false
     elapsed = 0.0
     if is_instance_valid(room):
@@ -266,7 +267,7 @@ func _leave() -> void:
         room = null
     exit_marker.visible = false
     player.velocity = Vector3.ZERO
-    player.global_position = get_safe_save_position()
+    player.global_position = destination
     _close()
 
 func _process(delta: float) -> void:
