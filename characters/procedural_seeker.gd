@@ -11,6 +11,20 @@ var last_pose := ""
 var ink: ShaderMaterial
 var anime_gem_scale: Vector3
 var shoulder_drapes: Array[MeshInstance3D] = []
+const SPOKE_CLOTH: Dictionary = {
+    "Martial": Color("#B0512F"), "Elemental": Color("#3E7C8C"),
+    "Spirit": Color("#6E8C5A"), "Psychic": Color("#7C5E9C"),
+    "Spatial": Color("#4A6FA5"), "Alchemy": Color("#997A3D"),
+    "Abyssal": Color("#8C3A4E"),
+}
+const RANK_TRIM: Dictionary = {
+    "Iron": Color("#8995A1"), "Bronze": Color("#AC7249"),
+    "Silver": Color("#C4D4EA"), "Gold": Color("#E5B752"),
+    "Grand": Color("#E5B752"), "Sage": Color("#E5B752"),
+}
+var spoke_sash: MeshInstance3D
+var rank_cape: MeshInstance3D
+var cape_edge: MeshInstance3D
 var appearance: String = "seeker"
 var animation_time: float = 0.0
 var attack_time: float = 0.0
@@ -52,6 +66,56 @@ func _color_civilian(jacket: Color, skin: Color) -> void:
 
 func configure_anime_player() -> void:
     _configure_anime("seeker", 0)
+    spoke_sash = _box(body_root, "SpokeSash", Vector3(0, 1.32, -0.234),
+        Vector3(0.15, 0.77, 0.045), Color.WHITE)
+    spoke_sash.rotation.z = 0.52
+    spoke_sash.hide()
+    rank_cape = _cloth_panel("RankCape", 0.0, 1.0, Color("#222945"))
+    cape_edge = _cloth_panel("RankCapeTrim", 0.90, 1.0, Color.WHITE)
+    GameState.rank_changed.connect(apply_rank_clothing)
+    apply_rank_clothing(GameState.seeker_rank)
+
+func _cloth_panel(title: String, top: float, bottom: float, tint: Color) -> MeshInstance3D:
+    var cloth := SurfaceTool.new()
+    cloth.begin(Mesh.PRIMITIVE_TRIANGLES)
+    var upper := Vector3(lerpf(0.32, 0.41, top), -top, 0.24 + top * 0.17)
+    var lower := Vector3(lerpf(0.32, 0.41, bottom), -bottom, 0.24 + bottom * 0.17)
+    var left_upper := Vector3(-upper.x, upper.y, upper.z)
+    var left_lower := Vector3(-lower.x, lower.y, lower.z)
+    for point in [left_upper, upper, lower, left_upper, lower, left_lower,
+            lower, upper, left_upper, left_lower, lower, left_upper]:
+        cloth.add_vertex(point)
+    cloth.generate_normals()
+    var mesh := MeshInstance3D.new()
+    mesh.name = title
+    mesh.mesh = cloth.commit()
+    mesh.position = Vector3(0, 1.77, 0.0)
+    mesh.material_override = _anime_material(tint, false, false)
+    mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+    body_root.add_child(mesh)
+    return mesh
+
+func apply_rank_clothing(rank: String) -> void:
+    var licensed := RANK_TRIM.has(rank)
+    rank_cape.visible = licensed
+    cape_edge.visible = licensed
+    cape_trim.visible = not licensed
+    if not licensed:
+        return
+    var senior: bool = rank in ["Gold", "Grand", "Sage"]
+    rank_cape.scale.y = 1.38 if senior else 0.62
+    cape_edge.scale.y = rank_cape.scale.y
+    cape_edge.position.z = 0.005
+    _tint(rank_cape, Color("#8C5C2C") if senior else Color("#222945"))
+    _tint(cape_edge, RANK_TRIM[rank])
+
+func apply_spoke_sash(spoke: String) -> void:
+    if spoke_sash == null:
+        return
+    spoke_sash.visible = SPOKE_CLOTH.has(spoke)
+    if spoke_sash.visible:
+        _tint(spoke_sash, SPOKE_CLOTH[spoke])
+
 
 func configure_anime_civilian(jacket: Color, skin: Color, hair: int) -> void:
     _configure_anime("civilian", hair)

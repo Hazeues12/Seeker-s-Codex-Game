@@ -17,6 +17,30 @@ func _run() -> void:
         await get_tree().process_frame
     var player := game.get_node("Player") as CharacterBody3D
     var rig := player.get_node("AnimatedSeeker") as Rig
+    var creator := game.get_node("SeekerCreator")
+    var sashes: OptionButton = creator.get("sash_option")
+    sashes.select(2)
+    creator.call("_save_appearance")
+    sashes.select(0)
+    creator.call("_load_appearance")
+    creator.call("_apply_preview")
+    var sash := rig.spoke_sash.material_override as ShaderMaterial
+    if not rig.spoke_sash.visible or sash.get_shader_parameter("base_color") != Color("#3E7C8C"):
+        _fail("the Elemental sash did not keep its exact tint after reload")
+        return
+    GameState.set_rank("Iron")
+    if not rig.rank_cape.visible or not is_equal_approx(rig.rank_cape.scale.y, 0.62):
+        _fail("Iron is missing its short cape")
+        return
+    GameState.set_rank("Gold")
+    if not is_equal_approx(rig.rank_cape.scale.y, 1.38):
+        _fail("Gold is missing its long cape")
+        return
+    GameState.set_rank("Stray")
+    if rig.rank_cape.visible:
+        _fail("Stray was given a licensed rank cape")
+        return
+    GameState.set_rank("Iron")
     var head := rig.body_root.get_node("Head") as MeshInstance3D
     var face := head.material_override as ShaderMaterial
     if not head.mesh is ArrayMesh or face == null or not face.get_shader_parameter("face_lighting") or face.next_pass == null:

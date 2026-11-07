@@ -1134,6 +1134,7 @@ func _load_game(show_feedback: bool) -> void:
         maritime.call("_leave")
     GameState.tola = maxi(0, int(data.get("tola", 100)))
     GameState.seeker_rank = str(data.get("rank", "Stray"))
+    GameState.rank_changed.emit(GameState.seeker_rank)
     experience = maxi(0, int(data.get("xp", 0)))
     guild_rep = maxi(0, int(data.get("rep", 0)))
     aura = clampf(float(data.get("aura", 100.0)), 0.0, 100.0)

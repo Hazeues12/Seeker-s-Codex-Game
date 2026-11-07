@@ -427,7 +427,7 @@ jobs:
                   await checkScene(browser, "res://tests/v081_commons_trade_world_scene.tscn", tradePass);
                   console.log("MARGERINA EXPORTED COMMONS TRADE PASSED IN CHROME");
                   await checkScene(browser, "res://tests/v082_anime_world_scene.tscn",
-                      "V0.82 ANIME PLAYER FACE HULL POSE VFX AND PAINTED CANOPY PASS", "v083-render.png");
+                      "V0.82 ANIME PLAYER FACE HULL POSE VFX AND PAINTED CANOPY PASS", "v085-render.png");
                   console.log("MARGERINA EXPORTED ANIME SHADERS PASSED IN CHROME");
               } finally {
                   rmSync(qaPath, { force: true });
@@ -443,14 +443,14 @@ jobs:
       - name: Upload playable candidate
         uses: actions/upload-artifact@v4
         with:
-          name: seeker-codex-v083-painted-commons-web
+          name: seeker-codex-v085-seeker-attire-web
           path: build/web/
           if-no-files-found: error
       - name: Keep the Chrome visual check
         uses: actions/upload-artifact@v4
         with:
-          name: v083-chrome-render-check
-          path: v083-render.png
+          name: v085-chrome-render-check
+          path: v085-render.png
           if-no-files-found: error
       - name: Upload diagnostics if failed
         if: failure()

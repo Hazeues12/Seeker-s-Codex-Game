@@ -15,6 +15,8 @@ var skin_option: OptionButton
 var hair_option: OptionButton
 var coat_option: OptionButton
 var aura_option: OptionButton
+var sash_option: OptionButton
+const SASHES: Array[String] = ["None", "Martial", "Elemental", "Spirit", "Psychic", "Spatial", "Alchemy", "Abyssal"]
 var feedback: Label
 var open_button: Button
 
@@ -95,6 +97,7 @@ func _make_ui() -> void:
     hair_option = _choice(stack, "HAIRSTYLE", HAIRS)
     coat_option = _choice(stack, "SEEKER CLOTHING", COATS)
     aura_option = _choice(stack, "AURA COLOR", AURAS)
+    sash_option = _choice(stack, "SPOKE SASH (APPEARANCE)", SASHES)
     feedback = _text(stack, "Changes are shown on your Seeker immediately.", 16)
     var actions := HBoxContainer.new()
     stack.add_child(actions)
@@ -164,6 +167,7 @@ func _apply_preview() -> void:
     var rig: Node = player.get_node_or_null("AnimatedSeeker")
     if is_instance_valid(rig) and rig.has_method("apply_player_appearance"):
         rig.call("apply_player_appearance", skin_option.selected, hair_option.selected, coat_option.selected, aura_option.selected)
+        rig.call("apply_spoke_sash", SASHES[sash_option.selected])
         var codex: Node = get_tree().get_first_node_in_group("personal_codex")
         if is_instance_valid(codex):
             var saved: Dictionary = codex.get("profile")
@@ -184,7 +188,8 @@ func _save_appearance() -> void:
         "skin": skin_option.selected,
         "hair": hair_option.selected,
         "coat": coat_option.selected,
-        "aura": aura_option.selected
+        "aura": aura_option.selected,
+        "spoke_sash": SASHES[sash_option.selected]
     }
     var file := FileAccess.open(SAVE_FILE, FileAccess.WRITE)
     if file == null:
@@ -213,3 +218,4 @@ func _load_appearance() -> void:
     hair_option.select(clampi(int(data.get("hair", 0)), 0, HAIRS.size() - 1))
     coat_option.select(clampi(int(data.get("coat", 0)), 0, COATS.size() - 1))
     aura_option.select(clampi(int(data.get("aura", 0)), 0, AURAS.size() - 1))
+    sash_option.select(maxi(0, SASHES.find(str(data.get("spoke_sash", "None")))))
