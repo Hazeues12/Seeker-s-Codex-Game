@@ -41,7 +41,7 @@ func _test() -> void:
     var follow: PathFollow3D = carrier.get_node_or_null("V070ActualCarrierSpline/V070RailPathFollow") as PathFollow3D
     var path: Path3D = carrier.get_node_or_null("V070ActualCarrierSpline") as Path3D
     var vehicle: AnimatableBody3D = carrier.get("deck_body")
-    if path == null or follow == null or vehicle == null or not vehicle.sync_to_physics:
+    if path == null or follow == null or vehicle == null or vehicle.sync_to_physics:
         _fail("3D trolley does not use synced physics PathFollow3D")
         return
     if path.curve.get_point_count() != 3 or path.curve.get_baked_length() < 81.0:
