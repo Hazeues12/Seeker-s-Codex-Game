@@ -93,7 +93,9 @@ func _make_track() -> void:
 func _make_vehicle() -> void:
     deck_body = AnimatableBody3D.new()
     deck_body.name = "V070RealMovingCarrier"
-    deck_body.sync_to_physics = true
+    # Manually moved in _physics_process; engine-driven physics synchronization
+    # would overwrite a scripted transform with the previous server position.
+    deck_body.sync_to_physics = false
     deck_body.collision_layer = 1
     deck_body.collision_mask = 1
     deck_body.add_to_group("v070_moving_platform")
@@ -235,8 +237,8 @@ func _physics_process(delta: float) -> void:
     route_state = Rules.state_at(journey_seconds)
     var fraction: float = float(route_state.get("fraction",0.0))
     follower.progress_ratio = fraction
-    # Sample curve coordinates then move the AnimatableBody3D itself, in the
-    # physics tick. This updates its actual broadphase collision/velocity.
+    # Sample curve coordinates then move the AnimatableBody3D itself,
+    # in the physics tick (sync_to_physics is false for manual movement).
     deck_body.global_position = follower.global_position + Vector3(0,0.90,0)
     # CharacterBody3D inherits platform velocity via move_and_slide(),
     # without disabling, reparenting or scripting player motion.
