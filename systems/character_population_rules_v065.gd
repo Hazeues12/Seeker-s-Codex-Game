@@ -8,7 +8,7 @@ const MAX_ACTORS: int = 256
 const PUBLIC_SPAWN_POLICIES: Array[String] = ["boar_staff", "trial_week_boar"]
 const DAILY_CHOICES: Array[String] = ["listen", "help", "dismiss"]
 const ROAD_X: Array[float] = [-62.0, 0.0, 62.0]
-const CROSS_Z: Array[float] = [301.0, 344.0, 423.0, 480.0, 548.0]
+const CROSS_Z: Array[float] = [301.0, 344.0, 423.0, 480.0, 548.0, 618.0, 658.0, 692.0]
 const POINTS: Dictionary = {
     "market_square": Vector3(0.0, 0.83, 305.0),
     "market_provisions": Vector3(-26.0, 0.83, 293.0),
@@ -24,7 +24,10 @@ const POINTS: Dictionary = {
     "guild_hall": Vector3(-30.0, 0.83, 553.0),
     "workshops_west": Vector3(-62.0, 0.83, 224.0),
     "civic_square": Vector3(0.0, 0.83, 480.0),
-    "south_canal": Vector3(62.0, 0.83, 224.0)
+    "south_canal": Vector3(62.0, 0.83, 224.0),
+    "shop_lebells": Vector3(-62.0, 0.83, 620.0),
+    "shop_avicci": Vector3(62.0, 0.83, 650.0),
+    "shop_vernal": Vector3(-62.0, 0.83, 686.0)
 }
 
 static func load_registry() -> Dictionary:
@@ -171,7 +174,7 @@ static func civilian_state(actor: Dictionary, minutes: float) -> Dictionary:
     var t: float = local_minutes(minutes)
     var role: String = str(actor.get("role", ""))
     var shift: int = int(actor.get("shift_offset", 0))
-    var night: bool = ["safety_watch", "inn_guest", "food_runner"].has(role)
+    var night: bool = ["safety_watch", "inn_guest", "food_runner", "night_diner", "night_supply_runner"].has(role)
     # Night-shift NPCs follow the same eight-activity graph, six hours later.
     t = fposmod(t + float(shift) + (540.0 if night else 0.0), 1440.0)
     var home: String = str(actor.get("home_anchor", "worker_row"))
