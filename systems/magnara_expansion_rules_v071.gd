@@ -124,10 +124,18 @@ static func resident_state(cell: Vector2i, number: int, minutes: float) -> Dicti
     var work: bool = t >= 360 and t < 1140
     var shift: String = "resting" if not work else ("commuting" if t < 520 else (
         "on_shift" if t < 890 else ("local_trade" if t < 1020 else "returning_home")))
+    # Resident #11 of this exact household works INSIDE V0.72's public
+    # ground-floor site from 09:10 to 17:30. Never render two copies
+    # of one citizen on the street and in the workroom simultaneously.
+    var indoor: bool = number == 11 and fposmod(maxf(0.0,minutes),1440.0) >= 550.0 \
+        and fposmod(maxf(0.0,minutes),1440.0) < 1050.0
+    if indoor:
+        shift = "working_inside_public_venue"
     var u: float = fposmod(t*(0.016+float(number%4)*0.003)+float(number)*0.27,2.0)
     var along: float = 1.0-absf(u-1.0)
     var side: float = -1.0 if number%2 == 0 else 1.0
-    return {"id":identity["id"],"visible":work,"activity":shift,
+    return {"id":identity["id"],"visible":work and not indoor,"activity":shift,
+        "inside_public_venue":indoor,
         "world_position":origin(cell)+Vector3(side*9.7,0.81,14.0+along*104.0),
         "household":identity["household"]}
 
