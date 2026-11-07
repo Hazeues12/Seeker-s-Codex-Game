@@ -2,6 +2,7 @@ extends Node3D
 # V0.64 / game-only Ring II civic services: accessible inn, registry counter and
 # mundane clinic. Addresses, staff, geometry and economy are NOT new series canon.
 const Rules = preload("res://systems/magnara_civic_rules_v064.gd")
+const SaveIntegrity = preload("res://systems/game_save_integrity_v063.gd")
 const SERVICE_IDS: Array[String] = ["inn", "records", "clinic"]
 const NAMES: Array[String] = ["Public Traveler's Inn", "Civic Wayfinding Desk", "Neighborhood Clinic"]
 const SITES: Array[Vector3] = [
@@ -319,7 +320,7 @@ func _refresh() -> void:
 func _verify_receipt(kind: String, day: int) -> bool:
     var loaded: Dictionary = Rules.sanitize(hub.get("civic_v064"))
     var stored: Dictionary = Rules.sanitize({})
-    var checked: Dictionary = preload("res://systems/game_save_integrity_v063.gd").load_best()
+    var checked: Dictionary = SaveIntegrity.load_best()
     var data: Dictionary = checked.get("data", {})
     if not data.is_empty():
         stored = Rules.sanitize(data.get("civic_v064", {}))
