@@ -153,7 +153,7 @@ func _verify() -> void:
         if int(hub.get("inventory").get(Rules.item_for(id), 0)) != 1:
             _fail("purchased item lost after loading game: " + id)
             return
-    hub.set("world_minutes", 1750.0)
+    hub.set("world_minutes", 1470.0)
     stores.call("_update_workers")
     if not stores.get_node("V066Shop_lebells/V066StoreStaff_lebells").visible:
         _fail("diner fails to open just after midnight on next day")
