@@ -272,6 +272,11 @@ func _receive_enemy_attack(amount: int) -> void:
             _announce("PERFECT PARRY! +14 posture; enemy guard pressured.", 1.7)
             _refresh_hud()
             return
+    var seal_table: Node = get_tree().get_first_node_in_group("v069_public_seals")
+    if is_instance_valid(seal_table) and seal_table.has_method("on_impact"):
+        if bool(seal_table.call("on_impact", amount)):
+            _announce("ALCHEMIC SEAL: your encoded ward absorbed one hit.", 2.0)
+            return
     var guarded: bool = false
     if player_posture_break_time <= 0.0 and bool(player.get("guard_active")):
         var hub: Node = get_tree().get_first_node_in_group("hub_manager")
