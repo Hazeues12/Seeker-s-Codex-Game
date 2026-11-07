@@ -185,9 +185,11 @@ func _mat(tint: Color) -> StandardMaterial3D:
 func _sign(spec: Dictionary) -> Node3D:
     var pole := Node3D.new()
     pole.name = "V075RealRingRadialJunction_"+str(spec["id"])
-    pole.global_position = spec["sign_world"]
     pole.add_to_group("v075_real_ring_junction_marker")
     add_child(pole)
+    # Node3D.global_position cannot be read/set until its parented
+    # node has entered the scene tree; set AFTER add_child.
+    pole.global_position = spec["sign_world"]
     # No collision: signs sit beside avenues, not across parkour lanes.
     var shaft := MeshInstance3D.new()
     var box := BoxMesh.new()
