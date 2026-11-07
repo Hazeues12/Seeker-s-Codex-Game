@@ -35,8 +35,24 @@ static func sanitize(source: Variant) -> Dictionary:
     if expected.is_empty() or typeof(value.get("steps", null)) != TYPE_ARRAY:
         return {}
     var steps: Array = value["steps"]
-    if steps.size() != MAX_STEPS or steps != expected["steps"]:
+    if steps.size() != MAX_STEPS:
         return {}
+    # Round-tripped Godot JSON encodes integral values as floats in the
+    # Personal Codex; validate the exact whitelisted instruction syntax and
+    # numeric value without requiring in-memory Variant type identity.
+    for i in range(MAX_STEPS):
+        if typeof(steps[i]) != TYPE_DICTIONARY:
+            return {}
+        var op: Dictionary = steps[i]
+        var permitted: Dictionary = expected["steps"][i]
+        if op.size() != permitted.size() or str(op.get("op", "")) != str(permitted["op"]):
+            return {}
+        if permitted.has("value"):
+            var raw_value: Variant = op.get("value", null)
+            if typeof(raw_value) != TYPE_INT and typeof(raw_value) != TYPE_FLOAT:
+                return {}
+            if not is_finite(float(raw_value)) or not is_equal_approx(float(raw_value), float(permitted["value"])):
+                return {}
     expected["armed"] = typeof(value.get("armed", false)) == TYPE_BOOL and bool(value.get("armed", false))
     return expected
 
