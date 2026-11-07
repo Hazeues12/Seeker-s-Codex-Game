@@ -358,6 +358,16 @@ func _refresh_view() -> void:
             var market_days: Dictionary = merchant.get("days", {})
             output += " - %s | Rapport %d | Daily visits %d\n" % [
                 vendor_id.capitalize(), int(merchant.get("rapport", 0)), market_days.size()]
+    var civic_life: Dictionary = {}
+    if is_instance_valid(hub):
+        civic_life = hub.get("civic_v064")
+    if not civic_life.is_empty():
+        output += "MAGNARA CIVIC LIFE / GAME ONLY\n"
+        output += "Rooms booked: %d | Nights rested: %d | Clinic visits: %d | Public assistance: %d\n" % [
+            (civic_life.get("nights", {}) as Dictionary).size(),
+            (civic_life.get("slept", {}) as Dictionary).size(),
+            (civic_life.get("treatments", {}) as Dictionary).size(),
+            (civic_life.get("helped", {}) as Dictionary).size()]
     output += "YOUR ROAD\n%s\n" % ("Not chosen" if life_road.is_empty() else life_road)
     if life_road == "trade":
         var life_work: Dictionary = life_record.get("work", {})
