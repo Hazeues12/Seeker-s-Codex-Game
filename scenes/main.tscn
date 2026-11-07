@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3]
+[gd_scene load_steps=37 format=3]
 
 [ext_resource type="PackedScene" path="res://characters/player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://ui/mobile_controls.tscn" id="2"]
@@ -30,6 +30,9 @@
 [ext_resource type="Script" path="res://world/magnara_businesses_v066.gd" id="28"]
 [ext_resource type="Script" path="res://world/magnara_streamed_blocks_v067.gd" id="29"]
 [ext_resource type="Script" path="res://world/magnara_public_pulse_v068.gd" id="30"]
+[ext_resource type="Script" path="res://world/seal_training_bench_v069.gd" id="31"]
+[ext_resource type="Script" path="res://world/public_guild_director_v069.gd" id="32"]
+[ext_resource type="Script" path="res://world/magnara_legacy_roofways_v069.gd" id="33"]
 
 [sub_resource type="BoxMesh" id="GroundMesh"]
 size = Vector3(60, 1, 60)
@@ -146,3 +149,12 @@ script = ExtResource("29")
 
 [node name="MagnaraPublicPulseV068" type="Node3D" parent="."]
 script = ExtResource("30")
+
+[node name="SealTrainingBenchV069" type="Node3D" parent="."]
+script = ExtResource("31")
+
+[node name="PublicGuildDirectorV069" type="Node3D" parent="."]
+script = ExtResource("32")
+
+[node name="MagnaraLegacyRoofwaysV069" type="Node3D" parent="."]
+script = ExtResource("33")
