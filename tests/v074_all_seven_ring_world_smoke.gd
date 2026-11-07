@@ -108,8 +108,18 @@ func _run() -> void:
             _fail("Ring %d has painted buildings but no physical nearby wall" % ring)
             return
         var origin: Vector3 = found_building.global_position
+        # The collision-body origin is the BUILDING MIDPOINT, which can
+        # be tens of meters above the street. Beginning inside a BoxShape
+        # falsely reports no hit. Probe from above its top physical roof.
+        var solid_shape: CollisionShape3D = found_building.get_node_or_null(
+            "V074CollisionForRealNearBuilding")
+        if solid_shape == null or not (solid_shape.shape is BoxShape3D):
+            _fail("Ring %d new building has no BoxShape3D" % ring)
+            return
+        var half_height: float = (solid_shape.shape as BoxShape3D).size.y*0.5
         var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
-            origin+Vector3(0,10.0,0),origin+Vector3(0,-10.0,0))
+            origin+Vector3(0,half_height+3.0,0),
+            origin+Vector3(0,half_height-3.0,0))
         ray.exclude = [player.get_rid()]
         var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(ray)
         if hit.is_empty() or hit.get("collider") != found_building:
