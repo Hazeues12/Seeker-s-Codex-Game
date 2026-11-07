@@ -1,0 +1,2540 @@
+{
+  "schema_version": 1,
+  "era": "1500 A.S.",
+  "scope": "author-locked characters and published named sites, plus game-only filler population",
+  "audit_basis": {
+    "online_checked": "2026-11-06",
+    "mainline_chapters_as_listed": 91,
+    "canon_hierarchy": [
+      "latest author correction",
+      "published original",
+      "locked dossier",
+      "game-only proposal"
+    ],
+    "mainline_url": "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line",
+    "last_public_chapter": "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/4243742/trial-by-mercy-darker-than-black-pt-8"
+  },
+  "scenario_default": "trial_week_open_world_parallel",
+  "canon_cast": [
+    {
+      "id": "kai_xander",
+      "name": "Kai Xander",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah / Magnara",
+      "squad_id": "squad_three",
+      "guild_id": "order_crescent_halo",
+      "family": [
+        {
+          "relative": "elder_xander",
+          "relationship": "guardian"
+        }
+      ],
+      "equipment": [
+        "Sun (staff)",
+        "monk-gift wakizashi"
+      ],
+      "personality": [
+        "curious",
+        "kind",
+        "competitive",
+        "playfully awkward",
+        "mercy before pride"
+      ],
+      "lifestyle": "Seeker training, exploration, protective friendships and compassion",
+      "schedule_template": "rookie_training",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "trial_week_boar",
+      "public_visibility": "public",
+      "scene_venue": "talking_boar",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2594711/trial-by-mind",
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2712699/rings-of-power-home"
+      ],
+      "age": 18,
+      "origin": "Rajistan / Bodhira",
+      "appearance": {
+        "outfit": "monk-inspired training layers"
+      },
+      "speech_style": "warm, direct, curious; occasionally reverent and humorous"
+    },
+    {
+      "id": "aria_flamehart",
+      "name": "Aria Flamehart",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah / Magnara",
+      "squad_id": "squad_three",
+      "guild_id": "order_crescent_halo",
+      "family": [
+        {
+          "relative": "artemis_flamehart",
+          "relationship": "father"
+        }
+      ],
+      "equipment": [
+        "Ryuuen-27",
+        "Raijin Line gear (stage-dependent)"
+      ],
+      "personality": [
+        "self-possessed",
+        "sharp",
+        "challenging",
+        "protective",
+        "seeking independent identity"
+      ],
+      "lifestyle": "Lightning and Martial hand-to-hand training; fiercely loyal to squad",
+      "schedule_template": "rookie_training",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "trial_week_boar",
+      "public_visibility": "public",
+      "scene_venue": "talking_boar",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2594711/trial-by-mind",
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2712699/rings-of-power-home"
+      ],
+      "origin": "Vinlan",
+      "appearance": {
+        "hair": "light blonde"
+      },
+      "speech_style": "confident, concise and teasing, measured in danger"
+    },
+    {
+      "id": "rin_kairo",
+      "name": "Rin Kairo",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah / Magnara",
+      "squad_id": "squad_three",
+      "guild_id": "order_crescent_halo",
+      "family": [
+        {
+          "relative": "seizen_kairo",
+          "relationship": "older brother"
+        }
+      ],
+      "equipment": [
+        "Tetsuba",
+        "Chi no Ryōken (chapter 90+)",
+        "Shinobi Black / no cape"
+      ],
+      "personality": [
+        "observant",
+        "restrained",
+        "suspicious",
+        "strategic",
+        "dry humor with allies"
+      ],
+      "lifestyle": "Black Clan duty; stealth, sword discipline, private investigations",
+      "schedule_template": "covert_rooftop",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "scripted_only",
+      "public_visibility": "restricted",
+      "scene_venue": "talking_boar",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2594711/trial-by-mind",
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/4243742/trial-by-mercy-darker-than-black-pt-8"
+      ],
+      "origin": "Chun",
+      "appearance": {
+        "outfit": "Shinobi Black, no cape"
+      },
+      "continuity_notes": [
+        "Yoru Oni / Chi no Ryōken continuity requires reconciliation",
+        "Latest published chapter: nighttime covert reconnaissance; do not use as ambient pedestrian"
+      ]
+    },
+    {
+      "id": "lila_butters",
+      "name": "Lila Butters",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah / Magnara",
+      "squad_id": "squad_three",
+      "guild_id": "order_crescent_halo",
+      "family": [
+        {
+          "relative": "lalia_butters",
+          "relationship": "mother"
+        }
+      ],
+      "equipment": [
+        "trendy practical footwear",
+        "water-use kit (unverified exact contents)"
+      ],
+      "personality": [
+        "outgoing",
+        "funny",
+        "emotionally perceptive",
+        "loyal",
+        "sometimes hides lineage expectations"
+      ],
+      "lifestyle": "Water/Vitalis training, family ties, helping peers; social bridge",
+      "schedule_template": "rookie_healing",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "trial_week_boar",
+      "public_visibility": "public",
+      "scene_venue": "talking_boar",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2594711/trial-by-mind",
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2712699/rings-of-power-home",
+        "creator_locked_canon"
+      ],
+      "origin": "Janoah"
+    },
+    {
+      "id": "william_lockhart",
+      "name": "William Lockhart",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah / Magnara",
+      "squad_id": "",
+      "guild_id": "order_crescent_halo",
+      "family": [],
+      "equipment": [
+        "Juzuri Tsunegen",
+        "white coat with pale-gold trim"
+      ],
+      "personality": [
+        "composed",
+        "wry",
+        "tender toward rookies",
+        "disciplined",
+        "protective"
+      ],
+      "lifestyle": "Crescent Halo guildmaster, Gold Seeker, field mentor and public welfare",
+      "schedule_template": "guildmaster",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "boar_staff",
+      "public_visibility": "public",
+      "scene_venue": "talking_boar",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2704900/order-of-the-crescent-halo",
+        "https://www.royalroad.com/fiction/140309/seekers-codex-light-born"
+      ],
+      "origin": "Britannia",
+      "age": 30,
+      "speech_style": "calm, polished, quietly funny, never uses y'all"
+    },
+    {
+      "id": "hanami",
+      "name": "Hanami",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah / Magnara",
+      "squad_id": "",
+      "guild_id": "order_crescent_halo",
+      "family": [],
+      "equipment": [
+        "dispatch notes/tablet (chapter dependent)"
+      ],
+      "personality": [
+        "brisk",
+        "playful",
+        "protective",
+        "organized",
+        "practical"
+      ],
+      "lifestyle": "Halo quartermaster, logistics, meals, hospitality and guild dispatch",
+      "schedule_template": "quartermaster",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "boar_staff",
+      "public_visibility": "public",
+      "scene_venue": "talking_boar",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2704900/order-of-the-crescent-halo",
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2712699/rings-of-power-home"
+      ],
+      "speech_style": "quick, teasing, affectionate, firm when a job needs doing"
+    },
+    {
+      "id": "ven",
+      "name": "Ven",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah / Magnara",
+      "squad_id": "",
+      "guild_id": "forgehouse_guild",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "dry wit",
+        "observant",
+        "unflappable"
+      ],
+      "lifestyle": "Panther Therian associate of the Forgehouse and Talking Boar",
+      "schedule_template": "forgehouse_associate",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "boar_staff",
+      "public_visibility": "public",
+      "scene_venue": "talking_boar",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2704900/order-of-the-crescent-halo"
+      ],
+      "speech_style": "terse deadpan, practical",
+      "appearance": {
+        "species": "panther therian"
+      }
+    },
+    {
+      "id": "elder_xander",
+      "name": "Elder Xander",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Rajistan / Bodhira",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [
+        {
+          "relative": "kai_xander",
+          "relationship": "ward"
+        }
+      ],
+      "equipment": [],
+      "personality": [
+        "patient",
+        "disciplined",
+        "compassionate"
+      ],
+      "lifestyle": "Bodhira monastery guardian/teacher",
+      "schedule_template": "monastery",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "artemis_flamehart",
+      "name": "Artemis Flamehart",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Vinlan",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [
+        {
+          "relative": "aria_flamehart",
+          "relationship": "daughter"
+        }
+      ],
+      "equipment": [],
+      "personality": [
+        "formidable",
+        "demanding"
+      ],
+      "lifestyle": "Ice King / Vinlan Pillar-level elder",
+      "schedule_template": "pillar_duty",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "lalia_butters",
+      "name": "Lalia Butters",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [
+        {
+          "relative": "lila_butters",
+          "relationship": "daughter"
+        }
+      ],
+      "equipment": [],
+      "personality": [
+        "composed",
+        "demanding in training",
+        "caring"
+      ],
+      "lifestyle": "Gold Seeker Water Demon; Lila's mother",
+      "schedule_template": "master_training",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ],
+      "continuity_notes": [
+        "Laila/Lalia spelling conflict across older dossiers; newer creator memory favors Lalia"
+      ]
+    },
+    {
+      "id": "seizen_kairo",
+      "name": "Seizen Kairo",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "not publicly established",
+      "squad_id": "",
+      "guild_id": "red_order",
+      "family": [
+        {
+          "relative": "rin_kairo",
+          "relationship": "younger brother"
+        }
+      ],
+      "equipment": [],
+      "personality": [
+        "calculating",
+        "dangerous",
+        "highly disciplined"
+      ],
+      "lifestyle": "Red Order elite; sealed Black Clan agenda",
+      "schedule_template": "sealed",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "sealed",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "darius_king",
+      "name": "Captain Darius King",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah",
+      "squad_id": "",
+      "guild_id": "seeker_association",
+      "family": [],
+      "equipment": [
+        "Birds of Paradise / WU spiritual disciplines, not ordinary equipment"
+      ],
+      "personality": [
+        "vigilant",
+        "instructive",
+        "demanding"
+      ],
+      "lifestyle": "Gold Seeker combat mentor and commander",
+      "schedule_template": "association_duty",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "jeremiah_abel",
+      "name": "Jeremiah Abel",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah",
+      "squad_id": "",
+      "guild_id": "seeker_association",
+      "family": [],
+      "equipment": [
+        "Sky-Talon style / Blink-Chain (techniques)"
+      ],
+      "personality": [
+        "fast-thinking",
+        "disciplined",
+        "protective"
+      ],
+      "lifestyle": "Silver Seeker, field operations, Sky-Talon training",
+      "schedule_template": "field_seeker",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ],
+      "age": 20
+    },
+    {
+      "id": "master_elric_soryu",
+      "name": "Master Elric Soryu",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "unverified",
+      "squad_id": "",
+      "guild_id": "seeker_association",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "far-seeing",
+        "enigmatic"
+      ],
+      "lifestyle": "Founder; historical and contemporary master work",
+      "schedule_template": "story_only",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "restricted",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "lucian_soryu",
+      "name": "Lucian Soryu",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "unverified",
+      "squad_id": "",
+      "guild_id": "seeker_association",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "authoritative",
+        "disciplined"
+      ],
+      "lifestyle": "Association head; institutional leadership",
+      "schedule_template": "association_head",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "captain_valentina",
+      "name": "Captain Valentina",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah / Magnara",
+      "squad_id": "",
+      "guild_id": "flama",
+      "family": [],
+      "equipment": [
+        "Martial/Spirit training; no invented specific weapon"
+      ],
+      "personality": [
+        "unyielding",
+        "decisive",
+        "protective"
+      ],
+      "lifestyle": "Gold Seeker, Huntress, Flama top-squad leader; city patrol",
+      "schedule_template": "guild_patrol",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "scripted_only",
+      "public_visibility": "restricted",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "mushi_katana",
+      "name": "Mushi Katana",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah / Chun travel",
+      "squad_id": "",
+      "guild_id": "seeker_association",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "observant",
+        "professional"
+      ],
+      "lifestyle": "Silver scout on assigned team travel",
+      "schedule_template": "scout",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "grace_fallon",
+      "name": "Grace Fallon",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah",
+      "squad_id": "",
+      "guild_id": "seeker_association",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "tough",
+        "discerning"
+      ],
+      "lifestyle": "Spatial master / field oversight",
+      "schedule_template": "field_seeker",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "scripted_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "chief_inspector_nezubunta",
+      "name": "Chief Inspector Nezubunta",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "contract summoning / Rin's operational area",
+      "squad_id": "",
+      "guild_id": "black_clan_contract",
+      "family": [],
+      "equipment": [
+        "miniature sword",
+        "inspector cloak",
+        "pocket watch"
+      ],
+      "personality": [
+        "irritable",
+        "exacting",
+        "witty",
+        "experienced investigator"
+      ],
+      "lifestyle": "Ancestral summon, leads Onzu covert reconnaissance; not a civilian",
+      "schedule_template": "summon_only",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "restricted",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/4243742/trial-by-mercy-darker-than-black-pt-8"
+      ]
+    },
+    {
+      "id": "onzu_squad",
+      "name": "Onzu Squad",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "contract summoning / Rin's operational area",
+      "squad_id": "",
+      "guild_id": "black_clan_contract",
+      "family": [],
+      "equipment": [
+        "miniature stealth kits"
+      ],
+      "personality": [
+        "coordinated",
+        "stealthy"
+      ],
+      "lifestyle": "Stealth mice scouts, only active through ancestral summoning",
+      "schedule_template": "summon_only",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "restricted",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/4243742/trial-by-mercy-darker-than-black-pt-8"
+      ]
+    },
+    {
+      "id": "yobokari_morningstar",
+      "name": "Yobokari Morningstar",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "unverified",
+      "squad_id": "",
+      "guild_id": "red_order",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "ideological",
+        "charismatic",
+        "merciless to perceived falsehood"
+      ],
+      "lifestyle": "Founder of Red Order, high-level antagonist",
+      "schedule_template": "sealed",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "sealed",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "faye_wonder",
+      "name": "Faye Wonder",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "unverified",
+      "squad_id": "",
+      "guild_id": "red_order",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Red Order summon specialist",
+      "schedule_template": "sealed",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "sealed",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "cyrus",
+      "name": "Cyrus",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Dune States theater (historical campaigns); currently unverified",
+      "squad_id": "",
+      "guild_id": "red_order",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "dangerous"
+      ],
+      "lifestyle": "Red Order elite; Pale Desert user",
+      "schedule_template": "sealed",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "sealed",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "luna",
+      "name": "Luna",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "unverified",
+      "squad_id": "",
+      "guild_id": "red_order",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "strategic"
+      ],
+      "lifestyle": "Red Order leadership, occupation governance",
+      "schedule_template": "sealed",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "sealed",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "herika_williams",
+      "name": "Herika Williams",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "unverified",
+      "squad_id": "",
+      "guild_id": "red_order",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "dangerous"
+      ],
+      "lifestyle": "Gas Muti, Queen of Poisons",
+      "schedule_template": "sealed",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "sealed",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "moro",
+      "name": "Moro",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "unverified",
+      "squad_id": "",
+      "guild_id": "red_order",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "dangerous"
+      ],
+      "lifestyle": "Soul-thread threat",
+      "schedule_template": "sealed",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "sealed",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "ibara",
+      "name": "Ibara",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "unverified",
+      "squad_id": "",
+      "guild_id": "red_order",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Wind/heat combat",
+      "schedule_template": "sealed",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "sealed",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "don_lorenzo_kozimo",
+      "name": "Don Lorenzo Kozimo",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "unverified",
+      "squad_id": "",
+      "guild_id": "the_family",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "calculating"
+      ],
+      "lifestyle": "Don of cross-national Seven Chairs network",
+      "schedule_template": "underworld",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "restricted",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "tikhan_darogua",
+      "name": "Tikhan Darogua",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Tsar Empire",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "formidable"
+      ],
+      "lifestyle": "Pillar 13, public national deterrence",
+      "schedule_template": "pillar_duty",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "michael_rage",
+      "name": "Michael Rage",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah",
+      "squad_id": "",
+      "guild_id": "flama",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "formidable"
+      ],
+      "lifestyle": "Janoah legend; Flama association / exact administrative title VERIFY",
+      "schedule_template": "leader",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "maverick_rage",
+      "name": "Maverick Rage",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "inventive",
+        "practical"
+      ],
+      "lifestyle": "Firearms development and applied engineering",
+      "schedule_template": "inventor",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "rosia_white",
+      "name": "Rosia White",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah / Magnara",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [
+        "recording crystal / aura amplifier"
+      ],
+      "personality": [
+        "persistent",
+        "inquisitive"
+      ],
+      "lifestyle": "Magnara Daily reporter",
+      "schedule_template": "reporter",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "captain_parker",
+      "name": "Captain Parker",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah / Magnara",
+      "squad_id": "",
+      "guild_id": "seeker_association",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "direct",
+        "observant"
+      ],
+      "lifestyle": "Seeker captain / field oversight",
+      "schedule_template": "captain",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "moisha_brown",
+      "name": "Moisha Brown",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah / Magnara (investigation)",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Subject of ongoing Rin investigation",
+      "schedule_template": "story_only",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "restricted",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/4243742/trial-by-mercy-darker-than-black-pt-8"
+      ]
+    },
+    {
+      "id": "benjamin_johannes",
+      "name": "Benjamin Johannes",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah / Magnara (investigation)",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Target of ongoing Rin investigation",
+      "schedule_template": "story_only",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "restricted",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/4243742/trial-by-mercy-darker-than-black-pt-8"
+      ]
+    },
+    {
+      "id": "odin_north",
+      "name": "Odin North",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Chun exam / Janoah trial (phase-dependent)",
+      "squad_id": "squad_one",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Seeker exam squad; individual current route must follow chapters",
+      "schedule_template": "tournament",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2594711/trial-by-mind"
+      ]
+    },
+    {
+      "id": "leo_maximillian",
+      "name": "Leo Maximillian",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Chun exam / Janoah trial (phase-dependent)",
+      "squad_id": "squad_one",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Seeker exam squad; individual current route must follow chapters",
+      "schedule_template": "tournament",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2594711/trial-by-mind"
+      ]
+    },
+    {
+      "id": "allelujah_mason",
+      "name": "Allelujah Mason",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Chun exam / Janoah trial (phase-dependent)",
+      "squad_id": "squad_one",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Seeker exam squad; individual current route must follow chapters",
+      "schedule_template": "tournament",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2594711/trial-by-mind"
+      ]
+    },
+    {
+      "id": "sofia_roses",
+      "name": "Sofia Roses",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Chun exam / Janoah trial (phase-dependent)",
+      "squad_id": "squad_one",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Seeker exam squad; individual current route must follow chapters",
+      "schedule_template": "tournament",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2594711/trial-by-mind"
+      ]
+    },
+    {
+      "id": "zhen_murai",
+      "name": "Zhen Murai",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Chun exam / Janoah trial (phase-dependent)",
+      "squad_id": "squad_two",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Seeker exam squad; individual current route must follow chapters",
+      "schedule_template": "tournament",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2594711/trial-by-mind"
+      ]
+    },
+    {
+      "id": "solene_ivaris",
+      "name": "Solene Ivaris",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Chun exam / Janoah trial (phase-dependent)",
+      "squad_id": "squad_two",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Seeker exam squad; individual current route must follow chapters",
+      "schedule_template": "tournament",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2594711/trial-by-mind"
+      ]
+    },
+    {
+      "id": "omar_hakim",
+      "name": "Omar Hakim",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Chun exam / Janoah trial (phase-dependent)",
+      "squad_id": "squad_two",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Seeker exam squad; individual current route must follow chapters",
+      "schedule_template": "tournament",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2594711/trial-by-mind"
+      ]
+    },
+    {
+      "id": "mei_lan",
+      "name": "Mei-Lan of the Crimson Fan",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Chun exam / Janoah trial (phase-dependent)",
+      "squad_id": "squad_two",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Seeker exam squad; individual current route must follow chapters",
+      "schedule_template": "tournament",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2594711/trial-by-mind"
+      ]
+    },
+    {
+      "id": "urahara_senko",
+      "name": "Urahara Senko",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Chun exam / Janoah trial (phase-dependent)",
+      "squad_id": "squad_four",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Seeker exam squad; individual current route must follow chapters",
+      "schedule_template": "tournament",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2594711/trial-by-mind"
+      ]
+    },
+    {
+      "id": "si_lung",
+      "name": "Si Lung",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Chun exam / Janoah trial (phase-dependent)",
+      "squad_id": "squad_four",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Seeker exam squad; individual current route must follow chapters",
+      "schedule_template": "tournament",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2594711/trial-by-mind"
+      ]
+    },
+    {
+      "id": "sidney_lo",
+      "name": "Sidney Lo",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Chun exam / Janoah trial (phase-dependent)",
+      "squad_id": "squad_four",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Seeker exam squad; individual current route must follow chapters",
+      "schedule_template": "tournament",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2594711/trial-by-mind"
+      ]
+    },
+    {
+      "id": "james_vonn",
+      "name": "James Vonn",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Chun exam / Janoah trial (phase-dependent)",
+      "squad_id": "squad_four",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Seeker exam squad; individual current route must follow chapters",
+      "schedule_template": "tournament",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2594711/trial-by-mind"
+      ]
+    },
+    {
+      "id": "minerva",
+      "name": "Minerva",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Chun / exam",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Exam competitor, Wind Muti",
+      "schedule_template": "candidate",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "reggie",
+      "name": "Reggie",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah / trial",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Trial by Mercy competitor, fire specialist",
+      "schedule_template": "tournament",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "hai_chen",
+      "name": "Hai Chen",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah / trial",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [
+        "Sky Piercer reverse-edge sword"
+      ],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Trial competitor, sword specialist",
+      "schedule_template": "tournament",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "tino",
+      "name": "Tino",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah / Magnara",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Street vendor mentioned in the Halo chapter; exact shop not established",
+      "schedule_template": "merchant",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2704900/order-of-the-crescent-halo"
+      ]
+    },
+    {
+      "id": "pinto",
+      "name": "Pinto",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah / Magnara",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "enthusiastic"
+      ],
+      "lifestyle": "Talking Boar acquaintance; speculative cannon proposal",
+      "schedule_template": "guild_regular",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "registry_only",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2704900/order-of-the-crescent-halo"
+      ]
+    },
+    {
+      "id": "octavian_vutor",
+      "name": "Octavian Vutor",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1486 A.S. Light Born (historical portrayal)",
+      "region": "Britannia",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [
+        {
+          "relative": "isolde_vutor",
+          "relationship": "sister"
+        }
+      ],
+      "equipment": [],
+      "personality": [
+        "formal",
+        "competitive"
+      ],
+      "lifestyle": "Crown Light rival to William (Light Born historical context)",
+      "schedule_template": "royal_cadet",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/140309/seekers-codex-light-born"
+      ]
+    },
+    {
+      "id": "isolde_vutor",
+      "name": "Isolde Vutor",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1486 A.S. Light Born",
+      "region": "Britannia",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [
+        {
+          "relative": "octavian_vutor",
+          "relationship": "brother"
+        }
+      ],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Vutor court family (historical context)",
+      "schedule_template": "royal_court",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/140309/seekers-codex-light-born"
+      ]
+    },
+    {
+      "id": "sir_edward_lancaster",
+      "name": "Sir Edward Lancaster",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "historical Sagas",
+      "region": "Britannia",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [
+        "Lionheart sword"
+      ],
+      "personality": [
+        "honorable",
+        "protects civilians"
+      ],
+      "lifestyle": "Historical knight and White Pack commander",
+      "schedule_template": "historical",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "gawain",
+      "name": "Gawain",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "historical Sagas",
+      "region": "Britannia",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Historical knight and Edward's battlefield ally",
+      "schedule_template": "historical",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "golidog",
+      "name": "Golidog",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "historical Sagas",
+      "region": "Britannia",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "protective"
+      ],
+      "lifestyle": "Edward's White Pack leader; one-eyed, scarred war dog",
+      "schedule_template": "summon_or_historical",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "sovereign_kovrs_mason",
+      "name": "Sovereign Kovrs Mason",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "unverified",
+      "squad_id": "",
+      "guild_id": "red_order",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Red Order elite, Migeika Copy Eye",
+      "schedule_template": "sealed",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "sealed",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "felix_blackwell",
+      "name": "Felix Blackwell",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1486 A.S. Light Born",
+      "region": "Germania / Britannia front (Light Born)",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "calm",
+        "methodical"
+      ],
+      "lifestyle": "Historical Germania Field Lieutenant Marshal",
+      "schedule_template": "historical",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "public",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "saint_vin",
+      "name": "Saint Vin",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "unverified",
+      "squad_id": "",
+      "guild_id": "the_family",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Known Seven Chairs associate",
+      "schedule_template": "underworld",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "restricted",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "big_brother_jow",
+      "name": "Big Brother Jow",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "unverified",
+      "squad_id": "",
+      "guild_id": "the_family",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Known Seven Chairs associate",
+      "schedule_template": "underworld",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "restricted",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "scarlet_janoah",
+      "name": "Scarlet of Janoah",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "Janoah",
+      "squad_id": "",
+      "guild_id": "the_family",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Known Seven Chairs associate",
+      "schedule_template": "underworld",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "restricted",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "santiago",
+      "name": "Santiago",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "unverified",
+      "squad_id": "",
+      "guild_id": "the_family",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Known Seven Chairs associate",
+      "schedule_template": "underworld",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "restricted",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    },
+    {
+      "id": "grand_wadadi",
+      "name": "Grand Wadadi",
+      "kind": "canon",
+      "canon_status": "confirmed",
+      "timeframe": "1500 A.S. mainline",
+      "region": "unverified",
+      "squad_id": "",
+      "guild_id": "the_family",
+      "family": [],
+      "equipment": [],
+      "personality": [
+        "unverified"
+      ],
+      "lifestyle": "Known Seven Chairs associate",
+      "schedule_template": "underworld",
+      "schedule_origin": "game_only_if_enabled",
+      "spawn_policy": "never_ambient",
+      "public_visibility": "restricted",
+      "scene_venue": "",
+      "source_refs": [
+        "creator_locked_canon"
+      ]
+    }
+  ],
+  "factions": [
+    {
+      "id": "seeker_association",
+      "name": "Seeker Association",
+      "region": "multiple nations",
+      "status": "confirmed",
+      "category": "institution",
+      "base": "Seeker Citadel / Magnara (regional)"
+    },
+    {
+      "id": "order_crescent_halo",
+      "name": "Order of the Crescent Halo",
+      "region": "Janoah / Magnara",
+      "status": "confirmed",
+      "category": "guild",
+      "base": "The Talking Boar",
+      "leader": "william_lockhart"
+    },
+    {
+      "id": "forgehouse_guild",
+      "name": "Forgehouse Guild",
+      "region": "Janoah / Magnara",
+      "status": "confirmed",
+      "category": "guild",
+      "base": "Forgehouse",
+      "leader": "unverified"
+    },
+    {
+      "id": "flama",
+      "name": "Flama Guild",
+      "region": "Janoah / Magnara",
+      "status": "confirmed",
+      "category": "guild",
+      "base": "Magnara (actual site not located)",
+      "leader": "unverified"
+    },
+    {
+      "id": "blade",
+      "name": "BLADE",
+      "region": "Janoah / Magnara",
+      "status": "confirmed",
+      "category": "guild",
+      "base": "Magnara (actual site not located)",
+      "leader": "unverified"
+    },
+    {
+      "id": "terra_firma",
+      "name": "Terra Firma",
+      "region": "Janoah / Magnara",
+      "status": "confirmed",
+      "category": "guild",
+      "base": "Magnara (actual site not located)",
+      "leader": "unverified"
+    },
+    {
+      "id": "red_order",
+      "name": "Red Order / Akugan no Ketsumei",
+      "region": "multiple nations",
+      "status": "confirmed",
+      "category": "antagonist_faction",
+      "base": "sealed"
+    },
+    {
+      "id": "black_clan",
+      "name": "Kairo Black Clan",
+      "region": "Chun",
+      "status": "confirmed",
+      "category": "clan",
+      "base": "Chun"
+    },
+    {
+      "id": "black_clan_contract",
+      "name": "Kairo Hiden: Kokukyūin",
+      "region": "ancestral summoning",
+      "status": "confirmed",
+      "category": "contract",
+      "base": "not a physical shop/guild"
+    },
+    {
+      "id": "the_family",
+      "name": "The Family / Seven Chairs",
+      "region": "multiple nations",
+      "status": "confirmed",
+      "category": "underworld",
+      "base": "restricted"
+    }
+  ],
+  "known_venues": [
+    {
+      "id": "talking_boar",
+      "name": "The Talking Boar",
+      "region": "Magnara",
+      "kind": "guildhouse / bar",
+      "owner": "order_crescent_halo",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2704900/order-of-the-crescent-halo"
+      ],
+      "physical_prototype": "v065_game_only_coordinate"
+    },
+    {
+      "id": "forgehouse",
+      "name": "Forgehouse Guild",
+      "region": "Magnara",
+      "kind": "forge/guild",
+      "owner": "forgehouse_guild",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/2689891/the-united-states-of-janoahthe-steel-flame-republic"
+      ],
+      "physical_prototype": "not_authored"
+    },
+    {
+      "id": "lebells",
+      "name": "Le'Bell's",
+      "region": "Magnara",
+      "kind": "eatery",
+      "owner": "unverified",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/4243742/trial-by-mercy-darker-than-black-pt-8"
+      ],
+      "physical_prototype": "not_authored"
+    },
+    {
+      "id": "avicci",
+      "name": "Avicci",
+      "region": "Magnara",
+      "kind": "jewelry / luxury",
+      "owner": "unverified",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/4243742/trial-by-mercy-darker-than-black-pt-8"
+      ],
+      "physical_prototype": "not_authored"
+    },
+    {
+      "id": "vernal_divongcci",
+      "name": "Vernal Divongcci",
+      "region": "Magnara",
+      "kind": "perfumery",
+      "owner": "unverified",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/4243742/trial-by-mercy-darker-than-black-pt-8"
+      ],
+      "physical_prototype": "not_authored"
+    },
+    {
+      "id": "flama_magnara",
+      "name": "Flama",
+      "region": "Magnara",
+      "kind": "guildhouse",
+      "owner": "flama",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/4243742/trial-by-mercy-darker-than-black-pt-8"
+      ],
+      "physical_prototype": "not_authored"
+    },
+    {
+      "id": "blade_magnara",
+      "name": "BLADE",
+      "region": "Magnara",
+      "kind": "guildhouse",
+      "owner": "blade",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/4243742/trial-by-mercy-darker-than-black-pt-8"
+      ],
+      "physical_prototype": "not_authored"
+    },
+    {
+      "id": "terra_firma_magnara",
+      "name": "Terra Firma",
+      "region": "Magnara",
+      "kind": "guildhouse",
+      "owner": "terra_firma",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line/chapter/4243742/trial-by-mercy-darker-than-black-pt-8"
+      ],
+      "physical_prototype": "not_authored"
+    },
+    {
+      "id": "trial_ground",
+      "name": "Grand Amphistad",
+      "region": "Magnara",
+      "kind": "arena",
+      "owner": "unverified",
+      "source_refs": [
+        "https://www.royalroad.com/fiction/132012/seekers-codex-beyond-the-abyssal-line"
+      ],
+      "physical_prototype": "not_authored"
+    },
+    {
+      "id": "onika",
+      "name": "Onikaze Forge",
+      "region": "Magnara / Ring V",
+      "kind": "forge",
+      "owner": "unverified",
+      "source_refs": [
+        "creator_locked_canon"
+      ],
+      "physical_prototype": "not_authored"
+    }
+  ],
+  "civilian_roster": [
+    {
+      "id": "citizen_v065_01",
+      "name": "Nara Bell",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "market_porter",
+      "personality": [
+        "reserved, considerate"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "market_square",
+      "work_anchor": "market_provisions",
+      "leisure_anchor": "market_square",
+      "shift_offset": -40,
+      "walk_speed": 1.25,
+      "appearance_variant": 0,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_02",
+      "name": "Tomas Vale",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "merchant_assistant",
+      "personality": [
+        "practical, talkative"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "market_provisions",
+      "work_anchor": "market_textiles",
+      "leisure_anchor": "civic_square",
+      "shift_offset": -13,
+      "walk_speed": 1.43,
+      "appearance_variant": 1,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_03",
+      "name": "Sena Corin",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "clerical_worker",
+      "personality": [
+        "careful, friendly"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "market_textiles",
+      "work_anchor": "market_square",
+      "leisure_anchor": "guild_entry",
+      "shift_offset": 14,
+      "walk_speed": 1.6099999999999999,
+      "appearance_variant": 2,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_04",
+      "name": "Milo Rens",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "clinic_attendant",
+      "personality": [
+        "joking, conscientious"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "market_hardware",
+      "work_anchor": "clinic_public",
+      "leisure_anchor": "market_lodging",
+      "shift_offset": 41,
+      "walk_speed": 1.79,
+      "appearance_variant": 3,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_05",
+      "name": "Leira Tovan",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "inn_guest",
+      "personality": [
+        "curious, cautious"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "market_lodging",
+      "work_anchor": "inn_public",
+      "leisure_anchor": "market_square",
+      "shift_offset": 68,
+      "walk_speed": 1.97,
+      "appearance_variant": 4,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_06",
+      "name": "Ari Solen",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "food_runner",
+      "personality": [
+        "quiet, observant"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "worker_row",
+      "work_anchor": "guild_entry",
+      "leisure_anchor": "civic_square",
+      "shift_offset": -15,
+      "walk_speed": 1.25,
+      "appearance_variant": 5,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_07",
+      "name": "Dela Marr",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "lamp_keeper",
+      "personality": [
+        "cheerful, persistent"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "townhouse_row",
+      "work_anchor": "civic_square",
+      "leisure_anchor": "guild_entry",
+      "shift_offset": 12,
+      "walk_speed": 1.43,
+      "appearance_variant": 6,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_08",
+      "name": "Ivo Jinn",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "canal_tech",
+      "personality": [
+        "impatient, helpful"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "inn_public",
+      "work_anchor": "south_canal",
+      "leisure_anchor": "market_lodging",
+      "shift_offset": 39,
+      "walk_speed": 1.6099999999999999,
+      "appearance_variant": 7,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_09",
+      "name": "Jessa Vey",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "fabric_mender",
+      "personality": [
+        "relaxed, loyal"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "civic_records",
+      "work_anchor": "market_textiles",
+      "leisure_anchor": "market_square",
+      "shift_offset": 66,
+      "walk_speed": 1.79,
+      "appearance_variant": 0,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_10",
+      "name": "Hiran Doss",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "apprentice_smith",
+      "personality": [
+        "thoughtful, direct"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "clinic_public",
+      "work_anchor": "workshops_west",
+      "leisure_anchor": "civic_square",
+      "shift_offset": -17,
+      "walk_speed": 1.97,
+      "appearance_variant": 1,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_11",
+      "name": "Meri Holt",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "courier",
+      "personality": [
+        "shy, diligent"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "guild_entry",
+      "work_anchor": "guild_entry",
+      "leisure_anchor": "guild_entry",
+      "shift_offset": 10,
+      "walk_speed": 1.25,
+      "appearance_variant": 2,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_12",
+      "name": "Niko Serr",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "student",
+      "personality": [
+        "confident, competitive"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "guild_hall",
+      "work_anchor": "civic_records",
+      "leisure_anchor": "market_lodging",
+      "shift_offset": 37,
+      "walk_speed": 1.43,
+      "appearance_variant": 3,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_13",
+      "name": "Tara Len",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "street_cleaner",
+      "personality": [
+        "courteous, easily distracted"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "workshops_west",
+      "work_anchor": "civic_square",
+      "leisure_anchor": "market_square",
+      "shift_offset": 64,
+      "walk_speed": 1.6099999999999999,
+      "appearance_variant": 4,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_14",
+      "name": "Basil Arven",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "tea_server",
+      "personality": [
+        "gentle, firm"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "civic_square",
+      "work_anchor": "inn_public",
+      "leisure_anchor": "civic_square",
+      "shift_offset": -19,
+      "walk_speed": 1.79,
+      "appearance_variant": 5,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_15",
+      "name": "Soma Rell",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "supply_clerk",
+      "personality": [
+        "funny, hopeful"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "south_canal",
+      "work_anchor": "market_hardware",
+      "leisure_anchor": "guild_entry",
+      "shift_offset": 8,
+      "walk_speed": 1.97,
+      "appearance_variant": 6,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_16",
+      "name": "Yuna Fenn",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "safety_watch",
+      "personality": [
+        "stern, fair"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "market_square",
+      "work_anchor": "civic_square",
+      "leisure_anchor": "market_lodging",
+      "shift_offset": 35,
+      "walk_speed": 1.25,
+      "appearance_variant": 7,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_17",
+      "name": "Colin Mave",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "public_musician",
+      "personality": [
+        "imaginative, outgoing"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "civic_records",
+      "work_anchor": "market_square",
+      "leisure_anchor": "market_square",
+      "shift_offset": 62,
+      "walk_speed": 1.43,
+      "appearance_variant": 0,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_18",
+      "name": "Mara Sul",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "street_vendor",
+      "personality": [
+        "soft-spoken, analytical"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "inn_public",
+      "work_anchor": "market_provisions",
+      "leisure_anchor": "civic_square",
+      "shift_offset": -21,
+      "walk_speed": 1.6099999999999999,
+      "appearance_variant": 1,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_19",
+      "name": "Pern Arlo",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "bookkeeper",
+      "personality": [
+        "sociable, bold"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "guild_entry",
+      "work_anchor": "civic_records",
+      "leisure_anchor": "guild_entry",
+      "shift_offset": 6,
+      "walk_speed": 1.79,
+      "appearance_variant": 2,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_20",
+      "name": "Eli Kess",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "freight_runner",
+      "personality": [
+        "serious, generous"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "workshops_west",
+      "work_anchor": "workshops_west",
+      "leisure_anchor": "market_lodging",
+      "shift_offset": 33,
+      "walk_speed": 1.97,
+      "appearance_variant": 3,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_21",
+      "name": "Sera Dune",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "carriage_handler",
+      "personality": [
+        "wry, precise"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "clinic_public",
+      "work_anchor": "inn_public",
+      "leisure_anchor": "market_square",
+      "shift_offset": 60,
+      "walk_speed": 1.25,
+      "appearance_variant": 4,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    },
+    {
+      "id": "citizen_v065_22",
+      "name": "Oren Keel",
+      "kind": "game_only",
+      "canon_status": "game_only",
+      "region": "Janoah / Magnara / Ring II prototype",
+      "role": "leisure_walk",
+      "personality": [
+        "energetic, polite"
+      ],
+      "speech_style": "localized civilian dialogue; not a published character",
+      "squad_id": "",
+      "guild_id": "",
+      "family": [],
+      "equipment": [],
+      "home_anchor": "market_hardware",
+      "work_anchor": "market_square",
+      "leisure_anchor": "civic_square",
+      "shift_offset": -23,
+      "walk_speed": 1.43,
+      "appearance_variant": 5,
+      "story_visibility": "public",
+      "schedule_status": "game_only_prototype",
+      "source_refs": [
+        "V0.65 ambient citizen generator"
+      ]
+    }
+  ],
+  "source_notes": [
+    "Named canon NPC never spawn from generic filler logic.",
+    "Rin, Seizen, Yobokari, Nezubunta, Onzu require authored story/summoning scenes.",
+    "Any work/sleep/social timetable for known characters is a gameplay scheduling proposal, not a new story fact.",
+    "No random eye, rare Muti, rank, family or clan assignment to generated civilians.",
+    "No claim that all known canonical shops physically exist in the game until authored.",
+    "Latest published Pt8: Rin covert on Magnara rooftops; do not expose to ambient conversations.",
+    "The published 91 chapters are a web check as of 2026-11-06; future releases require a new audit."
+  ]
+}
