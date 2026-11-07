@@ -2,6 +2,11 @@
 
 **Target:** Godot 4.4.1 / Compatibility Web / iPhone touch. **Era:** Margerina 1500 A.S. **Lore discipline:** all new 30 public venues, shifts, skiff pier, voyage limits and harbor coordinates are **game-only**. The original published shops, guilds, Seeker powers, restricted Iron Cothon military basin and unseen Abyssal Line remain story-locked.
 
+
+## Author-confirmed outermost Ring VII port correction (November 7, 2026)
+
+**Magnara's main sea-facing docks, large oceangoing harbor and Iron Cothon maritime freight basins belong to the OUTERMOST Ring VII.** Ring II is the Seeker Quarters: its public canals may have **small shallow-draft local landing piers only**. The existing Ring II goods yard and courier route at approximately (14, 1382) is an **inland land-wagon receiving depot**, never a coast, a port or a large-ship berth. The Ring II harbor-survey counter opens a **separately loaded remote Ring VII scenic preview**, not a physical inter-ring crossing. The exact shoreline and the route from Ring II canal to Ring VII seaport are not mapped or author-approved, so the game must not claim that ships or barges already traverse it.
+
 ## 1. Every extended Magnara ward gets a real enterable interior
 
 V0.71 expanded Magnara Ring II from 15 to 45 streamed cells, with 270 modular public building shells and 435 generated game-only civilians (separate from canonical published-cast NPCs). In V0.72 **one building in each of the 30 newer blocks** gains a walk-through ground-floor venue.
