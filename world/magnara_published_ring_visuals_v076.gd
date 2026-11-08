@@ -8,6 +8,7 @@ const CommonsLife = preload("res://world/magnara_commons_life_v080.gd")
 const CommonsCart = preload("res://world/magnara_commons_cart_v081.gd")
 const GROUND_SHADER = preload("res://shaders/commons_ground_v083.gdshader")
 const CANOPY_SHADER = preload("res://shaders/commons_canopy_v082.gdshader")
+const Grass = preload("res://world/commons_grass.gd")
 const MAX_COMMONS_LIGHTS: int = 4
 const COMMONS_LIGHT_DISTANCE: float = 24.0
 const LANTERN_COLOR := Color(1.0, 0.78, 0.43)
@@ -34,6 +35,8 @@ var material_masonry: StandardMaterial3D
 var material_glass: StandardMaterial3D
 var material_canopy: ShaderMaterial
 var material_ground: ShaderMaterial
+var grass_mesh: Mesh
+var grass_material: ShaderMaterial
 
 func _ready() -> void:
     add_to_group("magnara_published_ring_visuals_v076")
@@ -65,6 +68,9 @@ func _setup() -> void:
     material_canopy.shader = CANOPY_SHADER
     material_ground = ShaderMaterial.new()
     material_ground.shader = GROUND_SHADER
+    grass_mesh = Grass.tuft()
+    grass_material = ShaderMaterial.new()
+    grass_material.shader = Grass.GRASS_SHADER
     hub = get_tree().get_first_node_in_group("hub_manager")
     commons_life = CommonsLife.new()
     commons_life.name = "CommonsLifeV080"
@@ -142,6 +148,7 @@ func _attach_to_tile(key: String,chunk: Dictionary) -> void:
     _gpu(layer, "CommonsPaintedCanopyGPU", art["canopies"], dome_mesh, material_canopy)
     _gpu(layer,"V076CommonsParkGroundGPU",
         art["parks"],wall_mesh,material_ground)
+    Grass.scatter(layer, art["parks"], tile, grass_mesh, grass_material)
     _gpu(layer, "CommonsLanternGlassGPU", art["lanterns"], wall_mesh, material_lantern)
     decorated[key] = {"root":layer,"tile":tile,"lanterns":art["lanterns"],
         "court_centers":art["court_centers"],"count":count,"stats":art["stats"]}

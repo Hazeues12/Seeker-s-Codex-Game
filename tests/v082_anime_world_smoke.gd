@@ -126,6 +126,10 @@ func _run() -> void:
     if not paving.material_override is ShaderMaterial:
         _fail("Commons ground is missing its painted grass and paving")
         return
+    var grass := layer.find_child("CommonsWindGrass*", true, false) as MultiMeshInstance3D
+    if grass == null or grass.multimesh.instance_count <= 0 or grass.multimesh.instance_count > 150:
+        _fail("Commons lawn is missing its bounded grass batch")
+        return
     camera.global_position = courtyard + Vector3(9.0, 6.0, 10.5)
     camera.look_at(courtyard + Vector3(0, 0.85, -0.5))
     for frame in range(12):
