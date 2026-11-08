@@ -143,6 +143,7 @@ static func resident_state(cell: Vector2i, number: int, minutes: float) -> Dicti
         "activity":shift,
         "inside_public_venue":indoor or evening_guest,
         "evening_household_visit":evening_guest,
+        "travel_yaw": PI if u < 1.0 else 0.0,
         "world_position":origin(cell)+Vector3(side*9.7,0.81,14.0+along*104.0),
         "household":identity["household"]}
 

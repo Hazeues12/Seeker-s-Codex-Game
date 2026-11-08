@@ -161,6 +161,7 @@ static func person_state(cell: Vector2i, ordinal: int, minutes: float) -> Dictio
     var x: float = float(cell.x) * TILE_M + side * 9.6
     var z: float = Z_START + float(cell.y) * TILE_M + 19.0 + travel * 90.0
     return {"id": resident["id"], "visible": visible, "activity": action,
+        "travel_yaw": PI if u < 1.0 else 0.0,
         "world_position": Vector3(x, 0.80, z), "lod": "offscreen",
         "household": resident["home"], "role": resident["role"]}
 

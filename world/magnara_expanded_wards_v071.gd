@@ -360,15 +360,14 @@ func _refresh_crowds() -> void:
             var id: String = str(record["id"])
             var state: Dictionary = Rules.resident_state(cell,i,current)
             var at: Vector3 = state["world_position"]
+            var travel_yaw: float = state["travel_yaw"]
             var distance: float = player.global_position.distance_to(at)
             var tier: String = Rules.lod(distance,bool(state["visible"]))
             if tier == "close":
                 if not close_models.has(id):
                     _make_citizen(root,record)
                 var actor: Node3D = close_models[id]
-                var travel: Vector3 = at - actor.global_position
-                if absf(travel.z) > 0.025:
-                    actor.rotation.y = PI if travel.z > 0.0 else 0.0
+                actor.rotation.y = travel_yaw
                 actor.position = at-root.global_position
                 actor.set_meta("public_activity",str(state["activity"]))
                 result["close"] = int(result["close"])+1
@@ -376,7 +375,7 @@ func _refresh_crowds() -> void:
                 _remove_close(id)
                 if tier == "mid":
                     multimesh.set_instance_transform(visible_mid,Transform3D(
-                        Basis.IDENTITY.scaled(TownspersonVisual.mid_scale(id)),
+                        Basis(Vector3.UP, travel_yaw).scaled(TownspersonVisual.mid_scale(id)),
                         at-root.global_position))
                     multimesh.set_instance_color(visible_mid,
                         TownspersonVisual.coat_for(id))

@@ -459,6 +459,7 @@ func _refresh_crowds() -> void:
             var world_pos: Vector3 = state.get("world_position", Vector3.ZERO)
             var distance: float = player.global_position.distance_to(world_pos)
             var tier: String = Rules.lod(distance, bool(state.get("visible", false)))
+            var travel_yaw: float = state["travel_yaw"]
             state["lod"] = tier
             if tier == "close":
                 if not near_models.has(id):
@@ -466,12 +467,10 @@ func _refresh_crowds() -> void:
                 var model: Node3D = near_models[id]
                 model.position = world_pos - chunk.global_position
                 model.set_meta("activity", str(state.get("activity", "walking")))
-                # Close characters turn toward someone addressing them.
-                if distance < 6.0:
+                model.rotation.y = travel_yaw
+                if id == current_speaker and distance < 6.0 and is_open():
                     var toward: Vector3 = player.global_position - world_pos
                     model.rotation.y = atan2(-toward.x, -toward.z)
-                else:
-                    model.rotation.y = 0.0
                 sums["near"] = int(sums["near"]) + 1
             else:
                 _remove_close_model(id)
@@ -479,7 +478,7 @@ func _refresh_crowds() -> void:
                     var offset: Vector3 = world_pos - chunk.global_position
                     var body_scale := TownspersonVisual.mid_scale(id)
                     midmesh.set_instance_transform(visible_mid,
-                        Transform3D(Basis.IDENTITY.scaled(body_scale), offset))
+                        Transform3D(Basis(Vector3.UP, travel_yaw).scaled(body_scale), offset))
                     midmesh.set_instance_color(visible_mid, MID_PALETTE[posmod(id.hash(), MID_PALETTE.size())])
                     visible_mid += 1
                     sums["mid"] = int(sums["mid"]) + 1
