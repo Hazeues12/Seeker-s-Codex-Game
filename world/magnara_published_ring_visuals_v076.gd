@@ -8,6 +8,7 @@ const CommonsLife = preload("res://world/magnara_commons_life_v080.gd")
 const CommonsCart = preload("res://world/magnara_commons_cart_v081.gd")
 const GROUND_SHADER = preload("res://shaders/commons_ground_v083.gdshader")
 const CANOPY_SHADER = preload("res://shaders/commons_canopy_v082.gdshader")
+const FOLIAGE_SHADER = preload("res://shaders/commons_foliage.gdshader")
 const Grass = preload("res://world/commons_grass.gd")
 const MAX_COMMONS_LIGHTS: int = 4
 const COMMONS_LIGHT_DISTANCE: float = 24.0
@@ -34,6 +35,9 @@ var dome_mesh: SphereMesh
 var material_masonry: StandardMaterial3D
 var material_glass: StandardMaterial3D
 var material_canopy: ShaderMaterial
+var foliage_mesh: QuadMesh
+var material_foliage: ShaderMaterial
+var material_drifting_leaves: ShaderMaterial
 var material_ground: ShaderMaterial
 var grass_mesh: Mesh
 var grass_material: ShaderMaterial
@@ -66,6 +70,13 @@ func _setup() -> void:
     material_glass = _material(0.31,0.15)
     material_canopy = ShaderMaterial.new()
     material_canopy.shader = CANOPY_SHADER
+    foliage_mesh = QuadMesh.new()
+    foliage_mesh.size = Vector2.ONE
+    material_foliage = ShaderMaterial.new()
+    material_foliage.shader = FOLIAGE_SHADER
+    material_drifting_leaves = ShaderMaterial.new()
+    material_drifting_leaves.shader = FOLIAGE_SHADER
+    material_drifting_leaves.set_shader_parameter("drifting_leaves", true)
     material_ground = ShaderMaterial.new()
     material_ground.shader = GROUND_SHADER
     grass_mesh = Grass.tuft()
@@ -124,8 +135,32 @@ func _gpu(parent: Node3D,name: String,items: Array,
     visual.name = name
     visual.multimesh = mm
     visual.material_override = material
+    if material == material_foliage:
+        visual.extra_cull_margin = 2.5
+    elif material == material_drifting_leaves:
+        visual.extra_cull_margin = 5.0
     visual.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
     parent.add_child(visual)
+
+func _foliage_cards(canopies: Array, tile: Vector2i) -> Array:
+    var rng := RandomNumberGenerator.new()
+    rng.seed = hash(tile)
+    var cards: Array = []
+    for canopy in canopies:
+        var center: Vector3 = canopy["at"]
+        var size: Vector3 = canopy["size"]
+        for index in range(11):
+            var angle := TAU * (index + rng.randf_range(-0.22, 0.22)) / 11.0
+            var height := rng.randf_range(-0.45, 0.77)
+            var radius := sqrt(1.0 - height * height)
+            var direction := Vector3(cos(angle) * radius, height, sin(angle) * radius)
+            var width := size.x * rng.randf_range(0.32, 0.49)
+            cards.append({
+                "at": center + direction * size * 0.48,
+                "size": Vector3(width, width * rng.randf_range(0.62, 0.84), width),
+                "color": canopy["color"],
+            })
+    return cards
 
 func _attach_to_tile(key: String,chunk: Dictionary) -> void:
     var parent: Node3D = chunk["node"] as Node3D
@@ -146,6 +181,16 @@ func _attach_to_tile(key: String,chunk: Dictionary) -> void:
     _gpu(layer,"V076AcademyGlassAndCommonsTreesGPU",
         art["domes"],dome_mesh,material_glass)
     _gpu(layer, "CommonsPaintedCanopyGPU", art["canopies"], dome_mesh, material_canopy)
+    _gpu(layer, "CommonsPaintedFoliageGPU", _foliage_cards(art["canopies"], tile),
+        foliage_mesh, material_foliage)
+    var drifting_leaves: Array = []
+    for canopy in art["canopies"]:
+        drifting_leaves.append({
+            "at": canopy["at"],
+            "size": Vector3(0.16, 0.10, 0.16),
+            "color": canopy["color"],
+        })
+    _gpu(layer, "CommonsDriftingLeavesGPU", drifting_leaves, foliage_mesh, material_drifting_leaves)
     _gpu(layer,"V076CommonsParkGroundGPU",
         art["parks"],wall_mesh,material_ground)
     Grass.scatter(layer, art["parks"], tile, grass_mesh, grass_material)

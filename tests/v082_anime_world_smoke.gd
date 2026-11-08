@@ -91,6 +91,14 @@ func _run() -> void:
     if grove == null or not grove.material_override is ShaderMaterial or grove.multimesh.instance_count < 3:
         _fail("Commons trees did not receive batched painted canopy masses")
         return
+    var foliage := grove.get_parent().get_node_or_null("CommonsPaintedFoliageGPU") as MultiMeshInstance3D
+    if foliage == null or not foliage.material_override is ShaderMaterial \
+            or foliage.multimesh.instance_count != grove.multimesh.instance_count * 11:
+        _fail("Commons trees did not receive their painted foliage cards")
+        return
+    if foliage.multimesh.get_instance_color(0) != grove.multimesh.get_instance_color(0):
+        _fail("Foliage card did not inherit its crown palette")
+        return
     player.global_position = grove.to_global(grove.multimesh.get_instance_transform(0).origin) + Vector3(4, -4.4, 0)
     var camera := player.get_node("CameraPivot/Camera3D") as Camera3D
     camera.global_position = player.global_position + Vector3(2.9, 2.6, -3.9)
